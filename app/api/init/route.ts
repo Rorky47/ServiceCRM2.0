@@ -18,6 +18,7 @@ async function initData() {
   const plumberSite: Site = {
     id: "1",
     slug: "plumber",
+    domains: [],
     name: "ABC Plumbing",
     theme: {
       primaryColor: "#0066cc",
@@ -109,6 +110,7 @@ async function initData() {
   const electricianSite: Site = {
     id: "2",
     slug: "electrician",
+    domains: [],
     name: "XYZ Electrical",
     theme: {
       primaryColor: "#ff6600",

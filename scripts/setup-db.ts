@@ -68,6 +68,41 @@ async function setupDatabase() {
     await query(CREATE_TABLES);
     console.log("✅ Tables created/verified");
 
+    // Migrate existing tables (add new columns if they don't exist)
+    console.log("🔄 Migrating existing tables...");
+    try {
+      // Check if domains column exists in sites table
+      const sitesColumns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites' AND column_name = 'domains'
+      `);
+      
+      if (sitesColumns.rows.length === 0) {
+        console.log("  ➕ Adding 'domains' column to sites table...");
+        await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
+      }
+
+      // Check if seo column exists in sites table
+      const seoColumns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites' AND column_name = 'seo'
+      `);
+      
+      if (seoColumns.rows.length === 0) {
+        console.log("  ➕ Adding 'seo' column to sites table...");
+        await query("ALTER TABLE sites ADD COLUMN seo JSONB");
+      }
+
+      // Update existing sites to have empty domains array if null
+      await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      
+      console.log("✅ Table migration complete");
+    } catch (migrationError) {
+      console.log("  ⚠️  Migration check failed (this is OK if tables are new):", migrationError);
+    }
+
     // Migrate JSON files to database (if they exist)
     console.log("📦 Checking for JSON files to migrate...");
     const fs = require("fs/promises");
@@ -92,8 +127,15 @@ async function setupDatabase() {
           const existing = await query("SELECT id FROM sites WHERE slug = $1", [site.slug]);
           if (existing.rows.length === 0) {
             await query(
-              `INSERT INTO sites (id, slug, name, theme) VALUES ($1, $2, $3, $4)`,
-              [site.id, site.slug, site.name, JSON.stringify(site.theme)]
+              `INSERT INTO sites (id, slug, domains, name, theme, seo) VALUES ($1, $2, $3, $4, $5, $6)`,
+              [
+                site.id,
+                site.slug,
+                JSON.stringify(site.domains || []),
+                site.name,
+                JSON.stringify(site.theme),
+                site.seo ? JSON.stringify(site.seo) : null,
+              ]
             );
             console.log(`    ✅ Migrated site: ${site.name}`);
             migrated = true;
