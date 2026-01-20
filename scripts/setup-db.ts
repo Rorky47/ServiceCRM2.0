@@ -70,51 +70,51 @@ async function setupDatabase() {
 
     // Migrate existing tables (add new columns if they don't exist)
     console.log("🔄 Migrating existing tables...");
+    
+    // Add domains column - try directly, catch "already exists" error
     try {
-      // Check if domains column exists in sites table
-      const sitesColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'sites' AND column_name = 'domains'
-      `);
-      
-      if (sitesColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'domains' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
-        console.log("  ✅ 'domains' column added");
-      } else {
+      console.log("  ➕ Adding 'domains' column to sites table...");
+      await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
+      console.log("  ✅ 'domains' column added successfully");
+    } catch (domainsError: any) {
+      if (domainsError?.code === '42701') {
+        // Column already exists (duplicate_column)
         console.log("  ✓ 'domains' column already exists");
-      }
-
-      // Check if seo column exists in sites table
-      const seoColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'sites' AND column_name = 'seo'
-      `);
-      
-      if (seoColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'seo' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN seo JSONB");
-        console.log("  ✅ 'seo' column added");
       } else {
-        console.log("  ✓ 'seo' column already exists");
+        console.error("  ❌ Failed to add 'domains' column:", domainsError?.message || domainsError);
+        // Don't throw - continue with migration
       }
-
-      // Update existing sites to have empty domains array if null
-      try {
-        await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
-      } catch (updateError) {
-        // Ignore update errors if column doesn't exist yet
-        console.log("  ⚠️  Could not update domains (this is OK)");
-      }
-      
-      console.log("✅ Table migration complete");
-    } catch (migrationError: any) {
-      console.error("  ❌ Migration failed:", migrationError?.message || migrationError);
-      // Don't throw - try to continue anyway
-      console.log("  ⚠️  Continuing despite migration error...");
     }
+
+    // Add seo column - try directly, catch "already exists" error
+    try {
+      console.log("  ➕ Adding 'seo' column to sites table...");
+      await query("ALTER TABLE sites ADD COLUMN seo JSONB");
+      console.log("  ✅ 'seo' column added successfully");
+    } catch (seoError: any) {
+      if (seoError?.code === '42701') {
+        // Column already exists (duplicate_column)
+        console.log("  ✓ 'seo' column already exists");
+      } else {
+        console.error("  ❌ Failed to add 'seo' column:", seoError?.message || seoError);
+        // Don't throw - continue with migration
+      }
+    }
+
+    // Update existing sites to have empty domains array if null
+    try {
+      await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      console.log("  ✅ Updated existing sites with default domains");
+    } catch (updateError: any) {
+      // This is OK if the column doesn't exist yet or if there are no rows
+      if (updateError?.code === '42703') {
+        console.log("  ⚠️  Domains column not available for update (this is OK)");
+      } else {
+        console.log("  ⚠️  Could not update domains:", updateError?.message || updateError);
+      }
+    }
+    
+    console.log("✅ Table migration complete");
 
     // Migrate JSON files to database (if they exist)
     console.log("📦 Checking for JSON files to migrate...");

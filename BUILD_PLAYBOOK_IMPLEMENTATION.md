@@ -417,3 +417,124 @@ The ServiceCRM multi-site website builder is now fully implemented with:
 
 **Ready for testing and deployment!** 🎉
 
+
+
+  position: '18',
+  constraint: undefined,
+    at async o (/app/.next/server/chunks/523.js:1:25476)
+  internalPosition: undefined,
+  file: 'parse_relation.c',
+  internalQuery: undefined,
+  line: '3716',
+  where: undefined,
+  routine: 'errorMissingColumn'
+  schema: undefined,
+}
+  text: 'SELECT id, site_slug, name, email, message, created_at FROM leads WHERE site_slug = $1 ORDER BY created_at DESC',
+  duration: 4,
+  rows: 0
+}
+      at async o (/app/.next/server/chunks/523.js:1:25476)
+      at async d (/app/.next/server/app/admin/[slug]/leads/page.js:1:1904) {
+    length: 107,
+    severity: 'ERROR',
+    code: '42703',
+Connected to PostgreSQL database
+    detail: undefined,
+Connected to PostgreSQL database
+Query error {
+    hint: undefined,
+  text: 'SELECT id, slug, domains, name, theme, seo FROM sites WHERE slug = $1',
+  error: error: column "domains" does not exist
+    position: '18',
+      at /app/node_modules/pg-pool/index.js:45:11
+    internalPosition: undefined,
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async o (/app/.next/server/chunks/523.js:7:2552)
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3716',
+    routine: 'errorMissingColumn'
+  }
+}
+Error fetching site from database: error: column "domains" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async o (/app/.next/server/chunks/523.js:7:2552)
+    at async o (/app/.next/server/chunks/523.js:1:25476)
+    at async d (/app/.next/server/app/admin/[slug]/leads/page.js:1:1904) {
+  length: 107,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '18',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
+Query error {
+  text: 'SELECT id, slug, domains, name, theme, seo FROM sites WHERE slug = $1',
+  error: error: column "domains" does not exist
+      at /app/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async o (/app/.next/server/chunks/523.js:7:2552)
+      at async o (/app/.next/server/chunks/523.js:1:25476)
+      at async c (/app/.next/server/chunks/364.js:1:595) {
+    length: 107,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '18',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3716',
+    routine: 'errorMissingColumn'
+  }
+}
+Error fetching site from database: error: column "domains" does not exist
+    at /app/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async o (/app/.next/server/chunks/523.js:7:2552)
+    at async o (/app/.next/server/chunks/523.js:1:25476)
+    at async c (/app/.next/server/chunks/364.js:1:595) {
+  length: 107,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '18',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3716',
+  routine: 'errorMissingColumn'
+}
