@@ -35,41 +35,28 @@ Railway provides the connection string in the database service:
 - Copy the `DATABASE_URL` from PostgreSQL service
 - Add it to your Next.js service environment variables
 
-### 4. Initialize Database Tables
+### 4. Automatic Database Setup
 
-After setting `DATABASE_URL`, initialize the database schema:
+**✅ Database setup runs automatically on every deploy!**
 
-**Option A: Via Railway CLI**
+The application automatically:
+- Creates database tables (if they don't exist)
+- Migrates JSON files to database (if any exist)
+- Runs before the app starts
+
+**No manual setup required!** Just set `DATABASE_URL` and deploy.
+
+**Manual setup (if needed):**
 ```bash
-railway run npm run db:init
-```
+# Via Railway CLI
+railway run npm run db:setup
 
-**Option B: Via Railway Dashboard**
-1. Go to your Next.js service
-2. Open "Deployments"
-3. Create a new deployment with command: `npm run db:init`
-
-**Option C: Local (if connected to Railway DB)**
-```bash
-# Set DATABASE_URL locally
+# Or locally
 export DATABASE_URL="postgresql://..."
-npm run db:init
+npm run db:setup
 ```
 
-### 5. Migrate Existing Data (Optional)
-
-If you have existing JSON files and want to migrate:
-
-```bash
-# Set DATABASE_URL first
-export DATABASE_URL="postgresql://..."
-npm run db:migrate
-```
-
-This will:
-- Read all JSON files from `data/` folder
-- Insert them into PostgreSQL
-- Keep JSON files intact (backup)
+**Note**: The setup script is idempotent - safe to run multiple times. It won't duplicate data.
 
 ## Database Schema
 
