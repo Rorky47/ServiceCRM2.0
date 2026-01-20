@@ -2,3 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Rich Text Editor Styles */
+.rich-text-content {
+  line-height: 1.6;
+}
+
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content h3 {
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.rich-text-content h1 {
+  font-size: 2em;
+}
+
+.rich-text-content h2 {
+  font-size: 1.5em;
+}
+
+.rich-text-content h3 {
+  font-size: 1.25em;
+}
+
+.rich-text-content ul,
+.rich-text-content ol {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.rich-text-content li {
+  margin-bottom: 0.5em;
+}
+
+.rich-text-content p {
+  margin-bottom: 1em;
+}
+
+.rich-text-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.rich-text-content a:hover {
+  color: #1d4ed8;
+}
+
+.rich-text-content strong {
+  font-weight: bold;
+}
+
+.rich-text-content em {
+  font-style: italic;
+}
+
+.rich-text-content u {
+  text-decoration: underline;
+}
+

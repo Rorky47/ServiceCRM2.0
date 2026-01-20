@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Section } from "@/types";
+import RichTextEditor from "@/components/RichTextEditor";
+import RichTextDisplay from "@/components/RichTextDisplay";
 
 interface ContactSectionProps {
   section: Extract<Section, { type: "contact" }>;
@@ -90,22 +92,22 @@ export default function ContactSection({ section, isAdmin, onUpdate, siteSlug }:
           </h2>
         )}
         {editing === "description" ? (
-          <textarea
+          <RichTextEditor
             value={tempValue}
-            onChange={(e) => setTempValue(e.target.value)}
+            onChange={setTempValue}
             onBlur={handleSave}
-            className="w-full text-lg mb-8 bg-white p-4 rounded min-h-[100px]"
-            autoFocus
+            placeholder="Enter description..."
+            className="mb-8"
           />
         ) : (
-          <p
+          <div
             onClick={() => handleClick("description", section.content.description)}
             className={`text-lg text-center mb-8 ${
               isAdmin ? "cursor-pointer hover:bg-gray-200 p-2 rounded" : ""
             }`}
           >
-            {section.content.description}
-          </p>
+            <RichTextDisplay content={section.content.description} />
+          </div>
         )}
         {!isAdmin && (
           <form onSubmit={handleSubmit} className="space-y-6">

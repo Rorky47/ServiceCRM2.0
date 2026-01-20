@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Section } from "@/types";
+import RichTextEditor from "@/components/RichTextEditor";
+import RichTextDisplay from "@/components/RichTextDisplay";
 
 interface ServicesSectionProps {
   section: Extract<Section, { type: "services" }>;
@@ -497,16 +499,15 @@ export default function ServicesSection({ section, isAdmin, onUpdate }: Services
 
                 {/* Service Description */}
                 {editing === `service-desc-${index}` ? (
-                  <textarea
+                  <RichTextEditor
                     value={tempValue}
-                    onChange={(e) => setTempValue(e.target.value)}
+                    onChange={setTempValue}
                     onBlur={handleSave}
-                    className="w-full bg-white p-2 rounded min-h-[60px]"
                     placeholder="Service description (optional)"
-                    autoFocus
+                    className="mb-2"
                   />
                 ) : (
-                  <p
+                  <div
                     onClick={() => {
                       if (isAdmin) {
                         setEditing(`service-desc-${index}`);
@@ -517,8 +518,12 @@ export default function ServicesSection({ section, isAdmin, onUpdate }: Services
                       isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded min-h-[40px]" : ""
                     }`}
                   >
-                    {item.description || (isAdmin ? "Click to add description..." : "")}
-                  </p>
+                    {item.description ? (
+                      <RichTextDisplay content={item.description} />
+                    ) : (
+                      isAdmin && <span className="text-gray-400">Click to add description...</span>
+                    )}
+                  </div>
                 )}
 
                 {/* Service Button */}

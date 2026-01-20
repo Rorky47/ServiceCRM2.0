@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Section } from "@/types";
+import RichTextEditor from "@/components/RichTextEditor";
+import RichTextDisplay from "@/components/RichTextDisplay";
 
 interface TextImageSectionProps {
   section: Extract<Section, { type: "textImage" }>;
@@ -100,22 +102,22 @@ export default function TextImageSection({ section, isAdmin, onUpdate }: TextIma
             </h2>
           )}
           {editing === "text" ? (
-            <textarea
+            <RichTextEditor
               value={tempValue}
-              onChange={(e) => setTempValue(e.target.value)}
+              onChange={setTempValue}
               onBlur={handleSave}
-              className="w-full text-lg bg-gray-100 p-4 rounded min-h-[200px]"
-              autoFocus
+              placeholder="Enter your content here..."
+              className="mb-4"
             />
           ) : (
-            <p
+            <div
               onClick={() => handleClick("text", section.content.text)}
               className={`text-lg leading-relaxed ${
                 isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded" : ""
               }`}
             >
-              {section.content.text}
-            </p>
+              <RichTextDisplay content={section.content.text} />
+            </div>
           )}
         </div>
         <div className="relative h-96">
