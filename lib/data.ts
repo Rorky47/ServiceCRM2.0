@@ -201,7 +201,7 @@ export async function saveSite(site: Site): Promise<void> {
         [
           site.id,
           site.slug,
-          JSON.stringify(site.domains || []),
+          site.domains || [], // Pass array directly, pg library handles it
           site.name,
           JSON.stringify(site.theme),
           site.seo ? JSON.stringify(site.seo) : null,
@@ -441,7 +441,7 @@ export async function saveUser(user: User): Promise<void> {
          VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
          ON CONFLICT (email) 
          DO UPDATE SET role = $3, site_slugs = $4, updated_at = CURRENT_TIMESTAMP`,
-        [user.id, user.email, user.role, JSON.stringify(user.siteSlugs || [])]
+        [user.id, user.email, user.role, user.siteSlugs || []] // Pass array directly, pg library handles it
       );
     } catch (error) {
       console.error("Error saving user to database:", error);

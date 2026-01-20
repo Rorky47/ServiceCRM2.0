@@ -144,7 +144,7 @@ async function setupDatabase() {
               [
                 site.id,
                 site.slug,
-                JSON.stringify(site.domains || []),
+                site.domains || [], // Pass array directly, pg library handles it
                 site.name,
                 JSON.stringify(site.theme),
                 site.seo ? JSON.stringify(site.seo) : null,
