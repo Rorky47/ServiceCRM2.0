@@ -1,6 +1,7 @@
 {
   "id": "2",
   "slug": "electrician",
+  "domains": [],
   "name": "XYZ Electrical",
   "theme": {
     "primaryColor": "#ff6600",

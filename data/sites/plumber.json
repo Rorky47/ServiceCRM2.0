@@ -1,6 +1,7 @@
 {
   "id": "1",
   "slug": "plumber",
+  "domains": [],
   "name": "ABC Plumbing",
   "theme": {
     "primaryColor": "#0066cc",

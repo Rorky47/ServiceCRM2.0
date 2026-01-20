@@ -6,8 +6,10 @@ const CREATE_TABLES = `
   CREATE TABLE IF NOT EXISTS sites (
     id VARCHAR(255) PRIMARY KEY,
     slug VARCHAR(255) UNIQUE NOT NULL,
+    domains TEXT[] DEFAULT '{}',
     name VARCHAR(255) NOT NULL,
     theme JSONB NOT NULL,
+    seo JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
@@ -33,10 +35,21 @@ const CREATE_TABLES = `
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
+  -- Users table
+  CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('siteOwner', 'superAdmin')),
+    site_slugs TEXT[] DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
+
   -- Create indexes for better performance
   CREATE INDEX IF NOT EXISTS idx_pages_site_slug ON pages(site_slug);
   CREATE INDEX IF NOT EXISTS idx_leads_site_slug ON leads(site_slug);
   CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_sites_domains ON sites USING GIN(domains);
 `;
 
 async function setupDatabase() {

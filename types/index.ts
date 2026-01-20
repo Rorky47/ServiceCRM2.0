@@ -52,16 +52,25 @@ export type Section =
 export type Site = {
   id: string;
   slug: string;
+  domains: string[]; // One or more domains
   name: string;
   theme: {
     primaryColor: string;
     font: string;
+    logo?: string;
+    favicon?: string;
+  };
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
   };
 };
 
 export type Page = {
   siteSlug: string;
   slug: string;
+  title?: string; // Optional page title
   sections: Section[];
 };
 
@@ -72,5 +81,12 @@ export type Lead = {
   email: string;
   message: string;
   createdAt: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  role: "siteOwner" | "superAdmin";
+  siteSlugs?: string[]; // For siteOwner role
 };
 
