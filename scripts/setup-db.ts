@@ -75,32 +75,45 @@ async function setupDatabase() {
       const sitesColumns = await query(`
         SELECT column_name 
         FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'domains'
+        WHERE table_schema = 'public' AND table_name = 'sites' AND column_name = 'domains'
       `);
       
       if (sitesColumns.rows.length === 0) {
         console.log("  ➕ Adding 'domains' column to sites table...");
         await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
+        console.log("  ✅ 'domains' column added");
+      } else {
+        console.log("  ✓ 'domains' column already exists");
       }
 
       // Check if seo column exists in sites table
       const seoColumns = await query(`
         SELECT column_name 
         FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'seo'
+        WHERE table_schema = 'public' AND table_name = 'sites' AND column_name = 'seo'
       `);
       
       if (seoColumns.rows.length === 0) {
         console.log("  ➕ Adding 'seo' column to sites table...");
         await query("ALTER TABLE sites ADD COLUMN seo JSONB");
+        console.log("  ✅ 'seo' column added");
+      } else {
+        console.log("  ✓ 'seo' column already exists");
       }
 
       // Update existing sites to have empty domains array if null
-      await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      try {
+        await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      } catch (updateError) {
+        // Ignore update errors if column doesn't exist yet
+        console.log("  ⚠️  Could not update domains (this is OK)");
+      }
       
       console.log("✅ Table migration complete");
-    } catch (migrationError) {
-      console.log("  ⚠️  Migration check failed (this is OK if tables are new):", migrationError);
+    } catch (migrationError: any) {
+      console.error("  ❌ Migration failed:", migrationError?.message || migrationError);
+      // Don't throw - try to continue anyway
+      console.log("  ⚠️  Continuing despite migration error...");
     }
 
     // Migrate JSON files to database (if they exist)
