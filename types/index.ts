@@ -6,6 +6,11 @@ export type Section =
         headline: string;
         subheadline: string;
         image: string;
+        backgroundColor?: string;
+        ctaButton?: {
+          text: string;
+          link: string;
+        };
       };
     }
   | {

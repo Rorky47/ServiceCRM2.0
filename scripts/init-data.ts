@@ -32,6 +32,10 @@ async function initData() {
           headline: "Expert Plumbing Services",
           subheadline: "24/7 Emergency Service Available",
           image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1920",
+          ctaButton: {
+            text: "Get Free Quote",
+            link: "#contact",
+          },
         },
       },
       {
@@ -91,6 +95,10 @@ async function initData() {
           headline: "Professional Electrical Services",
           subheadline: "Licensed & Insured Electricians",
           image: "https://images.unsplash.com/photo-1621905252472-7af326b6f5de?w=1920",
+          ctaButton: {
+            text: "Schedule Service",
+            link: "#contact",
+          },
         },
       },
       {
