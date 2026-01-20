@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import { Site, Page } from "@/types";
-
-const DATA_DIR = path.join(process.cwd(), "data");
+import { saveSite, savePage } from "@/lib/data";
 
 async function initData() {
-  // Create directories
-  await fs.mkdir(path.join(DATA_DIR, "sites"), { recursive: true });
-  await fs.mkdir(path.join(DATA_DIR, "pages"), { recursive: true });
-  await fs.mkdir(path.join(DATA_DIR, "leads"), { recursive: true });
+  // If using database, tables should already be created
+  // If using JSON files, create directories
+  if (!process.env.DATABASE_URL) {
+    const fs = require("fs/promises");
+    const path = require("path");
+    const DATA_DIR = path.join(process.cwd(), "data");
+    await fs.mkdir(path.join(DATA_DIR, "sites"), { recursive: true });
+    await fs.mkdir(path.join(DATA_DIR, "pages"), { recursive: true });
+    await fs.mkdir(path.join(DATA_DIR, "leads"), { recursive: true });
+  }
 
   // Site 1: Plumber
   const plumberSite: Site = {
@@ -188,25 +191,13 @@ async function initData() {
     ],
   };
 
-  // Save sites
-  await fs.writeFile(
-    path.join(DATA_DIR, "sites", "plumber.json"),
-    JSON.stringify(plumberSite, null, 2)
-  );
-  await fs.writeFile(
-    path.join(DATA_DIR, "sites", "electrician.json"),
-    JSON.stringify(electricianSite, null, 2)
-  );
+  // Save sites (works with both database and JSON files)
+  await saveSite(plumberSite);
+  await saveSite(electricianSite);
 
-  // Save pages
-  await fs.writeFile(
-    path.join(DATA_DIR, "pages", "plumber-home.json"),
-    JSON.stringify(plumberPage, null, 2)
-  );
-  await fs.writeFile(
-    path.join(DATA_DIR, "pages", "electrician-home.json"),
-    JSON.stringify(electricianPage, null, 2)
-  );
+  // Save pages (works with both database and JSON files)
+  await savePage(plumberPage);
+  await savePage(electricianPage);
 
   return { success: true, message: "Sample data initialized!" };
 }
@@ -214,14 +205,13 @@ async function initData() {
 export async function GET(request: NextRequest) {
   try {
     // Check if data already exists
-    try {
-      await fs.access(path.join(DATA_DIR, "sites", "plumber.json"));
+    const { getSite } = await import("@/lib/data");
+    const existingSite = await getSite("plumber");
+    if (existingSite) {
       return NextResponse.json({
         success: false,
         message: "Data already initialized. Sites exist. Use POST to force re-initialization.",
       });
-    } catch {
-      // Data doesn't exist, proceed with initialization
     }
 
     const result = await initData();
