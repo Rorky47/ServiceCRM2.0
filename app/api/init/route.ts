@@ -45,12 +45,40 @@ async function initData() {
         content: {
           title: "Our Services",
           items: [
-            "Emergency Repairs",
-            "Drain Cleaning",
-            "Water Heater Installation",
-            "Pipe Repair & Replacement",
-            "Leak Detection",
-            "Bathroom Remodeling",
+            {
+              title: "Emergency Repairs",
+              description: "24/7 emergency plumbing services available",
+              image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=400",
+              button: {
+                text: "Learn More",
+                link: "/service/emergency-repairs",
+              },
+            },
+            {
+              title: "Drain Cleaning",
+              description: "Professional drain cleaning and unclogging services",
+              image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400",
+              button: {
+                text: "Get Quote",
+                link: "/service/drain-cleaning",
+              },
+            },
+            {
+              title: "Water Heater Installation",
+              description: "Expert water heater installation and repair",
+            },
+            {
+              title: "Pipe Repair & Replacement",
+              description: "Complete pipe repair and replacement services",
+            },
+            {
+              title: "Leak Detection",
+              description: "Advanced leak detection technology",
+            },
+            {
+              title: "Bathroom Remodeling",
+              description: "Full bathroom remodeling and renovation",
+            },
           ],
         },
       },
@@ -108,12 +136,35 @@ async function initData() {
         content: {
           title: "What We Do",
           items: [
-            "Electrical Repairs",
-            "Panel Upgrades",
-            "Lighting Installation",
-            "Outlet & Switch Installation",
-            "Wiring & Rewiring",
-            "Generator Installation",
+            {
+              title: "Electrical Repairs",
+              description: "Fast and reliable electrical repair services",
+              image: "https://images.unsplash.com/photo-1621905252472-7af326b6f5de?w=400",
+              button: {
+                text: "Schedule Service",
+                link: "/service/electrical-repairs",
+              },
+            },
+            {
+              title: "Panel Upgrades",
+              description: "Electrical panel upgrades for safety and efficiency",
+            },
+            {
+              title: "Lighting Installation",
+              description: "Professional indoor and outdoor lighting installation",
+            },
+            {
+              title: "Outlet & Switch Installation",
+              description: "Safe outlet and switch installation and repair",
+            },
+            {
+              title: "Wiring & Rewiring",
+              description: "Complete home wiring and rewiring services",
+            },
+            {
+              title: "Generator Installation",
+              description: "Backup generator installation and maintenance",
+            },
           ],
         },
       },

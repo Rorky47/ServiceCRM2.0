@@ -18,7 +18,17 @@ export type Section =
       type: "services";
       content: {
         title: string;
-        items: string[];
+        backgroundColor?: string;
+        items: Array<{
+          title: string;
+          description?: string;
+          image?: string;
+          color?: string;
+          button?: {
+            text: string;
+            link: string;
+          };
+        }>;
       };
     }
   | {
