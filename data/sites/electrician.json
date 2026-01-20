@@ -1,0 +1,9 @@
+{
+  "id": "2",
+  "slug": "electrician",
+  "name": "XYZ Electrical",
+  "theme": {
+    "primaryColor": "#ff6600",
+    "font": "system-ui"
+  }
+}

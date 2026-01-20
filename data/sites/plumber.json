@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "slug": "plumber",
+  "name": "ABC Plumbing",
+  "theme": {
+    "primaryColor": "#0066cc",
+    "font": "system-ui"
+  }
+}

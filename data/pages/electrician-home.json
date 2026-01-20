@@ -1,0 +1,47 @@
+{
+  "siteSlug": "electrician",
+  "slug": "home",
+  "sections": [
+    {
+      "id": "1",
+      "type": "hero",
+      "content": {
+        "headline": "Professional Electrical Services",
+        "subheadline": "Licensed & Insured Electricians",
+        "image": "https://images.unsplash.com/photo-1621905252472-7af326b6f5de?w=1920"
+      }
+    },
+    {
+      "id": "2",
+      "type": "services",
+      "content": {
+        "title": "What We Do",
+        "items": [
+          "Electrical Repairs",
+          "Panel Upgrades",
+          "Lighting Installation",
+          "Outlet & Switch Installation",
+          "Wiring & Rewiring",
+          "Generator Installation"
+        ]
+      }
+    },
+    {
+      "id": "3",
+      "type": "textImage",
+      "content": {
+        "title": "Trusted Electricians",
+        "text": "We've been serving the community for 15 years with quality electrical work. All our electricians are licensed, insured, and committed to safety. We offer competitive pricing and guarantee our workmanship.",
+        "image": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800"
+      }
+    },
+    {
+      "id": "4",
+      "type": "contact",
+      "content": {
+        "title": "Contact Us",
+        "description": "Call us for all your electrical needs!"
+      }
+    }
+  ]
+}
