@@ -150,6 +150,24 @@ export default function FooterEditor({
                 placeholder="https://example.com/logo.png or leave empty for theme logo"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Logo Size
+              </label>
+              <select
+                value={footer.logoSize || "medium"}
+                onChange={(e) => updateFooter({ logoSize: e.target.value as "small" | "medium" | "large" | "xlarge" })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              >
+                <option value="small">Small (32-40px)</option>
+                <option value="medium">Medium (48-56px) - Default</option>
+                <option value="large">Large (64-80px)</option>
+                <option value="xlarge">Extra Large (80-96px)</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Logo height on mobile / desktop
+              </p>
+            </div>
           </div>
         )}
       </div>

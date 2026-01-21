@@ -37,7 +37,17 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                 alt={site.name}
                 width={120}
                 height={48}
-                className="h-12 w-auto mb-4"
+                className={`w-auto mb-4 ${
+                  footer.logoSize === "small"
+                    ? "h-8 sm:h-10"
+                    : footer.logoSize === "medium"
+                    ? "h-12 sm:h-14"
+                    : footer.logoSize === "large"
+                    ? "h-16 sm:h-20"
+                    : footer.logoSize === "xlarge"
+                    ? "h-20 sm:h-24"
+                    : "h-12 sm:h-14" // default medium
+                }`}
                 unoptimized
               />
             </div>

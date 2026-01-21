@@ -92,6 +92,7 @@ export type Site = {
     showLogo: boolean;
     // If logo is not set, will use theme.logo
     logo?: string;
+    logoSize?: "small" | "medium" | "large" | "xlarge";
     navigationLinks?: Array<{
       label: string;
       url: string;
@@ -109,6 +110,7 @@ export type Site = {
     showLogo: boolean;
     // If logo is not set, will use theme.logo
     logo?: string;
+    logoSize?: "small" | "medium" | "large" | "xlarge";
     copyrightText?: string;
     columns?: Array<{
       title: string;

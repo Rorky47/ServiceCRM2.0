@@ -48,7 +48,17 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                   alt={site.name}
                   width={120}
                   height={40}
-                  className="h-8 sm:h-10 w-auto"
+                  className={`w-auto ${
+                    header.logoSize === "small"
+                      ? "h-6 sm:h-8"
+                      : header.logoSize === "medium"
+                      ? "h-10 sm:h-12"
+                      : header.logoSize === "large"
+                      ? "h-12 sm:h-16"
+                      : header.logoSize === "xlarge"
+                      ? "h-16 sm:h-20"
+                      : "h-10 sm:h-12" // default medium
+                  }`}
                   unoptimized
                 />
               </Link>
