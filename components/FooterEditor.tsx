@@ -23,6 +23,7 @@ interface SocialLink {
 interface FooterData {
   showLogo: boolean;
   logo?: string;
+  logoSize?: "small" | "medium" | "large" | "xlarge";
   copyrightText?: string;
   columns?: FooterColumn[];
   socialLinks?: SocialLink[];
