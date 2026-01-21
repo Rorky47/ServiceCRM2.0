@@ -13,6 +13,10 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
   if (!site.header) return null;
 
   const header = site.header;
+  // Use header logo if set, otherwise use theme logo
+  const logo = header.logo || site.theme?.logo;
+  // Use header social links if set, otherwise use site social links
+  const socialLinks = header.socialLinks || site.socialLinks;
   
   // Helper to determine if a link should use Next.js Link or regular anchor
   const getLinkProps = (url: string) => {
@@ -50,13 +54,13 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          {header.showLogo && header.logo && (
+          {header.showLogo && logo && (
             <div className="flex-shrink-0">
               <Link href="/">
-                {header.logo.startsWith("data:") ? (
-                  <img src={header.logo} alt={site.name} className="h-10 w-auto" />
+                {logo.startsWith("data:") ? (
+                  <img src={logo} alt={site.name} className="h-10 w-auto" />
                 ) : (
-                  <Image src={header.logo} alt={site.name} width={120} height={40} className="h-10 w-auto" unoptimized />
+                  <Image src={logo} alt={site.name} width={120} height={40} className="h-10 w-auto" unoptimized />
                 )}
               </Link>
             </div>
@@ -109,9 +113,9 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
             )}
 
             {/* Social Links */}
-            {header.socialLinks && header.socialLinks.length > 0 && (
+            {socialLinks && socialLinks.length > 0 && (
               <div className="hidden md:flex items-center space-x-2">
-                {header.socialLinks.map((social, index) => (
+                {socialLinks.map((social, index) => (
                   <a
                     key={index}
                     href={social.url}
@@ -213,9 +217,9 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                 {header.phoneNumber}
               </a>
             )}
-            {header.socialLinks && header.socialLinks.length > 0 && (
+            {socialLinks && socialLinks.length > 0 && (
               <div className="flex items-center space-x-3 pt-2">
-                {header.socialLinks.map((social, index) => (
+                {socialLinks.map((social, index) => (
                   <a
                     key={index}
                     href={social.url}

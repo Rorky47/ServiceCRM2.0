@@ -13,6 +13,10 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
   if (!site.footer) return null;
 
   const footer = site.footer;
+  // Use footer logo if set, otherwise use theme logo
+  const logo = footer.logo || site.theme?.logo;
+  // Use footer social links if set, otherwise use site social links
+  const socialLinks = footer.socialLinks || site.socialLinks;
   const socialPlatformIcons: Record<string, string> = {
     facebook: "📘",
     twitter: "🐦",
@@ -33,12 +37,12 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo Column */}
-          {footer.showLogo && footer.logo && (
+          {footer.showLogo && logo && (
             <div className="col-span-1">
-              {footer.logo.startsWith("data:") ? (
-                <img src={footer.logo} alt={site.name} className="h-12 w-auto mb-4" />
+              {logo.startsWith("data:") ? (
+                <img src={logo} alt={site.name} className="h-12 w-auto mb-4" />
               ) : (
-                <Image src={footer.logo} alt={site.name} width={120} height={48} className="h-12 w-auto mb-4" unoptimized />
+                <Image src={logo} alt={site.name} width={120} height={48} className="h-12 w-auto mb-4" unoptimized />
               )}
             </div>
           )}
@@ -94,9 +98,9 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
               {footer.copyrightText}
             </p>
           )}
-          {footer.socialLinks && footer.socialLinks.length > 0 && (
+          {socialLinks && socialLinks.length > 0 && (
             <div className="flex items-center space-x-4">
-              {footer.socialLinks.map((social, index) => (
+              {socialLinks.map((social, index) => (
                 <a
                   key={index}
                   href={social.url}

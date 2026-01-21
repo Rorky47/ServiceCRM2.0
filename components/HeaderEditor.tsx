@@ -30,21 +30,16 @@ interface HeaderData {
 interface HeaderEditorProps {
   header: HeaderData;
   onChange: (header: HeaderData) => void;
-  onImageUpload: (file: File, type: "logo") => Promise<string>;
-  uploadingLogo: boolean;
+  themeLogo?: string; // Logo from theme settings
 }
 
 export default function HeaderEditor({
   header,
   onChange,
-  onImageUpload,
-  uploadingLogo,
+  themeLogo,
 }: HeaderEditorProps) {
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
-  const [newSocialPlatform, setNewSocialPlatform] = useState<SocialLink["platform"]>("facebook");
-  const [newSocialUrl, setNewSocialUrl] = useState("");
-  const [newSocialLabel, setNewSocialLabel] = useState("");
 
   const updateHeader = (updates: Partial<HeaderData>) => {
     onChange({ ...header, ...updates });
@@ -66,33 +61,6 @@ export default function HeaderEditor({
     updateHeader({ navigationLinks: links });
   };
 
-  const addSocialLink = () => {
-    if (newSocialUrl.trim()) {
-      updateHeader({
-        socialLinks: [
-          ...(header.socialLinks || []),
-          { platform: newSocialPlatform, url: newSocialUrl, label: newSocialLabel || undefined },
-        ],
-      });
-      setNewSocialUrl("");
-      setNewSocialLabel("");
-    }
-  };
-
-  const removeSocialLink = (index: number) => {
-    const links = [...(header.socialLinks || [])];
-    links.splice(index, 1);
-    updateHeader({ socialLinks: links });
-  };
-
-  const socialPlatformIcons: Record<SocialLink["platform"], string> = {
-    facebook: "📘",
-    twitter: "🐦",
-    instagram: "📷",
-    linkedin: "💼",
-    youtube: "📺",
-    custom: "🔗",
-  };
 
   return (
     <div className="space-y-6">
@@ -111,47 +79,46 @@ export default function HeaderEditor({
         </div>
         {header.showLogo && (
           <div className="space-y-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>Note:</strong> The logo from Theme settings will be used by default. You can override it with a custom URL below.
+              </p>
+            </div>
+            {themeLogo && !header.logo && (
+              <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded">
+                <span className="text-sm text-gray-600">Using theme logo:</span>
+                {themeLogo.startsWith("data:") ? (
+                  <img src={themeLogo} alt="Theme logo" className="h-12 w-auto object-contain" />
+                ) : (
+                  <Image src={themeLogo} alt="Theme logo" width={48} height={48} className="h-12 w-auto object-contain" unoptimized />
+                )}
+              </div>
+            )}
             {header.logo && (
               <div className="flex items-center space-x-4">
                 {header.logo.startsWith("data:") ? (
-                  <img src={header.logo} alt="Logo preview" className="h-16 w-auto object-contain border border-gray-200 rounded" />
+                  <img src={header.logo} alt="Custom logo preview" className="h-16 w-auto object-contain border border-gray-200 rounded" />
                 ) : (
-                  <Image src={header.logo} alt="Logo preview" width={64} height={64} className="h-16 w-auto object-contain border border-gray-200 rounded" unoptimized />
+                  <Image src={header.logo} alt="Custom logo preview" width={64} height={64} className="h-16 w-auto object-contain border border-gray-200 rounded" unoptimized />
                 )}
                 <button
                   onClick={() => updateHeader({ logo: undefined })}
                   className="text-red-600 hover:text-red-800 text-sm"
                 >
-                  Remove
+                  Remove Custom Logo (use theme logo)
                 </button>
               </div>
             )}
-            <div className="flex items-center space-x-3">
-              <label className="cursor-pointer">
-                <span className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block">
-                  {uploadingLogo ? "Uploading..." : "Upload Logo"}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = await onImageUpload(file, "logo");
-                      updateHeader({ logo: url });
-                    }
-                  }}
-                  className="hidden"
-                  disabled={uploadingLogo}
-                />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Custom Logo URL (optional - leave empty to use theme logo)
               </label>
-              <span className="text-sm text-gray-500">or</span>
               <input
                 type="text"
                 value={header.logo || ""}
-                onChange={(e) => updateHeader({ logo: e.target.value })}
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
-                placeholder="https://example.com/logo.png"
+                onChange={(e) => updateHeader({ logo: e.target.value || undefined })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                placeholder="https://example.com/logo.png or leave empty for theme logo"
               />
             </div>
           </div>
@@ -213,64 +180,12 @@ export default function HeaderEditor({
         />
       </div>
 
-      {/* Social Links */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium mb-4">Social Media Links</h3>
-        <div className="space-y-3">
-          {header.socialLinks?.map((link, index) => (
-            <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded">
-              <span className="text-xl">{socialPlatformIcons[link.platform]}</span>
-              <span className="flex-1 font-medium capitalize">{link.platform}</span>
-              {link.label && <span className="text-sm text-gray-500">({link.label})</span>}
-              <span className="text-sm text-gray-500 truncate max-w-xs">{link.url}</span>
-              <button
-                onClick={() => removeSocialLink(index)}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <div className="space-y-2">
-            <div className="flex space-x-2">
-              <select
-                value={newSocialPlatform}
-                onChange={(e) => setNewSocialPlatform(e.target.value as SocialLink["platform"])}
-                className="border border-gray-300 rounded-lg px-3 py-2"
-              >
-                <option value="facebook">Facebook</option>
-                <option value="twitter">Twitter</option>
-                <option value="instagram">Instagram</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="youtube">YouTube</option>
-                <option value="custom">Custom</option>
-              </select>
-              <input
-                type="text"
-                value={newSocialUrl}
-                onChange={(e) => setNewSocialUrl(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
-                placeholder="https://facebook.com/yourpage"
-                onKeyPress={(e) => e.key === "Enter" && addSocialLink()}
-              />
-              <button
-                onClick={addSocialLink}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Add
-              </button>
-            </div>
-            {newSocialPlatform === "custom" && (
-              <input
-                type="text"
-                value={newSocialLabel}
-                onChange={(e) => setNewSocialLabel(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                placeholder="Custom label (optional)"
-              />
-            )}
-          </div>
-        </div>
+      {/* Social Links Info */}
+      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+        <h3 className="font-medium mb-2">Social Media Links</h3>
+        <p className="text-sm text-gray-600">
+          Social media links are managed in the <strong>General</strong> tab. They will be shared between the header and footer.
+        </p>
       </div>
 
       {/* Get Quote Button */}

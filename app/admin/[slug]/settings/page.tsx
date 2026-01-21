@@ -23,8 +23,10 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
-  const [uploadingHeaderLogo, setUploadingHeaderLogo] = useState(false);
-  const [uploadingFooterLogo, setUploadingFooterLogo] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<Site["socialLinks"]>([]);
+  const [newSocialPlatform, setNewSocialPlatform] = useState<"facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom">("facebook");
+  const [newSocialUrl, setNewSocialUrl] = useState("");
+  const [newSocialLabel, setNewSocialLabel] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     primaryColor: "#0066cc",
@@ -84,6 +86,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
         });
         setHeaderData(data.header || { showLogo: false, showGetQuoteButton: false });
         setFooterData(data.footer || { showLogo: false });
+        setSocialLinks(data.socialLinks || []);
       }
     } catch (error) {
       console.error("Error fetching site:", error);
@@ -93,12 +96,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     }
   };
 
-  const handleImageUpload = async (file: File, type: "logo" | "favicon" | "headerLogo" | "footerLogo"): Promise<string> => {
-    const setUploading = 
-      type === "logo" ? setUploadingLogo : 
-      type === "favicon" ? setUploadingFavicon :
-      type === "headerLogo" ? setUploadingHeaderLogo :
-      setUploadingFooterLogo;
+  const handleImageUpload = async (file: File, type: "logo" | "favicon"): Promise<string> => {
+    const setUploading = type === "logo" ? setUploadingLogo : setUploadingFavicon;
     setUploading(true);
     try {
       const formData = new FormData();
@@ -111,12 +110,10 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
       if (response.ok) {
         const data = await response.json();
-        if (type === "logo" || type === "favicon") {
-          setFormData((prev) => ({
-            ...prev,
-            [type]: data.url,
-          }));
-        }
+        setFormData((prev) => ({
+          ...prev,
+          [type]: data.url,
+        }));
         showToast(`${type} uploaded successfully`, "success");
         return data.url;
       } else {
@@ -164,6 +161,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           enabled: formData.emailNotifications,
           leadEmail: formData.leadEmail || undefined,
         },
+        socialLinks: (socialLinks && socialLinks.length > 0) ? socialLinks : undefined,
         header: headerData,
         footer: footerData,
       };
@@ -325,6 +323,105 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                 />
                 <p className="mt-1 text-xs text-gray-500">Site slug cannot be changed</p>
               </div>
+
+              {/* Social Links */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-medium mb-4">Social Media Links</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  These links will be shared between the header and footer. You can override them individually in the Header and Footer tabs if needed.
+                </p>
+                <div className="space-y-3">
+                  {(socialLinks || []).map((link, index) => (
+                    <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded">
+                      <span className="text-xl">
+                        {link.platform === "facebook" ? "📘" :
+                         link.platform === "twitter" ? "🐦" :
+                         link.platform === "instagram" ? "📷" :
+                         link.platform === "linkedin" ? "💼" :
+                         link.platform === "youtube" ? "📺" : "🔗"}
+                      </span>
+                      <span className="flex-1 font-medium capitalize">{link.platform}</span>
+                      {link.label && <span className="text-sm text-gray-500">({link.label})</span>}
+                      <span className="text-sm text-gray-500 truncate max-w-xs">{link.url}</span>
+                      <button
+                        onClick={() => {
+                          const newLinks = [...(socialLinks || [])];
+                          newLinks.splice(index, 1);
+                          setSocialLinks(newLinks);
+                        }}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  <div className="space-y-2">
+                    <div className="flex space-x-2">
+                      <select
+                        value={newSocialPlatform}
+                        onChange={(e) => setNewSocialPlatform(e.target.value as any)}
+                        className="border border-gray-300 rounded-lg px-3 py-2"
+                      >
+                        <option value="facebook">Facebook</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                      <input
+                        type="text"
+                        value={newSocialUrl}
+                        onChange={(e) => setNewSocialUrl(e.target.value)}
+                        placeholder="https://facebook.com/yourpage"
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter" && newSocialUrl.trim()) {
+                            setSocialLinks([
+                              ...(socialLinks || []),
+                              {
+                                platform: newSocialPlatform,
+                                url: newSocialUrl.trim(),
+                                label: newSocialLabel || undefined,
+                              },
+                            ]);
+                            setNewSocialUrl("");
+                            setNewSocialLabel("");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (newSocialUrl.trim()) {
+                            setSocialLinks([
+                              ...(socialLinks || []),
+                              {
+                                platform: newSocialPlatform,
+                                url: newSocialUrl.trim(),
+                                label: newSocialLabel || undefined,
+                              },
+                            ]);
+                            setNewSocialUrl("");
+                            setNewSocialLabel("");
+                          }
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {newSocialPlatform === "custom" && (
+                      <input
+                        type="text"
+                        value={newSocialLabel}
+                        onChange={(e) => setNewSocialLabel(e.target.value)}
+                        placeholder="Custom label (optional)"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -478,8 +575,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
             <HeaderEditor
               header={headerData || { showLogo: false, showGetQuoteButton: false }}
               onChange={setHeaderData}
-              onImageUpload={async (file: File) => handleImageUpload(file, "headerLogo")}
-              uploadingLogo={uploadingHeaderLogo}
+              themeLogo={formData.logo}
             />
           </div>
         )}
@@ -491,8 +587,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
             <FooterEditor
               footer={footerData || { showLogo: false }}
               onChange={setFooterData}
-              onImageUpload={async (file: File) => handleImageUpload(file, "footerLogo")}
-              uploadingLogo={uploadingFooterLogo}
+              themeLogo={formData.logo}
             />
           </div>
         )}

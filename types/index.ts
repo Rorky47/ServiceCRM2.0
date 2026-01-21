@@ -49,6 +49,12 @@ export type Section =
       };
     };
 
+export type SocialLink = {
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+  url: string;
+  label?: string;
+};
+
 export type Site = {
   id: string;
   slug: string;
@@ -78,19 +84,19 @@ export type Site = {
     head?: string;
     footer?: string;
   };
+  // Shared social links used by both header and footer
+  socialLinks?: SocialLink[];
   header?: {
     showLogo: boolean;
+    // If logo is not set, will use theme.logo
     logo?: string;
     navigationLinks?: Array<{
       label: string;
       url: string;
     }>;
     phoneNumber?: string;
-    socialLinks?: Array<{
-      platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
-      url: string;
-      label?: string;
-    }>;
+    // If socialLinks is not set, will use site.socialLinks
+    socialLinks?: SocialLink[];
     showGetQuoteButton: boolean;
     getQuoteButtonText?: string;
     getQuoteButtonLink?: string;
@@ -99,6 +105,7 @@ export type Site = {
   };
   footer?: {
     showLogo: boolean;
+    // If logo is not set, will use theme.logo
     logo?: string;
     copyrightText?: string;
     columns?: Array<{
@@ -108,11 +115,8 @@ export type Site = {
         url: string;
       }>;
     }>;
-    socialLinks?: Array<{
-      platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
-      url: string;
-      label?: string;
-    }>;
+    // If socialLinks is not set, will use site.socialLinks
+    socialLinks?: SocialLink[];
     backgroundColor?: string;
     textColor?: string;
   };
