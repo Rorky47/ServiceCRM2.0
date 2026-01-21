@@ -21,6 +21,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: site.seo?.title || site.name,
     description: site.seo?.description || `${site.name} - Professional service business`,
     keywords: site.seo?.keywords,
+    icons: site.theme?.favicon ? {
+      icon: site.theme.favicon,
+      shortcut: site.theme.favicon,
+      apple: site.theme.favicon,
+    } : undefined,
+    other: {
+      ...(site.theme?.favicon && { 'apple-touch-icon': site.theme.favicon }),
+    },
   };
 }
 
