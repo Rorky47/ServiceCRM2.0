@@ -38,6 +38,8 @@ export type Section =
         title: string;
         text: string;
         image: string;
+        titleColor?: string;
+        textColor?: string;
       };
     }
   | {

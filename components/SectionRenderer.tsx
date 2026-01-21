@@ -11,16 +11,17 @@ interface SectionRendererProps {
   isAdmin: boolean;
   onUpdate: (section: Section) => void;
   siteSlug: string;
+  themeColor?: string;
 }
 
-export default function SectionRenderer({ section, isAdmin, onUpdate, siteSlug }: SectionRendererProps) {
+export default function SectionRenderer({ section, isAdmin, onUpdate, siteSlug, themeColor }: SectionRendererProps) {
   switch (section.type) {
     case "hero":
       return <HeroSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     case "services":
       return <ServicesSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     case "textImage":
-      return <TextImageSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
+      return <TextImageSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} themeColor={themeColor} />;
     case "contact":
       return <ContactSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     default:

@@ -29,7 +29,7 @@ interface PageRendererProps {
   isAdmin: boolean;
 }
 
-function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug }: { section: Section; isAdmin: boolean; onUpdate: (section: Section) => void; onDelete: (sectionId: string) => void; siteSlug: string }) {
+function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug, themeColor }: { section: Section; isAdmin: boolean; onUpdate: (section: Section) => void; onDelete: (sectionId: string) => void; siteSlug: string; themeColor?: string }) {
   const {
     attributes,
     listeners,
@@ -76,6 +76,7 @@ function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug }: { s
         isAdmin={isAdmin}
         onUpdate={onUpdate}
         siteSlug={siteSlug}
+        themeColor={themeColor}
       />
     </div>
   );
