@@ -12,6 +12,22 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
   if (!site.header) return null;
 
   const header = site.header;
+  
+  // Helper to determine if a link should use Next.js Link or regular anchor
+  const getLinkProps = (url: string) => {
+    const isAnchor = url.startsWith("#");
+    const isExternal = url.startsWith("http://") || url.startsWith("https://");
+    const isMailto = url.startsWith("mailto:");
+    const isTel = url.startsWith("tel:");
+    
+    // Use anchor tags for special protocols and anchor links
+    if (isAnchor || isExternal || isMailto || isTel) {
+      return { useAnchor: true, href: url, external: isExternal };
+    }
+    
+    // For relative paths, use Next.js Link but disable prefetching to avoid 404s
+    return { useAnchor: false, href: url, prefetch: false };
+  };
   const socialPlatformIcons: Record<string, string> = {
     facebook: "📘",
     twitter: "🐦",
@@ -46,16 +62,35 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-6 flex-1 justify-center">
-            {header.navigationLinks?.map((link, index) => (
-              <Link
-                key={index}
-                href={link.url}
-                className="hover:opacity-80 transition-opacity"
-                style={{ color: header.textColor || "#000000" }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {header.navigationLinks?.map((link, index) => {
+              const linkProps = getLinkProps(link.url);
+              
+              if (linkProps.useAnchor) {
+                return (
+                  <a
+                    key={index}
+                    href={linkProps.href}
+                    className="hover:opacity-80 transition-opacity"
+                    style={{ color: header.textColor || "#000000" }}
+                    {...(linkProps.external && { target: "_blank", rel: "noopener noreferrer" })}
+                  >
+                    {link.label}
+                  </a>
+                );
+              }
+              
+              return (
+                <Link
+                  key={index}
+                  href={linkProps.href}
+                  prefetch={linkProps.prefetch !== false}
+                  className="hover:opacity-80 transition-opacity"
+                  style={{ color: header.textColor || "#000000" }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Side: Phone, Social, CTA */}
@@ -90,18 +125,39 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
             )}
 
             {/* Get Quote Button */}
-            {header.showGetQuoteButton && header.getQuoteButtonLink && (
-              <Link
-                href={header.getQuoteButtonLink}
-                className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
-                style={{
-                  backgroundColor: site.theme.primaryColor || "#0066cc",
-                  color: "#ffffff",
-                }}
-              >
-                {header.getQuoteButtonText || "Get Quote"}
-              </Link>
-            )}
+            {header.showGetQuoteButton && header.getQuoteButtonLink && (() => {
+              const linkProps = getLinkProps(header.getQuoteButtonLink);
+              
+              if (linkProps.useAnchor) {
+                return (
+                  <a
+                    href={linkProps.href}
+                    className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                    style={{
+                      backgroundColor: site.theme.primaryColor || "#0066cc",
+                      color: "#ffffff",
+                    }}
+                    {...(linkProps.external && { target: "_blank", rel: "noopener noreferrer" })}
+                  >
+                    {header.getQuoteButtonText || "Get Quote"}
+                  </a>
+                );
+              }
+              
+              return (
+                <Link
+                  href={linkProps.href}
+                  prefetch={linkProps.prefetch !== false}
+                  className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                  style={{
+                    backgroundColor: site.theme.primaryColor || "#0066cc",
+                    color: "#ffffff",
+                  }}
+                >
+                  {header.getQuoteButtonText || "Get Quote"}
+                </Link>
+              );
+            })()}
 
             {/* Mobile Menu Button */}
             <button
@@ -117,16 +173,35 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
         {/* Mobile Navigation */}
         <div className="md:hidden pb-4">
           <nav className="flex flex-col space-y-2">
-            {header.navigationLinks?.map((link, index) => (
-              <Link
-                key={index}
-                href={link.url}
-                className="hover:opacity-80 transition-opacity py-2"
-                style={{ color: header.textColor || "#000000" }}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {header.navigationLinks?.map((link, index) => {
+              const linkProps = getLinkProps(link.url);
+              
+              if (linkProps.useAnchor) {
+                return (
+                  <a
+                    key={index}
+                    href={linkProps.href}
+                    className="hover:opacity-80 transition-opacity py-2"
+                    style={{ color: header.textColor || "#000000" }}
+                    {...(linkProps.external && { target: "_blank", rel: "noopener noreferrer" })}
+                  >
+                    {link.label}
+                  </a>
+                );
+              }
+              
+              return (
+                <Link
+                  key={index}
+                  href={linkProps.href}
+                  prefetch={linkProps.prefetch !== false}
+                  className="hover:opacity-80 transition-opacity py-2"
+                  style={{ color: header.textColor || "#000000" }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             {header.phoneNumber && (
               <a
                 href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}

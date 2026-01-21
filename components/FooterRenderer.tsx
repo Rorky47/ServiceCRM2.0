@@ -49,17 +49,37 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                 {column.title}
               </h3>
               <ul className="space-y-2">
-                {column.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    <Link
-                      href={link.url}
-                      className="hover:opacity-80 transition-opacity text-sm"
-                      style={{ color: footer.textColor || "#ffffff" }}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {column.links.map((link, linkIndex) => {
+                  const isAnchor = link.url.startsWith("#");
+                  const isExternal = link.url.startsWith("http://") || link.url.startsWith("https://");
+                  
+                  if (isAnchor || isExternal) {
+                    return (
+                      <li key={linkIndex}>
+                        <a
+                          href={link.url}
+                          className="hover:opacity-80 transition-opacity text-sm"
+                          style={{ color: footer.textColor || "#ffffff" }}
+                          {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    );
+                  }
+                  
+                  return (
+                    <li key={linkIndex}>
+                      <Link
+                        href={link.url}
+                        className="hover:opacity-80 transition-opacity text-sm"
+                        style={{ color: footer.textColor || "#ffffff" }}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

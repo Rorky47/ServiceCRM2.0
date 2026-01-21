@@ -56,11 +56,23 @@ export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProp
           if (element.textContent) {
             script.textContent = element.textContent;
           }
-          if (element.getAttribute("type")) {
-            script.type = element.getAttribute("type") || "text/javascript";
+          const scriptType = element.getAttribute("type");
+          if (scriptType) {
+            script.type = scriptType;
+          } else {
+            // Default to text/javascript for inline scripts to avoid module syntax errors
+            script.type = "text/javascript";
           }
+          // Copy other attributes
+          Array.from(element.attributes).forEach((attr) => {
+            if (attr.name !== "src" && attr.name !== "type" && attr.name !== "textContent") {
+              script.setAttribute(attr.name, attr.value);
+            }
+          });
           // Check if script already exists
-          const existingScript = document.querySelector(`script[src="${script.src}"]`);
+          const existingScript = script.src 
+            ? document.querySelector(`script[src="${script.src}"]`)
+            : null;
           if (!existingScript) {
             document.head.appendChild(script);
           }
