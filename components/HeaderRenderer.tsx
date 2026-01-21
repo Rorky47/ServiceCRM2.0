@@ -118,43 +118,50 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
             )}
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 -mr-2"
-              style={{ color: header.textColor || "#000000" }}
-              aria-label="Menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            {(header.navigationLinks && header.navigationLinks.length > 0) && (
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 -mr-2 rounded-md hover:bg-black/10 active:bg-black/20 transition-colors touch-manipulation"
+                style={{ color: header.textColor || "#000000" }}
+                aria-label="Menu"
+                aria-expanded={mobileMenuOpen}
               >
-                {mobileMenuOpen ? (
-                  <path d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {mobileMenuOpen ? (
+                    <path d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-opacity-20 mt-2 pt-4">
-            <nav className="flex flex-col space-y-3">
+          <div 
+            className="md:hidden pb-4 mt-2 pt-4 animate-slide-down"
+            style={{ 
+              borderTop: `1px solid ${header.textColor ? `${header.textColor}30` : 'rgba(0,0,0,0.1)'}` 
+            }}
+          >
+            <nav className="flex flex-col space-y-2">
               {header.navigationLinks?.map((link, index) => (
                 <SmartLink
                   key={index}
                   href={link.url}
                   siteSlug={site.slug}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="hover:opacity-80 transition-opacity py-2 text-base"
+                  className="hover:opacity-80 transition-opacity py-2.5 px-2 rounded-md hover:bg-black/5 active:bg-black/10 text-base font-medium touch-manipulation"
                   style={{ color: header.textColor || "#000000" }}
                   prefetch={false}
                 >
@@ -164,7 +171,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
               {header.phoneNumber && (
                 <a
                   href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}
-                  className="hover:opacity-80 transition-opacity py-2 text-base"
+                  className="hover:opacity-80 transition-opacity py-2.5 px-2 rounded-md hover:bg-black/5 active:bg-black/10 text-base font-medium touch-manipulation"
                   style={{ color: header.textColor || "#000000" }}
                 >
                   📞 {header.phoneNumber}
@@ -175,7 +182,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                   href={header.getQuoteButtonLink}
                   siteSlug={site.slug}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="inline-block px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm text-center"
+                  className="inline-block px-4 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm text-center mt-2 touch-manipulation"
                   style={{
                     backgroundColor: site.theme.primaryColor || "#0066cc",
                     color: "#ffffff",
@@ -186,14 +193,14 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                 </SmartLink>
               )}
               {socialLinks && socialLinks.length > 0 && (
-                <div className="flex items-center space-x-4 pt-2">
+                <div className="flex items-center space-x-4 pt-2 border-t border-opacity-10 mt-2" style={{ borderColor: header.textColor ? `${header.textColor}30` : 'rgba(0,0,0,0.1)' }}>
                   {socialLinks.map((social, index) => (
                     <a
                       key={index}
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:opacity-80 transition-opacity"
+                      className="hover:opacity-80 transition-opacity p-2 rounded-md hover:bg-black/5 touch-manipulation"
                       title={social.label || social.platform}
                       style={{ color: header.textColor || "#000000" }}
                     >
