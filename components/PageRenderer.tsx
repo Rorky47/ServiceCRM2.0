@@ -29,7 +29,7 @@ interface PageRendererProps {
   isAdmin: boolean;
 }
 
-function SortableSection({ section, isAdmin, onUpdate, siteSlug }: { section: Section; isAdmin: boolean; onUpdate: (section: Section) => void; siteSlug: string }) {
+function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug }: { section: Section; isAdmin: boolean; onUpdate: (section: Section) => void; onDelete: (sectionId: string) => void; siteSlug: string }) {
   const {
     attributes,
     listeners,
@@ -48,15 +48,27 @@ function SortableSection({ section, isAdmin, onUpdate, siteSlug }: { section: Se
   return (
     <div ref={setNodeRef} style={style}>
       {isAdmin && (
-        <div className="bg-gray-200 p-2 flex items-center gap-2">
+        <div className="bg-gray-200 p-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing text-gray-600"
+            >
+              ⋮⋮ Drag
+            </button>
+            <span className="text-sm text-gray-600">{section.type}</span>
+          </div>
           <button
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing text-gray-600"
+            onClick={() => {
+              if (confirm(`Are you sure you want to delete this ${section.type} section?`)) {
+                onDelete(section.id);
+              }
+            }}
+            className="text-red-600 hover:text-red-800 text-sm font-medium px-2 py-1 rounded hover:bg-red-50"
           >
-            ⋮⋮ Drag
+            Delete
           </button>
-          <span className="text-sm text-gray-600">{section.type}</span>
         </div>
       )}
       <SectionRenderer
@@ -133,6 +145,32 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
       }
     } catch (error) {
       console.error("Error saving page:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteSection = async (sectionId: string) => {
+    const updatedPage = { ...page, sections: page.sections.filter((s) => s.id !== sectionId) };
+    setPage(updatedPage);
+
+    // Save to server
+    setSaving(true);
+    try {
+      const response = await fetch("/api/pages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPage),
+      });
+      if (!response.ok) {
+        console.error("Failed to save page");
+        // Revert on error
+        setPage(page);
+      }
+    } catch (error) {
+      console.error("Error saving page:", error);
+      // Revert on error
+      setPage(page);
     } finally {
       setSaving(false);
     }
@@ -255,6 +293,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
                     section={section}
                     isAdmin={isAdmin}
                     onUpdate={handleSectionUpdate}
+                    onDelete={handleDeleteSection}
                     siteSlug={site.slug}
                   />
                 ))}
