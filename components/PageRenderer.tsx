@@ -90,6 +90,8 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
   const [page, setPage] = useState(safePage);
   const [saving, setSaving] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
+  const [mobilePreview, setMobilePreview] = useState(false);
+  const [mobileWidth, setMobileWidth] = useState<375 | 390 | 428>(375); // Common mobile widths
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -261,18 +263,72 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
   };
 
   return (
-    <div
-      style={{
-        fontFamily: site.theme.font || "system-ui",
-        color: site.theme.primaryColor || "#000",
-      }}
-    >
+    <>
       {isAdmin && (
-        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-black p-2 text-center z-40 text-xs sm:text-sm">
-          ADMIN MODE {saving && " - Saving..."}
+        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-black p-2 z-50 text-xs sm:text-sm">
+          <div className="flex items-center justify-between max-w-7xl mx-auto px-4">
+            <div className="flex items-center gap-3">
+              <span className="font-semibold">ADMIN MODE</span>
+              {saving && <span className="text-xs">- Saving...</span>}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setMobilePreview(!mobilePreview)}
+                className={`px-3 py-1 rounded text-xs font-medium transition-colors touch-manipulation ${
+                  mobilePreview
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-white/90 text-gray-800 hover:bg-white"
+                }`}
+                title="Toggle mobile preview"
+              >
+                📱 {mobilePreview ? "Mobile" : "Desktop"}
+              </button>
+              {mobilePreview && (
+                <select
+                  value={mobileWidth}
+                  onChange={(e) => setMobileWidth(Number(e.target.value) as 375 | 390 | 428)}
+                  className="px-2 py-1 rounded text-xs bg-white/90 text-gray-800 border border-gray-300 touch-manipulation"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <option value={375}>iPhone SE (375px)</option>
+                  <option value={390}>iPhone 12/13 (390px)</option>
+                  <option value={428}>iPhone 14 Pro Max (428px)</option>
+                </select>
+              )}
+            </div>
+          </div>
         </div>
       )}
-      {isAdmin ? (
+      <div
+        className={mobilePreview && isAdmin ? "flex justify-center bg-gray-200 min-h-screen pt-12" : ""}
+        style={{
+          fontFamily: site.theme.font || "system-ui",
+          color: site.theme.primaryColor || "#000",
+        }}
+      >
+        <div
+          className={mobilePreview && isAdmin ? "w-full transition-all duration-300 shadow-2xl bg-white relative" : "w-full"}
+          style={
+            mobilePreview && isAdmin
+              ? {
+                  maxWidth: `${mobileWidth}px`,
+                  marginTop: "20px",
+                  marginBottom: "20px",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                  border: "4px solid #3b82f6",
+                }
+              : {}
+          }
+        >
+          {mobilePreview && isAdmin && (
+            <div className="absolute top-0 left-0 right-0 bg-blue-600 text-white text-center py-1 text-xs font-semibold z-10">
+              Mobile Preview - {mobileWidth}px
+            </div>
+          )}
+          <div className={mobilePreview && isAdmin ? "pt-6" : ""}>
+          {isAdmin ? (
         <>
           {(!page.sections || page.sections.length === 0) ? (
             <div className="min-h-screen flex items-center justify-center p-8">
@@ -386,7 +442,10 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
           </div>
         </div>
       )}
-    </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
