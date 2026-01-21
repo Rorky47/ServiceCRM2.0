@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface MediaPageProps {
   params: { slug: string };
@@ -104,11 +105,22 @@ export default function MediaPage({ params }: MediaPageProps) {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {uploadedImages.map((url, index) => (
               <div key={index} className="relative group">
-                <img
-                  src={url}
-                  alt={`Upload ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
-                />
+                {url.startsWith('data:') ? (
+                  <img
+                    src={url}
+                    alt={`Upload ${index + 1}`}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                ) : (
+                  <Image
+                    src={url}
+                    alt={`Upload ${index + 1}`}
+                    width={200}
+                    height={128}
+                    className="w-full h-32 object-cover rounded-lg"
+                    unoptimized
+                  />
+                )}
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity rounded-lg flex items-center justify-center">
                   <button
                     onClick={() => {

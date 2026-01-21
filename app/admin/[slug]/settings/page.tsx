@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Toast from "@/components/Toast";
 import { Site } from "@/types";
 
@@ -42,6 +43,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
   useEffect(() => {
     fetchSite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
@@ -383,7 +385,11 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                 <div className="space-y-3">
                   {formData.logo && (
                     <div className="flex items-center space-x-4">
-                      <img src={formData.logo} alt="Logo preview" className="h-16 w-auto object-contain border border-gray-200 rounded" />
+                      {formData.logo.startsWith('data:') ? (
+                        <img src={formData.logo} alt="Logo preview" className="h-16 w-auto object-contain border border-gray-200 rounded" />
+                      ) : (
+                        <Image src={formData.logo} alt="Logo preview" width={64} height={64} className="h-16 w-auto object-contain border border-gray-200 rounded" unoptimized />
+                      )}
                       <button
                         onClick={() => setFormData({ ...formData, logo: "" })}
                         className="text-red-600 hover:text-red-800 text-sm"
@@ -426,7 +432,11 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                 <div className="space-y-3">
                   {formData.favicon && (
                     <div className="flex items-center space-x-4">
-                      <img src={formData.favicon} alt="Favicon preview" className="h-8 w-8 object-contain border border-gray-200 rounded" />
+                      {formData.favicon.startsWith('data:') ? (
+                        <img src={formData.favicon} alt="Favicon preview" className="h-8 w-8 object-contain border border-gray-200 rounded" />
+                      ) : (
+                        <Image src={formData.favicon} alt="Favicon preview" width={32} height={32} className="h-8 w-8 object-contain border border-gray-200 rounded" unoptimized />
+                      )}
                       <button
                         onClick={() => setFormData({ ...formData, favicon: "" })}
                         className="text-red-600 hover:text-red-800 text-sm"
