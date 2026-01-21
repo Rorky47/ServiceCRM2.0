@@ -194,9 +194,16 @@ async function setupDatabase() {
           const data = await fs.readFile(filePath, "utf8");
           const site = JSON.parse(data);
           
-          // Check if site already exists
-          const existing = await query("SELECT id FROM sites WHERE slug = $1", [site.slug]);
-          if (existing.rows.length === 0) {
+          // Check if site already exists by ID (primary key) or slug
+          try {
+            const existingById = await query("SELECT id FROM sites WHERE id = $1", [site.id]);
+            const existingBySlug = await query("SELECT id FROM sites WHERE slug = $1", [site.slug]);
+            
+            if (existingById.rows.length > 0 || existingBySlug.rows.length > 0) {
+              console.log(`    ⏭️  Site already exists: ${site.name} (skipping)`);
+              continue;
+            }
+            
             await query(
               `INSERT INTO sites (id, slug, domains, name, theme, seo) VALUES ($1, $2, $3, $4, $5, $6)`,
               [
@@ -210,6 +217,13 @@ async function setupDatabase() {
             );
             console.log(`    ✅ Migrated site: ${site.name}`);
             migrated = true;
+          } catch (error) {
+            // If it's a duplicate key error, the site already exists - that's fine
+            if (error instanceof Error && error.message.includes("duplicate key")) {
+              console.log(`    ⏭️  Site already exists: ${site.name} (skipping)`);
+            } else {
+              console.error(`    ❌ Error migrating site ${site.name}:`, error instanceof Error ? error.message : String(error));
+            }
           }
         }
       }
