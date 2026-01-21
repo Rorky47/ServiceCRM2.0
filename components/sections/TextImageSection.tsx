@@ -10,9 +10,10 @@ interface TextImageSectionProps {
   section: Extract<Section, { type: "textImage" }>;
   isAdmin: boolean;
   onUpdate: (section: Section) => void;
+  siteSlug: string;
 }
 
-export default function TextImageSection({ section, isAdmin, onUpdate }: TextImageSectionProps) {
+export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug }: TextImageSectionProps) {
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
 
