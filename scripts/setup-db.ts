@@ -95,6 +95,54 @@ async function setupDatabase() {
         await query("ALTER TABLE sites ADD COLUMN seo JSONB");
       }
 
+      // Check if header column exists
+      const headerColumns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites' AND column_name = 'header'
+      `);
+      
+      if (headerColumns.rows.length === 0) {
+        console.log("  ➕ Adding 'header' column to sites table...");
+        await query("ALTER TABLE sites ADD COLUMN header JSONB");
+      }
+
+      // Check if footer column exists
+      const footerColumns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites' AND column_name = 'footer'
+      `);
+      
+      if (footerColumns.rows.length === 0) {
+        console.log("  ➕ Adding 'footer' column to sites table...");
+        await query("ALTER TABLE sites ADD COLUMN footer JSONB");
+      }
+
+      // Check if analytics column exists
+      const analyticsColumns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites' AND column_name = 'analytics'
+      `);
+      
+      if (analyticsColumns.rows.length === 0) {
+        console.log("  ➕ Adding 'analytics' column to sites table...");
+        await query("ALTER TABLE sites ADD COLUMN analytics JSONB");
+      }
+
+      // Check if notifications column exists
+      const notificationsColumns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites' AND column_name = 'notifications'
+      `);
+      
+      if (notificationsColumns.rows.length === 0) {
+        console.log("  ➕ Adding 'notifications' column to sites table...");
+        await query("ALTER TABLE sites ADD COLUMN notifications JSONB");
+      }
+
       // Update existing sites to have empty domains array if null
       await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
       

@@ -26,12 +26,24 @@ if (!USE_DATABASE) {
 export async function getSite(slug: string): Promise<Site | null> {
   if (USE_DATABASE) {
     try {
-      const result = await query(
-        "SELECT id, slug, domains, name, theme, seo FROM sites WHERE slug = $1",
-        [slug]
-      );
+      // First, try to get all columns including new ones
+      let result;
+      try {
+        result = await query(
+          "SELECT id, slug, name, theme, seo, header, footer, domains FROM sites WHERE slug = $1",
+          [slug]
+        );
+      } catch {
+        // If that fails, try without new columns
+        result = await query(
+          "SELECT id, slug, name, theme, seo FROM sites WHERE slug = $1",
+          [slug]
+        );
+      }
+      
       if (result.rows.length === 0) return null;
       const row = result.rows[0];
+      
       return {
         id: row.id,
         slug: row.slug,
@@ -39,6 +51,8 @@ export async function getSite(slug: string): Promise<Site | null> {
         name: row.name,
         theme: row.theme || { primaryColor: "#0066cc", font: "system-ui" },
         seo: row.seo || undefined,
+        header: row.header || undefined,
+        footer: row.footer || undefined,
       };
     } catch (error) {
       console.error("Error fetching site from database:", error);
@@ -69,9 +83,14 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
 
   if (USE_DATABASE) {
     try {
+      // First ensure domains column exists
+      try {
+        await query("ALTER TABLE sites ADD COLUMN IF NOT EXISTS domains TEXT[] DEFAULT '{}'");
+      } catch {}
+      
       // Search for site where domain matches
       const result = await query(
-        "SELECT id, slug, domains, name, theme, seo FROM sites WHERE $1 = ANY(domains)",
+        "SELECT id, slug, domains, name, theme, seo, header, footer FROM sites WHERE $1 = ANY(domains)",
         [normalizedHost]
       );
       if (result.rows.length === 0) return null;
@@ -83,6 +102,8 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
         name: row.name,
         theme: row.theme || { primaryColor: "#0066cc", font: "system-ui" },
         seo: row.seo || undefined,
+        header: row.header || undefined,
+        footer: row.footer || undefined,
       };
     } catch (error) {
       console.error("Error fetching site by domain from database:", error);
@@ -113,7 +134,13 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
 export async function getAllSites(): Promise<Site[]> {
   if (USE_DATABASE) {
     try {
-      const result = await query("SELECT id, slug, domains, name, theme, seo FROM sites ORDER BY name");
+      // Try to get all columns, fallback if some don't exist
+      let result;
+      try {
+        result = await query("SELECT id, slug, domains, name, theme, seo, header, footer FROM sites ORDER BY name");
+      } catch {
+        result = await query("SELECT id, slug, name, theme, seo FROM sites ORDER BY name");
+      }
       return result.rows.map((row) => ({
         id: row.id,
         slug: row.slug,
@@ -121,6 +148,8 @@ export async function getAllSites(): Promise<Site[]> {
         name: row.name,
         theme: row.theme || { primaryColor: "#0066cc", font: "system-ui" },
         seo: row.seo || undefined,
+        header: row.header || undefined,
+        footer: row.footer || undefined,
       }));
     } catch (error) {
       console.error("Error fetching sites from database:", error);
@@ -152,18 +181,55 @@ export async function getAllSites(): Promise<Site[]> {
 export async function saveSite(site: Site): Promise<void> {
   if (USE_DATABASE) {
     try {
+      // Check and add missing columns
+      const columns = await query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'sites'
+      `);
+      const existingColumns = columns.rows.map((r: any) => r.column_name);
+      
+      if (!existingColumns.includes('domains')) {
+        await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
+      }
+      if (!existingColumns.includes('header')) {
+        await query("ALTER TABLE sites ADD COLUMN header JSONB");
+      }
+      if (!existingColumns.includes('footer')) {
+        await query("ALTER TABLE sites ADD COLUMN footer JSONB");
+      }
+      if (!existingColumns.includes('analytics')) {
+        await query("ALTER TABLE sites ADD COLUMN analytics JSONB");
+      }
+      if (!existingColumns.includes('notifications')) {
+        await query("ALTER TABLE sites ADD COLUMN notifications JSONB");
+      }
+      
       await query(
-        `INSERT INTO sites (id, slug, domains, name, theme, seo, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+        `INSERT INTO sites (id, slug, domains, name, theme, seo, header, footer, analytics, notifications, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
          ON CONFLICT (slug) 
-         DO UPDATE SET domains = $3, name = $4, theme = $5, seo = $6, updated_at = CURRENT_TIMESTAMP`,
+         DO UPDATE SET 
+           domains = $3, 
+           name = $4, 
+           theme = $5, 
+           seo = $6, 
+           header = $7, 
+           footer = $8, 
+           analytics = $9, 
+           notifications = $10, 
+           updated_at = CURRENT_TIMESTAMP`,
         [
           site.id,
           site.slug,
-          site.domains || [], // Pass array directly, not stringified
+          site.domains || [],
           site.name,
           JSON.stringify(site.theme),
           site.seo ? JSON.stringify(site.seo) : null,
+          site.header ? JSON.stringify(site.header) : null,
+          site.footer ? JSON.stringify(site.footer) : null,
+          site.analytics ? JSON.stringify(site.analytics) : null,
+          site.notifications ? JSON.stringify(site.notifications) : null,
         ]
       );
     } catch (error) {
