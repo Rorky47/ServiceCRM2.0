@@ -72,6 +72,7 @@ function SortableSection({ section, isAdmin, onUpdate, siteSlug }: { section: Se
 export default function PageRenderer({ site, page: initialPage, isAdmin }: PageRendererProps) {
   const [page, setPage] = useState(initialPage);
   const [saving, setSaving] = useState(false);
+  const [showAddSectionModal, setShowAddSectionModal] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -137,6 +138,80 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
     }
   };
 
+  const handleAddSection = (sectionType: Section["type"]) => {
+    let newSection: Section;
+
+    switch (sectionType) {
+      case "hero":
+        newSection = {
+          id: `section-${Date.now()}`,
+          type: "hero",
+          content: {
+            headline: "Welcome",
+            subheadline: "Add your subheadline here",
+            image: "",
+          },
+        };
+        break;
+      case "services":
+        newSection = {
+          id: `section-${Date.now()}`,
+          type: "services",
+          content: {
+            title: "Our Services",
+            items: [],
+          },
+        };
+        break;
+      case "textImage":
+        newSection = {
+          id: `section-${Date.now()}`,
+          type: "textImage",
+          content: {
+            title: "Section Title",
+            text: "Add your text here",
+            image: "",
+          },
+        };
+        break;
+      case "contact":
+        newSection = {
+          id: `section-${Date.now()}`,
+          type: "contact",
+          content: {
+            title: "Contact Us",
+            description: "Get in touch with us",
+          },
+        };
+        break;
+      default:
+        return;
+    }
+
+    const updatedPage = { ...page, sections: [...page.sections, newSection] };
+    setPage(updatedPage);
+    setShowAddSectionModal(false);
+
+    // Save to server
+    setSaving(true);
+    fetch("/api/pages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedPage),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.error("Failed to save page");
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving page:", error);
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
+
   return (
     <div
       style={{
@@ -150,26 +225,59 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
         </div>
       )}
       {isAdmin ? (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={page.sections.map((s) => s.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {page.sections.map((section) => (
-              <SortableSection
-                key={section.id}
-                section={section}
-                isAdmin={isAdmin}
-                onUpdate={handleSectionUpdate}
-                siteSlug={site.slug}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+        <>
+          {page.sections.length === 0 ? (
+            <div className="min-h-screen flex items-center justify-center p-8">
+              <div className="text-center max-w-md">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">No sections yet</h2>
+                <p className="text-gray-600 mb-6">Add your first section to get started</p>
+                <button
+                  onClick={() => setShowAddSectionModal(true)}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 text-lg font-medium"
+                >
+                  + Add Section
+                </button>
+              </div>
+            </div>
+          ) : (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={page.sections.map((s) => s.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {page.sections.map((section) => (
+                  <SortableSection
+                    key={section.id}
+                    section={section}
+                    isAdmin={isAdmin}
+                    onUpdate={handleSectionUpdate}
+                    siteSlug={site.slug}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          )}
+          {page.sections.length > 0 && (
+            <div className="fixed bottom-4 right-4 flex flex-col gap-2">
+              <button
+                onClick={() => setShowAddSectionModal(true)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 font-medium"
+              >
+                + Add Section
+              </button>
+              <a
+                href={`/admin/${site.slug}/leads`}
+                className="bg-gray-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-gray-700 text-center"
+              >
+                View Leads
+              </a>
+            </div>
+          )}
+        </>
       ) : (
         page.sections.map((section) => (
           <SectionRenderer
@@ -181,14 +289,52 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
           />
         ))
       )}
-      {isAdmin && (
-        <div className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg">
-          <a
-            href={`/admin/${site.slug}/leads`}
-            className="text-white underline"
-          >
-            View Leads
-          </a>
+
+      {/* Add Section Modal */}
+      {showAddSectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold mb-4">Add New Section</h2>
+            <p className="text-gray-600 mb-6">Choose a section type to add to your page</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleAddSection("hero")}
+                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+              >
+                <div className="font-semibold text-gray-900">Hero</div>
+                <div className="text-sm text-gray-500 mt-1">Large banner with headline</div>
+              </button>
+              <button
+                onClick={() => handleAddSection("services")}
+                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+              >
+                <div className="font-semibold text-gray-900">Services</div>
+                <div className="text-sm text-gray-500 mt-1">Service cards grid</div>
+              </button>
+              <button
+                onClick={() => handleAddSection("textImage")}
+                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+              >
+                <div className="font-semibold text-gray-900">Text & Image</div>
+                <div className="text-sm text-gray-500 mt-1">Content with image</div>
+              </button>
+              <button
+                onClick={() => handleAddSection("contact")}
+                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+              >
+                <div className="font-semibold text-gray-900">Contact</div>
+                <div className="text-sm text-gray-500 mt-1">Contact form</div>
+              </button>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowAddSectionModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
