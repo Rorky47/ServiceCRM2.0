@@ -25,8 +25,14 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
       return { useAnchor: true, href: url, external: isExternal };
     }
     
-    // For relative paths, use Next.js Link but disable prefetching to avoid 404s
-    return { useAnchor: false, href: url, prefetch: false };
+    // For relative paths that don't start with /site/, use anchor tags to avoid prefetching
+    // This prevents 404 errors when the route doesn't exist
+    if (url.startsWith("/") && !url.startsWith("/site/")) {
+      return { useAnchor: true, href: url, external: false };
+    }
+    
+    // For site routes, use Next.js Link but disable prefetching
+    return { useAnchor: false, href: url };
   };
   const socialPlatformIcons: Record<string, string> = {
     facebook: "📘",
@@ -83,7 +89,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                 <Link
                   key={index}
                   href={linkProps.href}
-                  prefetch={linkProps.prefetch !== false}
+                  prefetch={false}
                   className="hover:opacity-80 transition-opacity"
                   style={{ color: header.textColor || "#000000" }}
                 >
@@ -147,7 +153,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
               return (
                 <Link
                   href={linkProps.href}
-                  prefetch={linkProps.prefetch !== false}
+                  prefetch={false}
                   className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
                   style={{
                     backgroundColor: site.theme.primaryColor || "#0066cc",
@@ -194,7 +200,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                 <Link
                   key={index}
                   href={linkProps.href}
-                  prefetch={linkProps.prefetch !== false}
+                  prefetch={false}
                   className="hover:opacity-80 transition-opacity py-2"
                   style={{ color: header.textColor || "#000000" }}
                 >

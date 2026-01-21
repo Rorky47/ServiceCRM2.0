@@ -50,29 +50,44 @@ export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProp
         // For scripts, we need special handling
         if (element.tagName === "SCRIPT") {
           const script = document.createElement("script");
-          if (element.getAttribute("src")) {
-            script.src = element.getAttribute("src") || "";
-          }
-          if (element.textContent) {
-            script.textContent = element.textContent;
-          }
+          const scriptSrc = element.getAttribute("src");
           const scriptType = element.getAttribute("type");
-          if (scriptType) {
-            script.type = scriptType;
-          } else {
-            // Default to text/javascript for inline scripts to avoid module syntax errors
-            script.type = "text/javascript";
+          const scriptText = element.textContent || element.innerHTML;
+          
+          // Skip scripts with module type or that contain export statements (ES6 modules)
+          if (scriptType === "module" || (scriptText && /^\s*export\s/.test(scriptText))) {
+            console.warn("Skipping ES6 module script injection:", scriptSrc || "inline script");
+            return; // Skip this script
           }
-          // Copy other attributes
+          
+          if (scriptSrc) {
+            script.src = scriptSrc;
+          }
+          if (scriptText) {
+            script.textContent = scriptText;
+          }
+          
+          // Set type - default to text/javascript for inline scripts
+          if (scriptType && scriptType !== "module") {
+            script.type = scriptType;
+          } else if (!scriptType) {
+            script.type = "text/javascript";
+          } else {
+            // Skip module scripts
+            return;
+          }
+          
+          // Copy other attributes (except src, type, and textContent)
           Array.from(element.attributes).forEach((attr) => {
-            if (attr.name !== "src" && attr.name !== "type" && attr.name !== "textContent") {
+            if (attr.name !== "src" && attr.name !== "type") {
               script.setAttribute(attr.name, attr.value);
             }
           });
+          
           // Check if script already exists
-          const existingScript = script.src 
-            ? document.querySelector(`script[src="${script.src}"]`)
-            : null;
+          const existingScript = scriptSrc 
+            ? document.querySelector(`script[src="${scriptSrc}"]`)
+            : document.querySelector(`script[type="${script.type}"]`);
           if (!existingScript) {
             document.head.appendChild(script);
           }
