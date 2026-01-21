@@ -41,24 +41,14 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           {header.showLogo && logo && (
-            <div className="flex-shrink-0">
-              <Link href="/">
+            <div className="flex-shrink-0 h-full flex items-center">
+              <Link href="/" className="h-full flex items-center">
                 <OptimizedImage
                   src={logo}
                   alt={site.name}
                   width={120}
                   height={40}
-                  className={`w-auto ${
-                    header.logoSize === "small"
-                      ? "h-6 sm:h-8"
-                      : header.logoSize === "medium"
-                      ? "h-10 sm:h-12"
-                      : header.logoSize === "large"
-                      ? "h-12 sm:h-16"
-                      : header.logoSize === "xlarge"
-                      ? "h-16 sm:h-20"
-                      : "h-10 sm:h-12" // default medium
-                  }`}
+                  className="w-auto h-[90%] max-h-[58px] object-contain"
                   unoptimized
                 />
               </Link>
