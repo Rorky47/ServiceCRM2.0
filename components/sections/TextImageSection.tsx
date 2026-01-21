@@ -14,6 +14,7 @@ interface TextImageSectionProps {
 }
 
 export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug }: TextImageSectionProps) {
+  // siteSlug is available for future use (e.g., link normalization)
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
 
