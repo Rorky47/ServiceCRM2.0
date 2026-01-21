@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
+import LinkInput from "@/components/LinkInput";
 
 interface NavigationLink {
   label: string;
@@ -31,12 +32,14 @@ interface HeaderEditorProps {
   header: HeaderData;
   onChange: (header: HeaderData) => void;
   themeLogo?: string; // Logo from theme settings
+  siteSlug: string; // Site slug for fetching pages
 }
 
 export default function HeaderEditor({
   header,
   onChange,
   themeLogo,
+  siteSlug,
 }: HeaderEditorProps) {
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
@@ -147,28 +150,26 @@ export default function HeaderEditor({
               </button>
             </div>
           ))}
-          <div className="flex space-x-2">
+          <div className="space-y-2">
             <input
               type="text"
               value={newLinkLabel}
               onChange={(e) => setNewLinkLabel(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
               placeholder="Link Label"
               onKeyPress={(e) => e.key === "Enter" && addNavigationLink()}
             />
-            <input
-              type="text"
+            <LinkInput
               value={newLinkUrl}
-              onChange={(e) => setNewLinkUrl(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+              onChange={setNewLinkUrl}
+              siteSlug={siteSlug}
               placeholder="/about or https://example.com"
-              onKeyPress={(e) => e.key === "Enter" && addNavigationLink()}
             />
             <button
               onClick={addNavigationLink}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Add
+              Add Link
             </button>
           </div>
         </div>
@@ -216,11 +217,10 @@ export default function HeaderEditor({
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
               placeholder="Get Free Quote"
             />
-            <input
-              type="text"
+            <LinkInput
               value={header.getQuoteButtonLink || ""}
-              onChange={(e) => updateHeader({ getQuoteButtonLink: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              onChange={(url) => updateHeader({ getQuoteButtonLink: url })}
+              siteSlug={siteSlug}
               placeholder="#contact or /contact"
             />
           </div>

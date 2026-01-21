@@ -145,7 +145,7 @@ async function setupDatabase() {
 
       // Update existing sites to have empty domains array if null
       try {
-        await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
       } catch (updateError) {
         // Ignore update errors - domains column might not exist yet or might not have null values
         console.log("  ⚠️  Could not update domains (this is OK):", updateError instanceof Error ? updateError.message : String(updateError));

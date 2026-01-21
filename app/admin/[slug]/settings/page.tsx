@@ -679,6 +679,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
               header={headerData || { showLogo: false, showGetQuoteButton: false }}
               onChange={setHeaderData}
               themeLogo={formData.logo}
+              siteSlug={params.slug}
             />
           </div>
         )}
@@ -691,6 +692,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
               footer={footerData || { showLogo: false }}
               onChange={setFooterData}
               themeLogo={formData.logo}
+              siteSlug={params.slug}
             />
           </div>
         )}

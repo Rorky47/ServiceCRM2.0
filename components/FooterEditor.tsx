@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
+import LinkInput from "@/components/LinkInput";
 
 interface FooterLink {
   label: string;
@@ -33,12 +34,14 @@ interface FooterEditorProps {
   footer: FooterData;
   onChange: (footer: FooterData) => void;
   themeLogo?: string; // Logo from theme settings
+  siteSlug: string; // Site slug for fetching pages
 }
 
 export default function FooterEditor({
   footer,
   onChange,
   themeLogo,
+  siteSlug,
 }: FooterEditorProps) {
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const [newLinkLabel, setNewLinkLabel] = useState("");
@@ -193,28 +196,27 @@ export default function FooterEditor({
                 ))}
               </div>
               {selectedColumnIndex === columnIndex && (
-                <div className="flex space-x-2 mb-2">
+                <div className="space-y-2 mb-2">
                   <input
                     type="text"
                     value={newLinkLabel}
                     onChange={(e) => setNewLinkLabel(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     placeholder="Link Label"
                     onKeyPress={(e) => e.key === "Enter" && addLinkToColumn(columnIndex)}
                   />
-                  <input
-                    type="text"
+                  <LinkInput
                     value={newLinkUrl}
-                    onChange={(e) => setNewLinkUrl(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                    placeholder="/about"
-                    onKeyPress={(e) => e.key === "Enter" && addLinkToColumn(columnIndex)}
+                    onChange={setNewLinkUrl}
+                    siteSlug={siteSlug}
+                    placeholder="/about or https://example.com"
+                    className="text-sm"
                   />
                   <button
                     onClick={() => addLinkToColumn(columnIndex)}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                    className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
                   >
-                    Add
+                    Add Link
                   </button>
                 </div>
               )}
