@@ -30,7 +30,7 @@ export async function getSite(slug: string): Promise<Site | null> {
       let result;
       try {
         result = await query(
-          "SELECT id, slug, name, theme, seo, header, footer, domains, analytics, notifications, socialLinks FROM sites WHERE slug = $1",
+          'SELECT id, slug, name, theme, seo, header, footer, domains, analytics, notifications, sociallinks FROM sites WHERE slug = $1',
           [slug]
         );
       } catch {
@@ -55,7 +55,7 @@ export async function getSite(slug: string): Promise<Site | null> {
         footer: row.footer || undefined,
         analytics: row.analytics || undefined,
         notifications: row.notifications || undefined,
-        socialLinks: row.socialLinks || undefined,
+        socialLinks: row.sociallinks || row.socialLinks || undefined,
       };
     } catch (error) {
       console.error("Error fetching site from database:", error);
@@ -92,10 +92,10 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
       } catch {}
       
       // Search for site where domain matches
-      const result = await query(
-        "SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, socialLinks FROM sites WHERE $1 = ANY(domains)",
-        [normalizedHost]
-      );
+      const         result = await query(
+          'SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks FROM sites WHERE $1 = ANY(domains)',
+          [normalizedHost]
+        );
       if (result.rows.length === 0) return null;
       const row = result.rows[0];
       return {
@@ -109,7 +109,7 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
         footer: row.footer || undefined,
         analytics: row.analytics || undefined,
         notifications: row.notifications || undefined,
-        socialLinks: row.socialLinks || undefined,
+        socialLinks: row.sociallinks || row.socialLinks || undefined,
       };
     } catch (error) {
       console.error("Error fetching site by domain from database:", error);
@@ -143,7 +143,7 @@ export async function getAllSites(): Promise<Site[]> {
       // Try to get all columns, fallback if some don't exist
       let result;
       try {
-        result = await query("SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, socialLinks FROM sites ORDER BY name");
+        result = await query('SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks FROM sites ORDER BY name');
       } catch {
         result = await query("SELECT id, slug, name, theme, seo FROM sites ORDER BY name");
       }
@@ -158,7 +158,7 @@ export async function getAllSites(): Promise<Site[]> {
         footer: row.footer || undefined,
         analytics: row.analytics || undefined,
         notifications: row.notifications || undefined,
-        socialLinks: row.socialLinks || undefined,
+        socialLinks: row.sociallinks || row.socialLinks || undefined,
       }));
     } catch (error) {
       console.error("Error fetching sites from database:", error);
@@ -190,13 +190,14 @@ export async function getAllSites(): Promise<Site[]> {
 export async function saveSite(site: Site): Promise<void> {
   if (USE_DATABASE) {
     try {
-      // Check and add missing columns
+      // Check and add missing columns (PostgreSQL column names are case-insensitive)
       const columns = await query(`
         SELECT column_name 
         FROM information_schema.columns 
         WHERE table_name = 'sites'
       `);
-      const existingColumns = columns.rows.map((r: any) => r.column_name);
+      const existingColumns = columns.rows.map((r: any) => r.column_name.toLowerCase());
+      const existingColumnsExact = columns.rows.map((r: any) => r.column_name);
       
       if (!existingColumns.includes('domains')) {
         await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
@@ -213,12 +214,20 @@ export async function saveSite(site: Site): Promise<void> {
       if (!existingColumns.includes('notifications')) {
         await query("ALTER TABLE sites ADD COLUMN notifications JSONB");
       }
-      if (!existingColumns.includes('socialLinks')) {
-        await query("ALTER TABLE sites ADD COLUMN socialLinks JSONB");
+      // Check for socialLinks column (case-insensitive) - it might exist as "sociallinks" or "socialLinks"
+      if (!existingColumns.includes('sociallinks') && !existingColumnsExact.includes('socialLinks')) {
+        try {
+          await query("ALTER TABLE sites ADD COLUMN sociallinks JSONB");
+        } catch (error: any) {
+          // If it fails because column already exists (case-insensitive), that's okay
+          if (error?.code !== '42701') {
+            throw error;
+          }
+        }
       }
       
       await query(
-        `INSERT INTO sites (id, slug, domains, name, theme, seo, header, footer, analytics, notifications, socialLinks, updated_at)
+        `INSERT INTO sites (id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
          ON CONFLICT (slug) 
          DO UPDATE SET 
@@ -230,7 +239,7 @@ export async function saveSite(site: Site): Promise<void> {
            footer = $8, 
            analytics = $9, 
            notifications = $10, 
-           socialLinks = $11, 
+           sociallinks = $11, 
            updated_at = CURRENT_TIMESTAMP`,
         [
           site.id,
