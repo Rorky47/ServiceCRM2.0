@@ -52,6 +52,9 @@ const CREATE_TABLES = `
   CREATE INDEX IF NOT EXISTS idx_sites_domains ON sites USING GIN(domains);
 `;
 
+// Cache to track if setup has run
+let setupComplete = false;
+
 async function setupDatabase() {
   // Check if DATABASE_URL is set
   if (!process.env.DATABASE_URL) {
@@ -60,95 +63,69 @@ async function setupDatabase() {
     return;
   }
 
+  // Skip if already completed in this process
+  if (setupComplete) {
+    console.log("ℹ️  Database setup already completed, skipping...");
+    return;
+  }
+
   try {
     console.log("🔧 Setting up database...");
 
-    // Initialize tables
-    console.log("📊 Creating tables...");
+    // Initialize tables (this is fast - IF NOT EXISTS makes it idempotent)
     await query(CREATE_TABLES);
     console.log("✅ Tables created/verified");
 
     // Migrate existing tables (add new columns if they don't exist)
+    // Use a single query to check all columns at once for better performance
     console.log("🔄 Migrating existing tables...");
     try {
-      // Check if domains column exists in sites table
-      const sitesColumns = await query(`
+      const allColumns = await query(`
         SELECT column_name 
         FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'domains'
+        WHERE table_name = 'sites'
       `);
       
-      if (sitesColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'domains' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
+      const existingColumns = new Set(allColumns.rows.map((r: any) => r.column_name));
+      const columnsToAdd: Array<{ name: string; sql: string }> = [];
+
+      if (!existingColumns.has('domains')) {
+        columnsToAdd.push({ name: 'domains', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS domains TEXT[] DEFAULT '{}'" });
+      }
+      if (!existingColumns.has('seo')) {
+        columnsToAdd.push({ name: 'seo', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS seo JSONB" });
+      }
+      if (!existingColumns.has('header')) {
+        columnsToAdd.push({ name: 'header', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS header JSONB" });
+      }
+      if (!existingColumns.has('footer')) {
+        columnsToAdd.push({ name: 'footer', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS footer JSONB" });
+      }
+      if (!existingColumns.has('analytics')) {
+        columnsToAdd.push({ name: 'analytics', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS analytics JSONB" });
+      }
+      if (!existingColumns.has('notifications')) {
+        columnsToAdd.push({ name: 'notifications', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS notifications JSONB" });
+      }
+      if (!existingColumns.has('sociallinks')) {
+        columnsToAdd.push({ name: 'sociallinks', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS sociallinks JSONB" });
       }
 
-      // Check if seo column exists in sites table
-      const seoColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'seo'
-      `);
-      
-      if (seoColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'seo' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN seo JSONB");
+      // Add all missing columns in parallel
+      if (columnsToAdd.length > 0) {
+        await Promise.all(columnsToAdd.map(col => {
+          console.log(`  ➕ Adding '${col.name}' column to sites table...`);
+          return query(col.sql);
+        }));
       }
 
-      // Check if header column exists
-      const headerColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'header'
-      `);
-      
-      if (headerColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'header' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN header JSONB");
-      }
-
-      // Check if footer column exists
-      const footerColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'footer'
-      `);
-      
-      if (footerColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'footer' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN footer JSONB");
-      }
-
-      // Check if analytics column exists
-      const analyticsColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'analytics'
-      `);
-      
-      if (analyticsColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'analytics' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN analytics JSONB");
-      }
-
-      // Check if notifications column exists
-      const notificationsColumns = await query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'sites' AND column_name = 'notifications'
-      `);
-      
-      if (notificationsColumns.rows.length === 0) {
-        console.log("  ➕ Adding 'notifications' column to sites table...");
-        await query("ALTER TABLE sites ADD COLUMN notifications JSONB");
-      }
-
-      // Update existing sites to have empty domains array if null
-      try {
-      await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
-      } catch (updateError) {
-        // Ignore update errors - domains column might not exist yet or might not have null values
-        console.log("  ⚠️  Could not update domains (this is OK):", updateError instanceof Error ? updateError.message : String(updateError));
+      // Update existing sites to have empty domains array if null (only if column exists)
+      if (existingColumns.has('domains')) {
+        try {
+          await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+        } catch (updateError) {
+          // Ignore update errors
+        }
       }
       
       console.log("✅ Table migration complete");
@@ -157,11 +134,15 @@ async function setupDatabase() {
     }
 
     // Migrate JSON files to database (if they exist)
-    console.log("📦 Checking for JSON files to migrate...");
-    const fs = require("fs/promises");
-    const path = require("path");
-    const DATA_DIR = path.join(process.cwd(), "data");
-    let migrated = false;
+    // Skip migration if SKIP_JSON_MIGRATION env var is set (for faster startup after initial migration)
+    if (process.env.SKIP_JSON_MIGRATION === 'true') {
+      console.log("ℹ️  Skipping JSON migration (SKIP_JSON_MIGRATION=true)");
+    } else {
+      console.log("📦 Checking for JSON files to migrate...");
+      const fs = require("fs/promises");
+      const path = require("path");
+      const DATA_DIR = path.join(process.cwd(), "data");
+      let migrated = false;
 
     // Migrate Sites
     try {
@@ -298,10 +279,12 @@ async function setupDatabase() {
       // Leads directory doesn't exist, that's fine
     }
 
-    if (!migrated) {
-      console.log("  ℹ️  No JSON files found to migrate (or all data already migrated)");
+      if (!migrated) {
+        console.log("  ℹ️  No JSON files found to migrate (or all data already migrated)");
+      }
     }
 
+    setupComplete = true;
     console.log("✅ Database setup complete!");
   } catch (error) {
     console.error("❌ Database setup failed:", error);

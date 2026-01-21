@@ -1,0 +1,18 @@
+# NIXPACKS configuration for faster builds
+[phases.setup]
+nixPkgs = ["nodejs-20", "npm"]
+
+[phases.install]
+cmds = [
+  "npm ci --prefer-offline --no-audit"
+]
+
+[phases.build]
+cmds = [
+  "npm run build"
+]
+
+[phases.start]
+cmds = [
+  "SKIP_JSON_MIGRATION=true npm run db:setup && npm start"
+]

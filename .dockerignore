@@ -1,0 +1,60 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Next.js
+.next
+out
+build
+dist
+
+# Development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage
+.nyc_output
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# Data files (these should be in database, not in image)
+data/leads/*
+data/pages/*
+data/sites/*
+
+# Scripts (not needed in production)
+scripts/*.ts
+!scripts/setup-db.ts
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Misc
+.vercel
+.cache
+.turbo
