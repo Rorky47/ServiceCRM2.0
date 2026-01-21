@@ -6,7 +6,7 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
 # Install all dependencies (needed for tsx in db:setup)
 RUN npm ci
