@@ -6,6 +6,7 @@ import { normalizeInternalLink } from "@/lib/link-utils";
 import SocialIcon from "@/components/SocialIcon";
 import OptimizedImage from "@/components/OptimizedImage";
 import SmartLink from "@/components/SmartLink";
+import { useSearchParams } from "next/navigation";
 
 interface HeaderRendererProps {
   site: Site;
@@ -13,6 +14,9 @@ interface HeaderRendererProps {
 
 export default function HeaderRenderer({ site }: HeaderRendererProps) {
   if (!site.header) return null;
+
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get("admin") === "true";
 
   const header = site.header;
   // Use header logo if set, otherwise use theme logo
@@ -23,7 +27,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
 
   return (
     <header
-      className="sticky top-0 z-50 shadow-md"
+      className={`sticky z-[60] shadow-md ${isAdmin ? "top-[40px]" : "top-0"}`}
       style={{
         backgroundColor: header.backgroundColor || "#ffffff",
         color: header.textColor || "#000000",

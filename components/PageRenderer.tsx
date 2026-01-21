@@ -268,7 +268,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
       }}
     >
       {isAdmin && (
-        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-black p-2 text-center z-50">
+        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-black p-2 text-center z-40">
           ADMIN MODE {saving && " - Saving..."}
         </div>
       )}
