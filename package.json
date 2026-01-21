@@ -8,6 +8,7 @@
     "start": "next start",
     "start:railway": "tsx scripts/start-server.ts",
     "start:with-db": "tsx scripts/setup-db.ts && next start",
+    "start:production": "SKIP_JSON_MIGRATION=true tsx scripts/setup-db.ts && next start",
     "lint": "next lint",
     "db:init": "tsx scripts/init-db.ts",
     "db:migrate": "tsx scripts/migrate-json-to-db.ts",

@@ -49,6 +49,8 @@ data/sites/*
 # Scripts (not needed in production)
 scripts/*.ts
 !scripts/setup-db.ts
+!scripts/start-server.ts
+!scripts/validate-env.ts
 
 # TypeScript
 *.tsbuildinfo
