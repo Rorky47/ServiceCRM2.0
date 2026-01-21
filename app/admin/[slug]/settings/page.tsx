@@ -326,13 +326,61 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Site Slug</label>
-                <input
-                  type="text"
-                  value={site.slug}
-                  disabled
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-500"
-                />
-                <p className="mt-1 text-xs text-gray-500">Site slug cannot be changed</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={site.slug}
+                    disabled
+                    className="flex-1 border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-500"
+                  />
+                  <button
+                    onClick={async () => {
+                      const newSlug = prompt(
+                        `Enter new slug for "${site.slug}":\n\nNote: This will update all pages, leads, and user references.`,
+                        site.slug
+                      );
+                      if (!newSlug || newSlug === site.slug) return;
+
+                      // Validate slug format
+                      if (!/^[a-zA-Z0-9_-]+$/.test(newSlug)) {
+                        showToast("Slug can only contain letters, numbers, hyphens, and underscores", "error");
+                        return;
+                      }
+
+                      if (!confirm(`Are you sure you want to change the slug from "${site.slug}" to "${newSlug}"?\n\nThis will update:\n- All pages\n- All leads\n- User permissions\n\nThis action cannot be easily undone.`)) {
+                        return;
+                      }
+
+                      try {
+                        const response = await fetch("/api/sites/update-slug", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ oldSlug: site.slug, newSlug }),
+                        });
+
+                        if (response.ok) {
+                          showToast("Site slug updated successfully! Redirecting...", "success");
+                          // Redirect to new slug after a short delay
+                          setTimeout(() => {
+                            router.push(`/admin/${newSlug}/settings`);
+                          }, 1000);
+                        } else {
+                          const data = await response.json();
+                          showToast(data.error || "Failed to update slug", "error");
+                        }
+                      } catch (error) {
+                        console.error("Error updating slug:", error);
+                        showToast("Failed to update slug", "error");
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                  >
+                    Change Slug
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Site slug is used in URLs. Changing it will update all related pages and leads.
+                </p>
               </div>
 
               {/* Social Links */}
