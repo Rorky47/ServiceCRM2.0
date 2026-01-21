@@ -472,4 +472,3 @@ function SortableNavigationLink({
     </div>
   );
 }
-

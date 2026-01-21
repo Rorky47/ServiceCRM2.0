@@ -202,7 +202,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
 
   return (
     <section
-      className={`py-20 px-4 ${
+      className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 ${
         isAdmin ? "border-2 border-dashed border-blue-500" : ""
       }`}
       style={{
@@ -262,13 +262,13 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                 handleSave();
               }
             }}
-            className="w-full text-4xl font-bold mb-12 bg-gray-100 p-4 rounded"
+            className="w-full text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-10 md:mb-12 bg-gray-100 p-3 sm:p-4 rounded"
             autoFocus
           />
         ) : (
           <h2
             onClick={handleTitleClick}
-            className={`text-4xl font-bold mb-12 text-center ${
+            className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-10 md:mb-12 text-center px-2 ${
               isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded" : ""
             }`}
           >
@@ -277,7 +277,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
         )}
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {items.map((item, index) => (
             <div
               key={index}
@@ -433,7 +433,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                               )}
                               <button
                                 onClick={() => handleButtonRemove(index)}
-                                className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                                className="w-full px-2 py-2 text-xs bg-red-500 text-white rounded hover:bg-red-600 touch-manipulation"
                               >
                                 Remove Button
                               </button>
@@ -441,7 +441,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                           ) : (
                             <button
                               onClick={() => handleButtonAdd(index)}
-                              className="w-full px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                              className="w-full px-2 py-2 text-xs bg-green-500 text-white rounded hover:bg-green-600 touch-manipulation"
                             >
                               ➕ Add Button
                             </button>
@@ -451,7 +451,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                         {/* Remove Service */}
                         <button
                           onClick={() => handleRemoveService(index)}
-                          className="w-full px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                          className="w-full px-2 py-2 text-xs bg-red-500 text-white rounded hover:bg-red-600 touch-manipulation"
                         >
                           🗑️ Remove Service
                         </button>
@@ -525,7 +525,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                   <SmartLink
                     href={item.button.link}
                     siteSlug={siteSlug}
-                    className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    className="mt-4 inline-block w-full text-center px-4 py-2.5 sm:py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base touch-manipulation"
                   >
                     {item.button.text}
                   </SmartLink>
@@ -549,7 +549,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
         {isAdmin && (
           <button
             onClick={handleAddService}
-            className="mt-8 mx-auto block px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600"
+            className="mt-8 mx-auto block px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 touch-manipulation text-sm sm:text-base"
           >
             + Add Service
           </button>

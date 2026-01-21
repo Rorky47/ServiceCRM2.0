@@ -15,9 +15,9 @@ export default async function AdminDashboard({ params }: DashboardProps) {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+    <div className="px-4 py-4 sm:py-6 sm:px-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="mt-2 text-sm text-gray-600">Manage your site: {site.name}</p>
       </div>
 
@@ -79,7 +79,7 @@ export default async function AdminDashboard({ params }: DashboardProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Link
               href={`/admin/${params.slug}/pages?action=add`}
-              className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+              className="relative rounded-lg border border-gray-300 bg-white px-4 py-4 sm:px-6 sm:py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 touch-manipulation min-h-[60px]"
             >
               <div className="flex-shrink-0">
                 <span className="text-2xl">➕</span>
@@ -93,7 +93,7 @@ export default async function AdminDashboard({ params }: DashboardProps) {
 
             <Link
               href={`/site/${params.slug}?admin=true`}
-              className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+              className="relative rounded-lg border border-gray-300 bg-white px-4 py-4 sm:px-6 sm:py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 touch-manipulation min-h-[60px]"
             >
               <div className="flex-shrink-0">
                 <span className="text-2xl">✏️</span>
@@ -107,7 +107,7 @@ export default async function AdminDashboard({ params }: DashboardProps) {
 
             <Link
               href={`/admin/${params.slug}/settings`}
-              className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+              className="relative rounded-lg border border-gray-300 bg-white px-4 py-4 sm:px-6 sm:py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 touch-manipulation min-h-[60px]"
             >
               <div className="flex-shrink-0">
                 <span className="text-2xl">⚙️</span>

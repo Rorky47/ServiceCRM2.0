@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Site } from "@/types";
 import Link from "next/link";
 import { normalizeInternalLink } from "@/lib/link-utils";
@@ -15,6 +16,7 @@ interface HeaderRendererProps {
 export default function HeaderRenderer({ site }: HeaderRendererProps) {
   if (!site.header) return null;
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const isAdmin = searchParams.get("admin") === "true";
 
@@ -44,7 +46,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                   alt={site.name}
                   width={120}
                   height={40}
-                  className="h-10 w-auto"
+                  className="h-8 sm:h-10 w-auto"
                   unoptimized
                 />
               </Link>
@@ -58,7 +60,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                 key={index}
                 href={link.url}
                 siteSlug={site.slug}
-                className="hover:opacity-80 transition-opacity"
+                className="hover:opacity-80 transition-opacity text-sm lg:text-base"
                 style={{ color: header.textColor || "#000000" }}
                 prefetch={false}
               >
@@ -68,12 +70,12 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
           </nav>
 
           {/* Right Side: Phone, Social, CTA */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Phone Number */}
             {header.phoneNumber && (
               <a
                 href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}
-                className="hidden sm:block hover:opacity-80 transition-opacity"
+                className="hidden sm:block hover:opacity-80 transition-opacity text-sm lg:text-base"
                 style={{ color: header.textColor || "#000000" }}
               >
                 {header.phoneNumber}
@@ -82,7 +84,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
 
             {/* Social Links */}
             {socialLinks && socialLinks.length > 0 && (
-              <div className="hidden md:flex items-center space-x-3">
+              <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
                 {socialLinks.map((social, index) => (
                   <a
                     key={index}
@@ -104,7 +106,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
               <SmartLink
                 href={header.getQuoteButtonLink}
                 siteSlug={site.slug}
-                className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                className="hidden sm:inline-block px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-xs sm:text-sm"
                 style={{
                   backgroundColor: site.theme.primaryColor || "#0066cc",
                   color: "#ffffff",
@@ -117,58 +119,92 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 -mr-2"
               style={{ color: header.textColor || "#000000" }}
               aria-label="Menu"
+              aria-expanded={mobileMenuOpen}
             >
-              ☰
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {mobileMenuOpen ? (
+                  <path d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden pb-4">
-          <nav className="flex flex-col space-y-2">
-            {header.navigationLinks?.map((link, index) => (
-              <SmartLink
-                key={index}
-                href={link.url}
-                siteSlug={site.slug}
-                className="hover:opacity-80 transition-opacity py-2"
-                style={{ color: header.textColor || "#000000" }}
-                prefetch={false}
-              >
-                {link.label}
-              </SmartLink>
-            ))}
-            {header.phoneNumber && (
-              <a
-                href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}
-                className="hover:opacity-80 transition-opacity py-2"
-                style={{ color: header.textColor || "#000000" }}
-              >
-                {header.phoneNumber}
-              </a>
-            )}
-            {socialLinks && socialLinks.length > 0 && (
-              <div className="flex items-center space-x-3 pt-2">
-                {socialLinks.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:opacity-80 transition-opacity"
-                    title={social.label || social.platform}
-                    style={{ color: header.textColor || "#000000" }}
-                  >
-                    <SocialIcon platform={social.platform} size="md" />
-                  </a>
-                ))}
-              </div>
-            )}
-          </nav>
-        </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden pb-4 border-t border-opacity-20 mt-2 pt-4">
+            <nav className="flex flex-col space-y-3">
+              {header.navigationLinks?.map((link, index) => (
+                <SmartLink
+                  key={index}
+                  href={link.url}
+                  siteSlug={site.slug}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="hover:opacity-80 transition-opacity py-2 text-base"
+                  style={{ color: header.textColor || "#000000" }}
+                  prefetch={false}
+                >
+                  {link.label}
+                </SmartLink>
+              ))}
+              {header.phoneNumber && (
+                <a
+                  href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}
+                  className="hover:opacity-80 transition-opacity py-2 text-base"
+                  style={{ color: header.textColor || "#000000" }}
+                >
+                  📞 {header.phoneNumber}
+                </a>
+              )}
+              {header.showGetQuoteButton && header.getQuoteButtonLink && (
+                <SmartLink
+                  href={header.getQuoteButtonLink}
+                  siteSlug={site.slug}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="inline-block px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-sm text-center"
+                  style={{
+                    backgroundColor: site.theme.primaryColor || "#0066cc",
+                    color: "#ffffff",
+                  }}
+                  prefetch={false}
+                >
+                  {header.getQuoteButtonText || "Get Quote"}
+                </SmartLink>
+              )}
+              {socialLinks && socialLinks.length > 0 && (
+                <div className="flex items-center space-x-4 pt-2">
+                  {socialLinks.map((social, index) => (
+                    <a
+                      key={index}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:opacity-80 transition-opacity"
+                      title={social.label || social.platform}
+                      style={{ color: header.textColor || "#000000" }}
+                    >
+                      <SocialIcon platform={social.platform} size="md" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );

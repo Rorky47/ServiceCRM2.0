@@ -73,12 +73,12 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug 
 
   return (
     <section
-      className={`py-20 px-4 ${
+      className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 ${
         isAdmin ? "border-2 border-dashed border-blue-500" : ""
       }`}
     >
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-        <div>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+        <div className="order-2 md:order-1">
           {editing === "title" ? (
             <textarea
               value={tempValue}
@@ -90,13 +90,13 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug 
                   handleSave();
                 }
               }}
-              className="w-full text-3xl font-bold mb-6 bg-gray-100 p-4 rounded"
+              className="w-full text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 bg-gray-100 p-3 sm:p-4 rounded"
               autoFocus
             />
           ) : (
             <h2
               onClick={() => handleClick("title", section.content.title)}
-              className={`text-3xl font-bold mb-6 ${
+              className={`text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 ${
                 isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded" : ""
               }`}
             >
@@ -114,7 +114,7 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug 
           ) : (
             <div
               onClick={() => handleClick("text", section.content.text)}
-              className={`text-lg leading-relaxed ${
+              className={`text-base sm:text-lg leading-relaxed ${
                 isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded" : ""
               }`}
             >
@@ -122,7 +122,7 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug 
             </div>
           )}
         </div>
-        <div className="relative h-96">
+        <div className="relative h-64 sm:h-80 md:h-96 order-1 md:order-2">
           {section.content.image && (
             <OptimizedImage
               src={section.content.image}

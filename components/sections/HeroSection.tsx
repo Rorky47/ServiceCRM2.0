@@ -140,12 +140,12 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
     >
       {/* Admin Controls */}
       {isAdmin && (
-        <div className="absolute top-4 left-4 z-50 space-y-2">
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-50 space-y-2 max-w-[calc(100%-1rem)]">
           {/* Image Controls */}
-          <div className="bg-white rounded-lg shadow-lg p-2">
+          <div className="bg-white rounded-lg shadow-lg p-1.5 sm:p-2">
             <button
               onClick={() => setShowImageControls(!showImageControls)}
-              className="text-sm font-semibold text-gray-700 mb-1"
+              className="text-xs sm:text-sm font-semibold text-gray-700 mb-1"
             >
               🖼️ Image {showImageControls ? "▼" : "▶"}
             </button>
@@ -153,20 +153,20 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
               <div className="space-y-1">
                 <button
                   onClick={handleImageUpload}
-                  className="block w-full text-left px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="block w-full text-left px-1.5 py-1 sm:px-2 sm:py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 touch-manipulation"
                 >
                   📤 Upload Image
                 </button>
                 <button
                   onClick={handleImageUrl}
-                  className="block w-full text-left px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="block w-full text-left px-1.5 py-1 sm:px-2 sm:py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 touch-manipulation"
                 >
                   🔗 Use URL
                 </button>
                 {hasImage && (
                   <button
                     onClick={handleImageRemove}
-                    className="block w-full text-left px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                    className="block w-full text-left px-1.5 py-1 sm:px-2 sm:py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 touch-manipulation"
                   >
                     🗑️ Remove Image
                   </button>
@@ -176,10 +176,10 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
           </div>
 
           {/* Background Color */}
-          <div className="bg-white rounded-lg shadow-lg p-2">
+          <div className="bg-white rounded-lg shadow-lg p-1.5 sm:p-2">
             <button
               onClick={() => setShowColorPicker(!showColorPicker)}
-              className="text-sm font-semibold text-gray-700 mb-1"
+              className="text-xs sm:text-sm font-semibold text-gray-700 mb-1"
             >
               🎨 Background {showColorPicker ? "▼" : "▶"}
             </button>
@@ -189,18 +189,18 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
                   type="color"
                   value={backgroundColor}
                   onChange={(e) => handleBackgroundColorChange(e.target.value)}
-                  className="w-full h-10 cursor-pointer"
+                  className="w-full h-8 sm:h-10 cursor-pointer touch-manipulation"
                 />
                 <input
                   type="text"
                   value={backgroundColor}
                   onChange={(e) => handleBackgroundColorChange(e.target.value)}
                   placeholder="#000000"
-                  className="w-full px-2 py-1 text-xs border rounded"
+                  className="w-full px-1.5 py-1 sm:px-2 sm:py-1 text-xs border rounded"
                 />
                 <button
                   onClick={() => handleBackgroundColorChange("")}
-                  className="block w-full px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+                  className="block w-full px-1.5 py-1 sm:px-2 sm:py-1 text-xs bg-gray-200 rounded hover:bg-gray-300 touch-manipulation"
                 >
                   Clear (use overlay)
                 </button>
@@ -209,10 +209,10 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
           </div>
 
           {/* CTA Button */}
-          <div className="bg-white rounded-lg shadow-lg p-2">
+          <div className="bg-white rounded-lg shadow-lg p-1.5 sm:p-2">
             <button
               onClick={() => setShowCTAEditor(!showCTAEditor)}
-              className="text-sm font-semibold text-gray-700 mb-1"
+              className="text-xs sm:text-sm font-semibold text-gray-700 mb-1"
             >
               🔘 CTA Button {showCTAEditor ? "▼" : "▶"}
             </button>
@@ -314,7 +314,7 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white px-4 max-w-4xl">
+      <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-4xl mx-auto">
         {editing === "headline" ? (
           <textarea
             value={tempValue}
@@ -326,13 +326,13 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
                 handleSave();
               }
             }}
-            className="w-full text-5xl md:text-7xl font-bold bg-white/90 text-black p-4 rounded"
+            className="w-full text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold bg-white/90 text-black p-3 sm:p-4 rounded"
             autoFocus
           />
         ) : (
           <h1
             onClick={() => handleClick("headline", section.content.headline)}
-            className={`text-5xl md:text-7xl font-bold mb-6 ${
+            className={`text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 px-2 ${
               isAdmin ? "cursor-pointer hover:bg-white/20 p-2 rounded" : ""
             }`}
           >
@@ -350,13 +350,13 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
                 handleSave();
               }
             }}
-            className="w-full text-xl md:text-2xl bg-white/90 text-black p-4 rounded mb-6"
+            className="w-full text-base sm:text-lg md:text-xl lg:text-2xl bg-white/90 text-black p-3 sm:p-4 rounded mb-4 sm:mb-6"
             autoFocus
           />
         ) : (
           <p
             onClick={() => handleClick("subheadline", section.content.subheadline)}
-            className={`text-xl md:text-2xl mb-8 ${
+            className={`text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 px-2 ${
               isAdmin ? "cursor-pointer hover:bg-white/20 p-2 rounded" : ""
             }`}
           >
@@ -369,7 +369,7 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
           <SmartLink
             href={section.content.ctaButton.link}
             siteSlug={siteSlug}
-            className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+            className="inline-block px-6 py-3 sm:px-8 sm:py-4 bg-white text-gray-900 font-bold text-base sm:text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
           >
             {section.content.ctaButton.text}
           </SmartLink>

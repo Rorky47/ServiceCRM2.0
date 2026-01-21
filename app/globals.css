@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-first base styles */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Rich Text Editor Styles */
 .rich-text-content {
   line-height: 1.6;
@@ -16,11 +21,23 @@
 }
 
 .rich-text-content h1 {
-  font-size: 2em;
+  font-size: 1.75em;
+}
+
+@media (min-width: 640px) {
+  .rich-text-content h1 {
+    font-size: 2em;
+  }
 }
 
 .rich-text-content h2 {
   font-size: 1.5em;
+}
+
+@media (min-width: 640px) {
+  .rich-text-content h2 {
+    font-size: 1.5em;
+  }
 }
 
 .rich-text-content h3 {

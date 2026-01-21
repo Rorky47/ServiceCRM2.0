@@ -62,7 +62,7 @@ export default function ContactSection({ section, isAdmin, onUpdate, siteSlug }:
 
   return (
     <section
-      className={`py-20 px-4 bg-gray-50 ${
+      className={`py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-gray-50 ${
         isAdmin ? "border-2 border-dashed border-blue-500" : ""
       }`}
     >
@@ -78,13 +78,13 @@ export default function ContactSection({ section, isAdmin, onUpdate, siteSlug }:
                 handleSave();
               }
             }}
-            className="w-full text-4xl font-bold mb-6 bg-white p-4 rounded"
+            className="w-full text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 bg-white p-3 sm:p-4 rounded"
             autoFocus
           />
         ) : (
           <h2
             onClick={() => handleClick("title", section.content.title)}
-            className={`text-4xl font-bold mb-6 text-center ${
+            className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center px-2 ${
               isAdmin ? "cursor-pointer hover:bg-gray-200 p-2 rounded" : ""
             }`}
           >
@@ -110,14 +110,14 @@ export default function ContactSection({ section, isAdmin, onUpdate, siteSlug }:
           </div>
         )}
         {!isAdmin && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <input
               type="text"
               placeholder="Your Name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-base"
             />
             <input
               type="email"
@@ -125,7 +125,7 @@ export default function ContactSection({ section, isAdmin, onUpdate, siteSlug }:
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-base"
             />
             <textarea
               placeholder="Your Message"
@@ -133,17 +133,17 @@ export default function ContactSection({ section, isAdmin, onUpdate, siteSlug }:
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               required
               rows={6}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 text-base"
             />
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-blue-600 text-white py-3 sm:py-3.5 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 text-base touch-manipulation"
             >
               {submitting ? "Sending..." : "Send Message"}
             </button>
             {submitted && (
-              <p className="text-green-600 text-center">Thank you! Your message has been sent.</p>
+              <p className="text-green-600 text-center text-sm sm:text-base">Thank you! Your message has been sent.</p>
             )}
           </form>
         )}

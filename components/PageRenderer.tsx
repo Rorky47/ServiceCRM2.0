@@ -48,16 +48,16 @@ function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug }: { s
   return (
     <div ref={setNodeRef} style={style}>
       {isAdmin && (
-        <div className="bg-gray-200 p-2 flex items-center justify-between gap-2">
+            <div className="bg-gray-200 p-2 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <button
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing text-gray-600"
+              className="cursor-grab active:cursor-grabbing text-gray-600 text-xs sm:text-sm touch-manipulation"
             >
               ⋮⋮ Drag
             </button>
-            <span className="text-sm text-gray-600">{section.type}</span>
+            <span className="text-xs sm:text-sm text-gray-600">{section.type}</span>
           </div>
           <button
             onClick={() => {
@@ -65,7 +65,7 @@ function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug }: { s
                 onDelete(section.id);
               }
             }}
-            className="text-red-600 hover:text-red-800 text-sm font-medium px-2 py-1 rounded hover:bg-red-50"
+            className="text-red-600 hover:text-red-800 text-xs sm:text-sm font-medium px-2 py-1 rounded hover:bg-red-50 touch-manipulation"
           >
             Delete
           </button>
@@ -268,7 +268,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
       }}
     >
       {isAdmin && (
-        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-black p-2 text-center z-40">
+        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-black p-2 text-center z-40 text-xs sm:text-sm">
           ADMIN MODE {saving && " - Saving..."}
         </div>
       )}
@@ -311,16 +311,16 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
             </DndContext>
           )}
           {page.sections && page.sections.length > 0 && (
-            <div className="fixed bottom-4 right-4 flex flex-col gap-2">
+            <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
               <button
                 onClick={() => setShowAddSectionModal(true)}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 font-medium"
+                className="bg-blue-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-lg shadow-lg hover:bg-blue-700 font-medium text-sm sm:text-base touch-manipulation"
               >
                 + Add Section
               </button>
               <a
                 href={`/admin/${site.slug}/leads`}
-                className="bg-gray-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-gray-700 text-center"
+                className="bg-gray-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-lg shadow-lg hover:bg-gray-700 text-center text-sm sm:text-base touch-manipulation"
               >
                 View Leads
               </a>
@@ -341,44 +341,44 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
 
       {/* Add Section Modal */}
       {showAddSectionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h2 className="text-xl font-bold mb-4">Add New Section</h2>
-            <p className="text-gray-600 mb-6">Choose a section type to add to your page</p>
-            <div className="grid grid-cols-2 gap-3">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Add New Section</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Choose a section type to add to your page</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={() => handleAddSection("hero")}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
               >
-                <div className="font-semibold text-gray-900">Hero</div>
-                <div className="text-sm text-gray-500 mt-1">Large banner with headline</div>
+                <div className="font-semibold text-gray-900 text-sm sm:text-base">Hero</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Large banner with headline</div>
               </button>
               <button
                 onClick={() => handleAddSection("services")}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
               >
-                <div className="font-semibold text-gray-900">Services</div>
-                <div className="text-sm text-gray-500 mt-1">Service cards grid</div>
+                <div className="font-semibold text-gray-900 text-sm sm:text-base">Services</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Service cards grid</div>
               </button>
               <button
                 onClick={() => handleAddSection("textImage")}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
               >
-                <div className="font-semibold text-gray-900">Text & Image</div>
-                <div className="text-sm text-gray-500 mt-1">Content with image</div>
+                <div className="font-semibold text-gray-900 text-sm sm:text-base">Text & Image</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Content with image</div>
               </button>
               <button
                 onClick={() => handleAddSection("contact")}
-                className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
               >
-                <div className="font-semibold text-gray-900">Contact</div>
-                <div className="text-sm text-gray-500 mt-1">Contact form</div>
+                <div className="font-semibold text-gray-900 text-sm sm:text-base">Contact</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Contact form</div>
               </button>
             </div>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-4 sm:mt-6 flex justify-end">
               <button
                 onClick={() => setShowAddSectionModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm sm:text-base touch-manipulation"
               >
                 Cancel
               </button>
