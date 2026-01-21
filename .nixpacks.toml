@@ -1,10 +1,10 @@
-# NIXPACKS configuration for faster builds
+# Railway NIXPACKS configuration - optimized for faster builds
 [phases.setup]
-nixPkgs = ["nodejs-20", "npm"]
+nixPkgs = ["nodejs-20"]
 
 [phases.install]
 cmds = [
-  "npm ci --prefer-offline --no-audit"
+  "npm ci --prefer-offline --no-audit --no-fund"
 ]
 
 [phases.build]
@@ -12,7 +12,5 @@ cmds = [
   "npm run build"
 ]
 
-[phases.start]
-cmds = [
-  "SKIP_JSON_MIGRATION=true npm run db:setup && npm start"
-]
+[variables]
+NEXT_TELEMETRY_DISABLED = "1"

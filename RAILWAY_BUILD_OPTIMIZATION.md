@@ -8,19 +8,14 @@
 3. **No build cache** - Optimized Dockerfile with multi-stage builds
 4. **Inefficient queries** - Database setup now uses parallel queries
 
-## 📦 Build Options
+## 📦 Railway Build Configuration
 
-### Option 1: NIXPACKS (Recommended - Simpler)
-Railway will use `.nixpacks.toml` for optimized builds:
-- Faster dependency installation with `--prefer-offline`
-- Optimized build commands
-- Automatic caching
-
-### Option 2: Dockerfile (More Control)
-If you prefer Docker, Railway will use the `Dockerfile`:
-- Multi-stage builds for smaller images
-- Better layer caching
-- More control over the build process
+### NIXPACKS Builder (Railway's Native Builder)
+Railway uses NIXPACKS by default, which is optimized for Railway's infrastructure:
+- `.nixpacks.toml` provides custom build configuration
+- Faster dependency installation with `--prefer-offline --no-audit --no-fund`
+- Automatic caching by Railway
+- Optimized for Railway's build system
 
 ## ⚡ Key Optimizations
 
