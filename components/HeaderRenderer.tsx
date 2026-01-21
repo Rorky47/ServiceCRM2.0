@@ -14,11 +14,13 @@ interface HeaderRendererProps {
 }
 
 export default function HeaderRenderer({ site }: HeaderRendererProps) {
-  if (!site.header) return null;
-
+  // Hooks must be called before any conditional returns
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const isAdmin = searchParams.get("admin") === "true";
+
+  // Early return after hooks
+  if (!site.header) return null;
 
   const header = site.header;
   // Use header logo if set, otherwise use theme logo
