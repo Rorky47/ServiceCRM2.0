@@ -3,6 +3,23 @@
 import { useState } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
 import LinkInput from "@/components/LinkInput";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface NavigationLink {
   label: string;
@@ -43,6 +60,16 @@ export default function HeaderEditor({
 }: HeaderEditorProps) {
   const [newLinkLabel, setNewLinkLabel] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const updateHeader = (updates: Partial<HeaderData>) => {
     onChange({ ...header, ...updates });
@@ -62,8 +89,49 @@ export default function HeaderEditor({
     const links = [...(header.navigationLinks || [])];
     links.splice(index, 1);
     updateHeader({ navigationLinks: links });
+    if (editingIndex === index) {
+      setEditingIndex(null);
+    }
   };
 
+  const startEditing = (index: number) => {
+    const link = header.navigationLinks?.[index];
+    if (link) {
+      setEditingIndex(index);
+      setEditLabel(link.label);
+      setEditUrl(link.url);
+    }
+  };
+
+  const saveEdit = () => {
+    if (editingIndex !== null && editLabel.trim() && editUrl.trim()) {
+      const links = [...(header.navigationLinks || [])];
+      links[editingIndex] = { label: editLabel, url: editUrl };
+      updateHeader({ navigationLinks: links });
+      setEditingIndex(null);
+      setEditLabel("");
+      setEditUrl("");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setEditLabel("");
+    setEditUrl("");
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = header.navigationLinks?.findIndex((_, i) => i.toString() === active.id) ?? -1;
+      const newIndex = header.navigationLinks?.findIndex((_, i) => i.toString() === over.id) ?? -1;
+      
+      if (oldIndex !== -1 && newIndex !== -1 && header.navigationLinks) {
+        const newLinks = arrayMove(header.navigationLinks, oldIndex, newIndex);
+        updateHeader({ navigationLinks: newLinks });
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -137,41 +205,60 @@ export default function HeaderEditor({
       {/* Navigation Links */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h3 className="font-medium mb-4">Navigation Links</h3>
-        <div className="space-y-3">
-          {header.navigationLinks?.map((link, index) => (
-            <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded">
-              <span className="flex-1 font-medium">{link.label}</span>
-              <span className="text-sm text-gray-500">{link.url}</span>
-              <button
-                onClick={() => removeNavigationLink(index)}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <div className="space-y-2">
-            <input
-              type="text"
-              value={newLinkLabel}
-              onChange={(e) => setNewLinkLabel(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              placeholder="Link Label"
-              onKeyPress={(e) => e.key === "Enter" && addNavigationLink()}
-            />
-            <LinkInput
-              value={newLinkUrl}
-              onChange={setNewLinkUrl}
-              siteSlug={siteSlug}
-              placeholder="/about or https://example.com"
-            />
-            <button
-              onClick={addNavigationLink}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        {header.navigationLinks && header.navigationLinks.length > 0 && (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={header.navigationLinks.map((_, i) => i.toString())}
+              strategy={verticalListSortingStrategy}
             >
-              Add Link
-            </button>
-          </div>
+              <div className="space-y-2 mb-4">
+                {header.navigationLinks.map((link, index) => (
+                  <SortableNavigationLink
+                    key={index}
+                    id={index.toString()}
+                    link={link}
+                    index={index}
+                    isEditing={editingIndex === index}
+                    editLabel={editLabel}
+                    editUrl={editUrl}
+                    onEditLabelChange={setEditLabel}
+                    onEditUrlChange={setEditUrl}
+                    onStartEdit={() => startEditing(index)}
+                    onSaveEdit={saveEdit}
+                    onCancelEdit={cancelEdit}
+                    onRemove={() => removeNavigationLink(index)}
+                    siteSlug={siteSlug}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={newLinkLabel}
+            onChange={(e) => setNewLinkLabel(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2"
+            placeholder="Link Label"
+            onKeyPress={(e) => e.key === "Enter" && addNavigationLink()}
+          />
+          <LinkInput
+            value={newLinkUrl}
+            onChange={setNewLinkUrl}
+            siteSlug={siteSlug}
+            placeholder="/about or https://example.com"
+          />
+          <button
+            onClick={addNavigationLink}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Add Link
+          </button>
         </div>
       </div>
 
@@ -267,6 +354,121 @@ export default function HeaderEditor({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SortableNavigationLink({
+  id,
+  link,
+  index,
+  isEditing,
+  editLabel,
+  editUrl,
+  onEditLabelChange,
+  onEditUrlChange,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onRemove,
+  siteSlug,
+}: {
+  id: string;
+  link: NavigationLink;
+  index: number;
+  isEditing: boolean;
+  editLabel: string;
+  editUrl: string;
+  onEditLabelChange: (value: string) => void;
+  onEditUrlChange: (value: string) => void;
+  onStartEdit: () => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onRemove: () => void;
+  siteSlug: string;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  if (isEditing) {
+    return (
+      <div ref={setNodeRef} style={style} className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 space-y-2">
+        <input
+          type="text"
+          value={editLabel}
+          onChange={(e) => onEditLabelChange(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2"
+          placeholder="Link Label"
+          autoFocus
+        />
+        <LinkInput
+          value={editUrl}
+          onChange={onEditUrlChange}
+          siteSlug={siteSlug}
+          placeholder="/about or https://example.com"
+        />
+        <div className="flex space-x-2">
+          <button
+            onClick={onSaveEdit}
+            className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+          >
+            Save
+          </button>
+          <button
+            onClick={onCancelEdit}
+            className="flex-1 px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center space-x-2 bg-gray-50 p-3 rounded border border-gray-200 hover:border-gray-300"
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+        title="Drag to reorder"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+        </svg>
+      </button>
+      <span className="flex-1 font-medium">{link.label}</span>
+      <span className="text-sm text-gray-500 truncate max-w-xs">{link.url}</span>
+      <button
+        onClick={onStartEdit}
+        className="text-blue-600 hover:text-blue-800 text-sm px-2 py-1"
+        title="Edit"
+      >
+        Edit
+      </button>
+      <button
+        onClick={onRemove}
+        className="text-red-600 hover:text-red-800 text-sm px-2 py-1"
+        title="Remove"
+      >
+        Remove
+      </button>
     </div>
   );
 }
