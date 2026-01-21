@@ -5,6 +5,19 @@ async function start() {
   try {
     console.log("🚀 Starting application...");
     
+    // Validate environment variables
+    try {
+      const { default: validateEnv } = await import("./validate-env");
+      const isValid = validateEnv();
+      if (!isValid) {
+        console.error("❌ Environment validation failed. Please check your environment variables.");
+        // Don't exit - some vars might be optional, but log the error
+      }
+    } catch (validateError) {
+      console.warn("⚠️  Environment validation failed:", validateError instanceof Error ? validateError.message : String(validateError));
+      // Continue anyway - validation is not critical
+    }
+    
     // Run database setup (non-blocking, won't fail if it errors)
     try {
       const { default: setupDatabase } = await import("./setup-db");
