@@ -3,6 +3,7 @@
 import { Site } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
+import { normalizeInternalLink } from "@/lib/link-utils";
 
 interface HeaderRendererProps {
   site: Site;
@@ -15,24 +16,19 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
   
   // Helper to determine if a link should use Next.js Link or regular anchor
   const getLinkProps = (url: string) => {
-    const isAnchor = url.startsWith("#");
-    const isExternal = url.startsWith("http://") || url.startsWith("https://");
-    const isMailto = url.startsWith("mailto:");
-    const isTel = url.startsWith("tel:");
+    const normalizedUrl = normalizeInternalLink(url, site.slug);
+    const isAnchor = normalizedUrl.startsWith("#");
+    const isExternal = normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://");
+    const isMailto = normalizedUrl.startsWith("mailto:");
+    const isTel = normalizedUrl.startsWith("tel:");
     
     // Use anchor tags for special protocols and anchor links
     if (isAnchor || isExternal || isMailto || isTel) {
-      return { useAnchor: true, href: url, external: isExternal };
-    }
-    
-    // For relative paths that don't start with /site/, use anchor tags to avoid prefetching
-    // This prevents 404 errors when the route doesn't exist
-    if (url.startsWith("/") && !url.startsWith("/site/")) {
-      return { useAnchor: true, href: url, external: false };
+      return { useAnchor: true, href: normalizedUrl, external: isExternal };
     }
     
     // For site routes, use Next.js Link but disable prefetching
-    return { useAnchor: false, href: url };
+    return { useAnchor: false, href: normalizedUrl };
   };
   const socialPlatformIcons: Record<string, string> = {
     facebook: "📘",

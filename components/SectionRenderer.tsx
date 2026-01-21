@@ -16,11 +16,11 @@ interface SectionRendererProps {
 export default function SectionRenderer({ section, isAdmin, onUpdate, siteSlug }: SectionRendererProps) {
   switch (section.type) {
     case "hero":
-      return <HeroSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} />;
+      return <HeroSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     case "services":
-      return <ServicesSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} />;
+      return <ServicesSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     case "textImage":
-      return <TextImageSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} />;
+      return <TextImageSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     case "contact":
       return <ContactSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} />;
     default:

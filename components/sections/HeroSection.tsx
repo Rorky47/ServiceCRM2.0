@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Section } from "@/types";
+import { normalizeInternalLink } from "@/lib/link-utils";
 
 interface HeroSectionProps {
   section: Extract<Section, { type: "hero" }>;
   isAdmin: boolean;
   onUpdate: (section: Section) => void;
+  siteSlug: string;
 }
 
-export default function HeroSection({ section, isAdmin, onUpdate }: HeroSectionProps) {
+export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: HeroSectionProps) {
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [showImageControls, setShowImageControls] = useState(false);
@@ -371,14 +374,32 @@ export default function HeroSection({ section, isAdmin, onUpdate }: HeroSectionP
         )}
 
         {/* CTA Button */}
-        {section.content.ctaButton && (
-          <a
-            href={section.content.ctaButton.link}
-            className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
-          >
-            {section.content.ctaButton.text}
-          </a>
-        )}
+        {section.content.ctaButton && (() => {
+          const normalizedLink = normalizeInternalLink(section.content.ctaButton.link, siteSlug);
+          const isAnchor = normalizedLink.startsWith("#");
+          const isExternal = normalizedLink.startsWith("http://") || normalizedLink.startsWith("https://");
+          
+          if (isAnchor || isExternal) {
+            return (
+              <a
+                href={normalizedLink}
+                className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+                {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
+              >
+                {section.content.ctaButton.text}
+              </a>
+            );
+          }
+          
+          return (
+            <Link
+              href={normalizedLink}
+              className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+            >
+              {section.content.ctaButton.text}
+            </Link>
+          );
+        })()}
       </div>
     </section>
   );

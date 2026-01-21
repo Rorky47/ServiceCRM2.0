@@ -3,6 +3,7 @@
 import { Site } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
+import { normalizeInternalLink } from "@/lib/link-utils";
 
 interface FooterRendererProps {
   site: Site;
@@ -50,14 +51,15 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
               </h3>
               <ul className="space-y-2">
                 {column.links.map((link, linkIndex) => {
-                  const isAnchor = link.url.startsWith("#");
-                  const isExternal = link.url.startsWith("http://") || link.url.startsWith("https://");
+                  const normalizedUrl = normalizeInternalLink(link.url, site.slug);
+                  const isAnchor = normalizedUrl.startsWith("#");
+                  const isExternal = normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://");
                   
                   if (isAnchor || isExternal) {
                     return (
                       <li key={linkIndex}>
                         <a
-                          href={link.url}
+                          href={normalizedUrl}
                           className="hover:opacity-80 transition-opacity text-sm"
                           style={{ color: footer.textColor || "#ffffff" }}
                           {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
@@ -71,7 +73,7 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                   return (
                     <li key={linkIndex}>
                       <Link
-                        href={link.url}
+                        href={normalizedUrl}
                         className="hover:opacity-80 transition-opacity text-sm"
                         style={{ color: footer.textColor || "#ffffff" }}
                       >

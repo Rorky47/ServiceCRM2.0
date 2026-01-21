@@ -2,17 +2,20 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Section } from "@/types";
 import RichTextEditor from "@/components/RichTextEditor";
 import RichTextDisplay from "@/components/RichTextDisplay";
+import { normalizeInternalLink } from "@/lib/link-utils";
 
 interface ServicesSectionProps {
   section: Extract<Section, { type: "services" }>;
   isAdmin: boolean;
   onUpdate: (section: Section) => void;
+  siteSlug: string;
 }
 
-export default function ServicesSection({ section, isAdmin, onUpdate }: ServicesSectionProps) {
+export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }: ServicesSectionProps) {
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
@@ -527,14 +530,32 @@ export default function ServicesSection({ section, isAdmin, onUpdate }: Services
                 )}
 
                 {/* Service Button */}
-                {item.button && (
-                  <a
-                    href={item.button.link}
-                    className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    {item.button.text}
-                  </a>
-                )}
+                {item.button && (() => {
+                  const normalizedLink = normalizeInternalLink(item.button.link, siteSlug);
+                  const isAnchor = normalizedLink.startsWith("#");
+                  const isExternal = normalizedLink.startsWith("http://") || normalizedLink.startsWith("https://");
+                  
+                  if (isAnchor || isExternal) {
+                    return (
+                      <a
+                        href={normalizedLink}
+                        className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                        {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
+                      >
+                        {item.button.text}
+                      </a>
+                    );
+                  }
+                  
+                  return (
+                    <Link
+                      href={normalizedLink}
+                      className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      {item.button.text}
+                    </Link>
+                  );
+                })()}
 
                 {/* Add Image Button (if no image) */}
                 {isAdmin && !item.image && (
