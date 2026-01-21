@@ -30,13 +30,32 @@ export default function OptimizedImage({
 }: OptimizedImageProps) {
   // Check if it's a data URL (base64 image)
   if (src.startsWith("data:")) {
+    // If fill is true, make the image fill its container
+    const fillStyles = fill
+      ? {
+          position: "absolute" as const,
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+        }
+      : {};
+    
+    // Ensure object-fit class is present for fill images
+    const hasObjectFit = className.includes("object-");
+    const objectFitClass = fill && !hasObjectFit ? "object-cover" : "";
+    const finalClassName = objectFitClass ? `${className} ${objectFitClass}`.trim() : className;
+    
     return (
       <img
         src={src}
         alt={alt}
-        className={className}
+        className={finalClassName}
         onClick={onClick}
-        style={{ cursor: onClick ? "pointer" : "default" }}
+        style={{
+          cursor: onClick ? "pointer" : "default",
+          ...fillStyles,
+        }}
         {...props}
       />
     );
