@@ -62,6 +62,27 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     setToast({ message, type });
   };
 
+  // Helper function to remove undefined values from objects
+  const removeUndefined = (obj: any): any => {
+    if (obj === null || obj === undefined) {
+      return undefined;
+    }
+    if (Array.isArray(obj)) {
+      return obj.length > 0 ? obj.map(removeUndefined).filter(item => item !== undefined) : undefined;
+    }
+    if (typeof obj === 'object') {
+      const cleaned: any = {};
+      for (const key in obj) {
+        const value = removeUndefined(obj[key]);
+        if (value !== undefined) {
+          cleaned[key] = value;
+        }
+      }
+      return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+    }
+    return obj;
+  };
+
   const fetchSite = async () => {
     try {
       const response = await fetch(`/api/sites?slug=${params.slug}`);
@@ -138,6 +159,41 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
     setSaving(true);
     try {
+      // Clean up header/footer data - remove empty arrays and undefined values
+      const cleanHeader = headerData ? removeUndefined({
+        ...headerData,
+        showLogo: headerData.showLogo ?? false,
+        showGetQuoteButton: headerData.showGetQuoteButton ?? false,
+        navigationLinks: headerData.navigationLinks && headerData.navigationLinks.length > 0 
+          ? headerData.navigationLinks 
+          : undefined,
+        phoneNumber: headerData.phoneNumber || undefined,
+        getQuoteButtonText: headerData.getQuoteButtonText || undefined,
+        getQuoteButtonLink: headerData.getQuoteButtonLink || undefined,
+        backgroundColor: headerData.backgroundColor || undefined,
+        textColor: headerData.textColor || undefined,
+        logo: headerData.logo || undefined,
+        // Don't include socialLinks - use shared social links instead
+      }) : undefined;
+
+      const cleanFooter = footerData ? removeUndefined({
+        ...footerData,
+        showLogo: footerData.showLogo ?? false,
+        copyrightText: footerData.copyrightText || undefined,
+        columns: footerData.columns && footerData.columns.length > 0 
+          ? footerData.columns
+              .map(col => ({
+                title: col.title,
+                links: col.links && col.links.length > 0 ? col.links : undefined,
+              }))
+              .filter(col => col.title.trim() || col.links)
+          : undefined,
+        backgroundColor: footerData.backgroundColor || undefined,
+        textColor: footerData.textColor || undefined,
+        logo: footerData.logo || undefined,
+        // Don't include socialLinks - use shared social links instead
+      }) : undefined;
+
       const updatedSite: Site = {
         ...site!,
         name: formData.name,
@@ -163,35 +219,29 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           leadEmail: formData.leadEmail || undefined,
         },
         socialLinks: (socialLinks && socialLinks.length > 0) ? socialLinks : undefined,
-        // Clear header/footer social links when using shared social links
-        header: headerData ? {
-          ...headerData,
-          showLogo: headerData.showLogo ?? false,
-          showGetQuoteButton: headerData.showGetQuoteButton ?? false,
-          socialLinks: undefined, // Use shared social links instead
-        } : undefined,
-        footer: footerData ? {
-          ...footerData,
-          showLogo: footerData.showLogo ?? false,
-          socialLinks: undefined, // Use shared social links instead
-        } : undefined,
+        header: cleanHeader,
+        footer: cleanFooter,
       };
+
+      const finalSite: Site = removeUndefined(updatedSite) as Site;
 
       const response = await fetch("/api/sites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedSite),
+        body: JSON.stringify(finalSite),
       });
 
       if (response.ok) {
         showToast("Settings saved successfully!", "success");
         router.refresh();
       } else {
-        showToast("Failed to save settings", "error");
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        console.error("Failed to save settings:", errorData);
+        showToast(errorData.error || "Failed to save settings", "error");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving settings:", error);
-      showToast("Failed to save settings", "error");
+      showToast(error?.message || "Failed to save settings", "error");
     } finally {
       setSaving(false);
     }

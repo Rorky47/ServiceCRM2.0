@@ -25,9 +25,10 @@ export async function POST(request: NextRequest) {
     const site: Site = await request.json();
     await saveSite(site);
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving site:", error);
-    return NextResponse.json({ error: "Failed to save site" }, { status: 500 });
+    const errorMessage = error?.message || error?.toString() || "Failed to save site";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
