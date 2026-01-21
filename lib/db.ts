@@ -31,10 +31,16 @@ export async function query(text: string, params?: any[]) {
   try {
     const res = await pool.query(text, params);
     const duration = Date.now() - start;
-    console.log("Executed query", { text, duration, rows: res.rowCount });
+    // Only log queries in development to avoid noise and potential serialization issues
+    if (process.env.NODE_ENV !== "production" && process.env.DEBUG_QUERIES === "true") {
+      const queryPreview = text.replace(/\s+/g, " ").substring(0, 100);
+      console.log("Executed query", { text: queryPreview, duration, rows: res.rowCount });
+    }
     return res;
   } catch (error) {
-    console.error("Query error", { text, error });
+    const queryPreview = text.replace(/\s+/g, " ").substring(0, 200);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Query error", { text: queryPreview, error: errorMessage });
     throw error;
   }
 }

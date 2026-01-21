@@ -9,6 +9,9 @@ interface CustomHeadCodeProps {
 
 export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProps) {
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return;
+
     // Inject favicon if provided
     if (favicon) {
       // Remove existing favicon links
@@ -16,16 +19,16 @@ export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProp
         const existingFavicons = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
         existingFavicons.forEach((link) => {
           try {
-            if (link.parentNode) {
-              link.parentNode.removeChild(link);
+            // Use remove() method which is safer than removeChild
+            if (link && link.parentNode) {
+              link.remove();
             }
           } catch (error) {
-            // Element may have already been removed
-            console.warn("Error removing favicon link:", error);
+            // Element may have already been removed, ignore silently
           }
         });
       } catch (error) {
-        console.warn("Error removing existing favicons:", error);
+        // Ignore errors when removing favicons
       }
 
       // Add new favicon
@@ -70,13 +73,18 @@ export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProp
               const scriptText = element.textContent || element.innerHTML;
               
               // Skip scripts with module type or that contain export statements (ES6 modules)
-              // Also skip chrome-extension scripts
+              // Also skip chrome-extension scripts and any extension scripts
               if (
                 scriptType === "module" || 
                 (scriptText && /^\s*export\s/.test(scriptText)) ||
-                (scriptSrc && scriptSrc.startsWith("chrome-extension://"))
+                (scriptSrc && (
+                  scriptSrc.startsWith("chrome-extension://") ||
+                  scriptSrc.startsWith("moz-extension://") ||
+                  scriptSrc.startsWith("safari-extension://") ||
+                  scriptSrc.includes("extension://")
+                ))
               ) {
-                console.warn("Skipping script injection:", scriptSrc || "inline script");
+                // Silently skip extension scripts
                 return; // Skip this script
               }
               

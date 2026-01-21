@@ -144,11 +144,16 @@ async function setupDatabase() {
       }
 
       // Update existing sites to have empty domains array if null
-      await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      try {
+        await query("UPDATE sites SET domains = '{}' WHERE domains IS NULL");
+      } catch (updateError) {
+        // Ignore update errors - domains column might not exist yet or might not have null values
+        console.log("  ⚠️  Could not update domains (this is OK):", updateError instanceof Error ? updateError.message : String(updateError));
+      }
       
       console.log("✅ Table migration complete");
     } catch (migrationError) {
-      console.log("  ⚠️  Migration check failed (this is OK if tables are new):", migrationError);
+      console.log("  ⚠️  Migration check failed (this is OK if tables are new):", migrationError instanceof Error ? migrationError.message : String(migrationError));
     }
 
     // Migrate JSON files to database (if they exist)
@@ -166,6 +171,24 @@ async function setupDatabase() {
       
       if (siteJsonFiles.length > 0) {
         console.log(`  📁 Found ${siteJsonFiles.length} site file(s)`);
+        
+        // Check if domains column exists before migrating
+        let domainsColumnExists = false;
+        try {
+          const columns = await query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'sites' AND column_name = 'domains'
+          `);
+          domainsColumnExists = columns.rows.length > 0;
+          if (!domainsColumnExists) {
+            await query("ALTER TABLE sites ADD COLUMN domains TEXT[] DEFAULT '{}'");
+            console.log("  ➕ Added 'domains' column to sites table");
+          }
+        } catch (error) {
+          console.warn("  ⚠️  Could not check/add domains column:", error);
+        }
+        
         for (const file of siteJsonFiles) {
           const filePath = path.join(sitesDir, file);
           const data = await fs.readFile(filePath, "utf8");
@@ -179,7 +202,7 @@ async function setupDatabase() {
               [
                 site.id,
                 site.slug,
-                JSON.stringify(site.domains || []),
+                site.domains || [], // Pass array directly, not stringified - pg library handles conversion
                 site.name,
                 JSON.stringify(site.theme),
                 site.seo ? JSON.stringify(site.seo) : null,
