@@ -163,8 +163,18 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           leadEmail: formData.leadEmail || undefined,
         },
         socialLinks: (socialLinks && socialLinks.length > 0) ? socialLinks : undefined,
-        header: headerData,
-        footer: footerData,
+        // Clear header/footer social links when using shared social links
+        header: headerData ? {
+          ...headerData,
+          showLogo: headerData.showLogo ?? false,
+          showGetQuoteButton: headerData.showGetQuoteButton ?? false,
+          socialLinks: undefined, // Use shared social links instead
+        } : undefined,
+        footer: footerData ? {
+          ...footerData,
+          showLogo: footerData.showLogo ?? false,
+          socialLinks: undefined, // Use shared social links instead
+        } : undefined,
       };
 
       const response = await fetch("/api/sites", {
