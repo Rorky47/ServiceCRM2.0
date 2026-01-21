@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone', // Optimize for Docker/Railway
+  // Remove standalone output for Railway NIXPACKS - use regular output
   images: {
     remotePatterns: [
       {
