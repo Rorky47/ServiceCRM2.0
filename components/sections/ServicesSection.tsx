@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { Section } from "@/types";
 import RichTextEditor from "@/components/RichTextEditor";
 import RichTextDisplay from "@/components/RichTextDisplay";
-import { normalizeInternalLink } from "@/lib/link-utils";
+import OptimizedImage from "@/components/OptimizedImage";
+import SmartLink from "@/components/SmartLink";
 
 interface ServicesSectionProps {
   section: Extract<Section, { type: "services" }>;
@@ -290,20 +289,12 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
               {/* Service Image */}
               {item.image && (
                 <div className="relative h-48 w-full">
-                  {item.image.startsWith("data:") ? (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
-                  )}
+                  <OptimizedImage
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                  />
                   {isAdmin && (
                     <button
                       onClick={() => handleServiceImageRemove(index)}
@@ -530,32 +521,15 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                 )}
 
                 {/* Service Button */}
-                {item.button && (() => {
-                  const normalizedLink = normalizeInternalLink(item.button.link, siteSlug);
-                  const isAnchor = normalizedLink.startsWith("#");
-                  const isExternal = normalizedLink.startsWith("http://") || normalizedLink.startsWith("https://");
-                  
-                  if (isAnchor || isExternal) {
-                    return (
-                      <a
-                        href={normalizedLink}
-                        className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                        {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
-                      >
-                        {item.button.text}
-                      </a>
-                    );
-                  }
-                  
-                  return (
-                    <Link
-                      href={normalizedLink}
-                      className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      {item.button.text}
-                    </Link>
-                  );
-                })()}
+                {item.button && (
+                  <SmartLink
+                    href={item.button.link}
+                    siteSlug={siteSlug}
+                    className="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    {item.button.text}
+                  </SmartLink>
+                )}
 
                 {/* Add Image Button (if no image) */}
                 {isAdmin && !item.image && (

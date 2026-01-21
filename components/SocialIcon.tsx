@@ -1,0 +1,33 @@
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaLink } from "react-icons/fa";
+
+interface SocialIconProps {
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}
+
+export default function SocialIcon({ platform, size = "md", className = "" }: SocialIconProps) {
+  const sizeClasses = {
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
+  };
+
+  const iconClass = `${sizeClasses[size]} ${className}`;
+
+  switch (platform) {
+    case "facebook":
+      return <FaFacebook className={iconClass} />;
+    case "twitter":
+      return <FaTwitter className={iconClass} />;
+    case "instagram":
+      return <FaInstagram className={iconClass} />;
+    case "linkedin":
+      return <FaLinkedin className={iconClass} />;
+    case "youtube":
+      return <FaYoutube className={iconClass} />;
+    default:
+      return <FaLink className={iconClass} />;
+  }
+}
+

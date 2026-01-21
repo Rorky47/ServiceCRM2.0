@@ -1,9 +1,11 @@
 "use client";
 
 import { Site } from "@/types";
-import Image from "next/image";
 import Link from "next/link";
 import { normalizeInternalLink } from "@/lib/link-utils";
+import SocialIcon from "@/components/SocialIcon";
+import OptimizedImage from "@/components/OptimizedImage";
+import SmartLink from "@/components/SmartLink";
 
 interface HeaderRendererProps {
   site: Site;
@@ -18,30 +20,6 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
   // Use header social links if set, otherwise use site social links
   const socialLinks = header.socialLinks || site.socialLinks;
   
-  // Helper to determine if a link should use Next.js Link or regular anchor
-  const getLinkProps = (url: string) => {
-    const normalizedUrl = normalizeInternalLink(url, site.slug);
-    const isAnchor = normalizedUrl.startsWith("#");
-    const isExternal = normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://");
-    const isMailto = normalizedUrl.startsWith("mailto:");
-    const isTel = normalizedUrl.startsWith("tel:");
-    
-    // Use anchor tags for special protocols and anchor links
-    if (isAnchor || isExternal || isMailto || isTel) {
-      return { useAnchor: true, href: normalizedUrl, external: isExternal };
-    }
-    
-    // For site routes, use Next.js Link but disable prefetching
-    return { useAnchor: false, href: normalizedUrl };
-  };
-  const socialPlatformIcons: Record<string, string> = {
-    facebook: "📘",
-    twitter: "🐦",
-    instagram: "📷",
-    linkedin: "💼",
-    youtube: "📺",
-    custom: "🔗",
-  };
 
   return (
     <header
@@ -57,46 +35,32 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
           {header.showLogo && logo && (
             <div className="flex-shrink-0">
               <Link href="/">
-                {logo.startsWith("data:") ? (
-                  <img src={logo} alt={site.name} className="h-10 w-auto" />
-                ) : (
-                  <Image src={logo} alt={site.name} width={120} height={40} className="h-10 w-auto" unoptimized />
-                )}
+                <OptimizedImage
+                  src={logo}
+                  alt={site.name}
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto"
+                  unoptimized
+                />
               </Link>
             </div>
           )}
 
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-6 flex-1 justify-center">
-            {header.navigationLinks?.map((link, index) => {
-              const linkProps = getLinkProps(link.url);
-              
-              if (linkProps.useAnchor) {
-                return (
-                  <a
-                    key={index}
-                    href={linkProps.href}
-                    className="hover:opacity-80 transition-opacity"
-                    style={{ color: header.textColor || "#000000" }}
-                    {...(linkProps.external && { target: "_blank", rel: "noopener noreferrer" })}
-                  >
-                    {link.label}
-                  </a>
-                );
-              }
-              
-              return (
-                <Link
-                  key={index}
-                  href={linkProps.href}
-                  prefetch={false}
-                  className="hover:opacity-80 transition-opacity"
-                  style={{ color: header.textColor || "#000000" }}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {header.navigationLinks?.map((link, index) => (
+              <SmartLink
+                key={index}
+                href={link.url}
+                siteSlug={site.slug}
+                className="hover:opacity-80 transition-opacity"
+                style={{ color: header.textColor || "#000000" }}
+                prefetch={false}
+              >
+                {link.label}
+              </SmartLink>
+            ))}
           </nav>
 
           {/* Right Side: Phone, Social, CTA */}
@@ -114,56 +78,38 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
 
             {/* Social Links */}
             {socialLinks && socialLinks.length > 0 && (
-              <div className="hidden md:flex items-center space-x-2">
+              <div className="hidden md:flex items-center space-x-3">
                 {socialLinks.map((social, index) => (
                   <a
                     key={index}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xl hover:opacity-80 transition-opacity"
+                    className="hover:opacity-80 transition-opacity"
                     title={social.label || social.platform}
+                    style={{ color: header.textColor || "#000000" }}
                   >
-                    {socialPlatformIcons[social.platform] || "🔗"}
+                    <SocialIcon platform={social.platform} size="md" />
                   </a>
                 ))}
               </div>
             )}
 
             {/* Get Quote Button */}
-            {header.showGetQuoteButton && header.getQuoteButtonLink && (() => {
-              const linkProps = getLinkProps(header.getQuoteButtonLink);
-              
-              if (linkProps.useAnchor) {
-                return (
-                  <a
-                    href={linkProps.href}
-                    className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
-                    style={{
-                      backgroundColor: site.theme.primaryColor || "#0066cc",
-                      color: "#ffffff",
-                    }}
-                    {...(linkProps.external && { target: "_blank", rel: "noopener noreferrer" })}
-                  >
-                    {header.getQuoteButtonText || "Get Quote"}
-                  </a>
-                );
-              }
-              
-              return (
-                <Link
-                  href={linkProps.href}
-                  prefetch={false}
-                  className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
-                  style={{
-                    backgroundColor: site.theme.primaryColor || "#0066cc",
-                    color: "#ffffff",
-                  }}
-                >
-                  {header.getQuoteButtonText || "Get Quote"}
-                </Link>
-              );
-            })()}
+            {header.showGetQuoteButton && header.getQuoteButtonLink && (
+              <SmartLink
+                href={header.getQuoteButtonLink}
+                siteSlug={site.slug}
+                className="px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                style={{
+                  backgroundColor: site.theme.primaryColor || "#0066cc",
+                  color: "#ffffff",
+                }}
+                prefetch={false}
+              >
+                {header.getQuoteButtonText || "Get Quote"}
+              </SmartLink>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -179,35 +125,18 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
         {/* Mobile Navigation */}
         <div className="md:hidden pb-4">
           <nav className="flex flex-col space-y-2">
-            {header.navigationLinks?.map((link, index) => {
-              const linkProps = getLinkProps(link.url);
-              
-              if (linkProps.useAnchor) {
-                return (
-                  <a
-                    key={index}
-                    href={linkProps.href}
-                    className="hover:opacity-80 transition-opacity py-2"
-                    style={{ color: header.textColor || "#000000" }}
-                    {...(linkProps.external && { target: "_blank", rel: "noopener noreferrer" })}
-                  >
-                    {link.label}
-                  </a>
-                );
-              }
-              
-              return (
-                <Link
-                  key={index}
-                  href={linkProps.href}
-                  prefetch={false}
-                  className="hover:opacity-80 transition-opacity py-2"
-                  style={{ color: header.textColor || "#000000" }}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {header.navigationLinks?.map((link, index) => (
+              <SmartLink
+                key={index}
+                href={link.url}
+                siteSlug={site.slug}
+                className="hover:opacity-80 transition-opacity py-2"
+                style={{ color: header.textColor || "#000000" }}
+                prefetch={false}
+              >
+                {link.label}
+              </SmartLink>
+            ))}
             {header.phoneNumber && (
               <a
                 href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}
@@ -225,10 +154,11 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xl hover:opacity-80 transition-opacity"
+                    className="hover:opacity-80 transition-opacity"
                     title={social.label || social.platform}
+                    style={{ color: header.textColor || "#000000" }}
                   >
-                    {socialPlatformIcons[social.platform] || "🔗"}
+                    <SocialIcon platform={social.platform} size="md" />
                   </a>
                 ))}
               </div>

@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { Section } from "@/types";
-import { normalizeInternalLink } from "@/lib/link-utils";
+import OptimizedImage from "@/components/OptimizedImage";
+import SmartLink from "@/components/SmartLink";
 
 interface HeroSectionProps {
   section: Extract<Section, { type: "hero" }>;
@@ -301,20 +300,12 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         {hasImage && (
-          section.content.image.startsWith("data:") ? (
-            <img
-              src={section.content.image}
-              alt="Hero"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <Image
-              src={section.content.image}
-              alt="Hero"
-              fill
-              className="object-cover"
-            />
-          )
+          <OptimizedImage
+            src={section.content.image}
+            alt="Hero"
+            fill
+            className="object-cover"
+          />
         )}
         {/* Overlay - only show if there's an image and no custom background color */}
         {hasImage && !section.content.backgroundColor && (
@@ -374,32 +365,15 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
         )}
 
         {/* CTA Button */}
-        {section.content.ctaButton && (() => {
-          const normalizedLink = normalizeInternalLink(section.content.ctaButton.link, siteSlug);
-          const isAnchor = normalizedLink.startsWith("#");
-          const isExternal = normalizedLink.startsWith("http://") || normalizedLink.startsWith("https://");
-          
-          if (isAnchor || isExternal) {
-            return (
-              <a
-                href={normalizedLink}
-                className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
-                {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
-              >
-                {section.content.ctaButton.text}
-              </a>
-            );
-          }
-          
-          return (
-            <Link
-              href={normalizedLink}
-              className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
-            >
-              {section.content.ctaButton.text}
-            </Link>
-          );
-        })()}
+        {section.content.ctaButton && (
+          <SmartLink
+            href={section.content.ctaButton.link}
+            siteSlug={siteSlug}
+            className="inline-block px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            {section.content.ctaButton.text}
+          </SmartLink>
+        )}
       </div>
     </section>
   );

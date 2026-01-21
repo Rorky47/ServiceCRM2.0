@@ -6,6 +6,7 @@ import Image from "next/image";
 import Toast from "@/components/Toast";
 import HeaderEditor from "@/components/HeaderEditor";
 import FooterEditor from "@/components/FooterEditor";
+import SocialIcon from "@/components/SocialIcon";
 import { Site } from "@/types";
 
 interface SettingsPageProps {
@@ -333,13 +334,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                 <div className="space-y-3">
                   {(socialLinks || []).map((link, index) => (
                     <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded">
-                      <span className="text-xl">
-                        {link.platform === "facebook" ? "📘" :
-                         link.platform === "twitter" ? "🐦" :
-                         link.platform === "instagram" ? "📷" :
-                         link.platform === "linkedin" ? "💼" :
-                         link.platform === "youtube" ? "📺" : "🔗"}
-                      </span>
+                      <SocialIcon platform={link.platform} size="md" className="text-gray-600" />
                       <span className="flex-1 font-medium capitalize">{link.platform}</span>
                       {link.label && <span className="text-sm text-gray-500">({link.label})</span>}
                       <span className="text-sm text-gray-500 truncate max-w-xs">{link.url}</span>

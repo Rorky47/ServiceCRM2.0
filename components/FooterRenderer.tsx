@@ -1,9 +1,10 @@
 "use client";
 
 import { Site } from "@/types";
-import Image from "next/image";
-import Link from "next/link";
 import { normalizeInternalLink } from "@/lib/link-utils";
+import SocialIcon from "@/components/SocialIcon";
+import OptimizedImage from "@/components/OptimizedImage";
+import SmartLink from "@/components/SmartLink";
 
 interface FooterRendererProps {
   site: Site;
@@ -17,14 +18,6 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
   const logo = footer.logo || site.theme?.logo;
   // Use footer social links if set, otherwise use site social links
   const socialLinks = footer.socialLinks || site.socialLinks;
-  const socialPlatformIcons: Record<string, string> = {
-    facebook: "📘",
-    twitter: "🐦",
-    instagram: "📷",
-    linkedin: "💼",
-    youtube: "📺",
-    custom: "🔗",
-  };
 
   return (
     <footer
@@ -39,11 +32,14 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
           {/* Logo Column */}
           {footer.showLogo && logo && (
             <div className="col-span-1">
-              {logo.startsWith("data:") ? (
-                <img src={logo} alt={site.name} className="h-12 w-auto mb-4" />
-              ) : (
-                <Image src={logo} alt={site.name} width={120} height={48} className="h-12 w-auto mb-4" unoptimized />
-              )}
+              <OptimizedImage
+                src={logo}
+                alt={site.name}
+                width={120}
+                height={48}
+                className="h-12 w-auto mb-4"
+                unoptimized
+              />
             </div>
           )}
 
@@ -54,38 +50,18 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                 {column.title}
               </h3>
               <ul className="space-y-2">
-                {column.links.map((link, linkIndex) => {
-                  const normalizedUrl = normalizeInternalLink(link.url, site.slug);
-                  const isAnchor = normalizedUrl.startsWith("#");
-                  const isExternal = normalizedUrl.startsWith("http://") || normalizedUrl.startsWith("https://");
-                  
-                  if (isAnchor || isExternal) {
-                    return (
-                      <li key={linkIndex}>
-                        <a
-                          href={normalizedUrl}
-                          className="hover:opacity-80 transition-opacity text-sm"
-                          style={{ color: footer.textColor || "#ffffff" }}
-                          {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
-                        >
-                          {link.label}
-                        </a>
-                      </li>
-                    );
-                  }
-                  
-                  return (
-                    <li key={linkIndex}>
-                      <Link
-                        href={normalizedUrl}
-                        className="hover:opacity-80 transition-opacity text-sm"
-                        style={{ color: footer.textColor || "#ffffff" }}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  );
-                })}
+                {column.links.map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <SmartLink
+                      href={link.url}
+                      siteSlug={site.slug}
+                      className="hover:opacity-80 transition-opacity text-sm"
+                      style={{ color: footer.textColor || "#ffffff" }}
+                    >
+                      {link.label}
+                    </SmartLink>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
@@ -106,10 +82,11 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-2xl hover:opacity-80 transition-opacity"
+                  className="hover:opacity-80 transition-opacity"
                   title={social.label || social.platform}
+                  style={{ color: footer.textColor || "#ffffff" }}
                 >
-                  {socialPlatformIcons[social.platform] || "🔗"}
+                  <SocialIcon platform={social.platform} size="lg" />
                 </a>
               ))}
             </div>

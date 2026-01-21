@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Section } from "@/types";
 import RichTextEditor from "@/components/RichTextEditor";
 import RichTextDisplay from "@/components/RichTextDisplay";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface TextImageSectionProps {
   section: Extract<Section, { type: "textImage" }>;
@@ -124,24 +124,13 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug 
         </div>
         <div className="relative h-96">
           {section.content.image && (
-            section.content.image.startsWith("data:") ? (
-              <img
-                src={section.content.image}
-                alt={section.content.title}
-                className="w-full h-full object-cover rounded-lg"
-                onClick={handleImageClick}
-                style={{ cursor: isAdmin ? "pointer" : "default" }}
-              />
-            ) : (
-              <Image
-                src={section.content.image}
-                alt={section.content.title}
-                fill
-                className="object-cover rounded-lg"
-                onClick={handleImageClick}
-                style={{ cursor: isAdmin ? "pointer" : "default" }}
-              />
-            )
+            <OptimizedImage
+              src={section.content.image}
+              alt={section.content.title}
+              fill
+              className="object-cover rounded-lg"
+              onClick={isAdmin ? handleImageClick : undefined}
+            />
           )}
         </div>
       </div>

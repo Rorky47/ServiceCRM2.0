@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface NavigationLink {
   label: string;
@@ -87,20 +87,26 @@ export default function HeaderEditor({
             {themeLogo && !header.logo && (
               <div className="flex items-center space-x-4 bg-gray-50 p-3 rounded">
                 <span className="text-sm text-gray-600">Using theme logo:</span>
-                {themeLogo.startsWith("data:") ? (
-                  <img src={themeLogo} alt="Theme logo" className="h-12 w-auto object-contain" />
-                ) : (
-                  <Image src={themeLogo} alt="Theme logo" width={48} height={48} className="h-12 w-auto object-contain" unoptimized />
-                )}
+                <OptimizedImage
+                  src={themeLogo}
+                  alt="Theme logo"
+                  width={48}
+                  height={48}
+                  className="h-12 w-auto object-contain"
+                  unoptimized
+                />
               </div>
             )}
             {header.logo && (
               <div className="flex items-center space-x-4">
-                {header.logo.startsWith("data:") ? (
-                  <img src={header.logo} alt="Custom logo preview" className="h-16 w-auto object-contain border border-gray-200 rounded" />
-                ) : (
-                  <Image src={header.logo} alt="Custom logo preview" width={64} height={64} className="h-16 w-auto object-contain border border-gray-200 rounded" unoptimized />
-                )}
+                <OptimizedImage
+                  src={header.logo}
+                  alt="Custom logo preview"
+                  width={64}
+                  height={64}
+                  className="h-16 w-auto object-contain border border-gray-200 rounded"
+                  unoptimized
+                />
                 <button
                   onClick={() => updateHeader({ logo: undefined })}
                   className="text-red-600 hover:text-red-800 text-sm"
