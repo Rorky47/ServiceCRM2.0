@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface CustomHeadCodeProps {
   headCode?: string;
@@ -8,51 +8,61 @@ interface CustomHeadCodeProps {
 }
 
 export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProps) {
+  const injectedRef = useRef<Set<string>>(new Set());
+  const faviconRef = useRef<string | null>(null);
+
   useEffect(() => {
     // Only run on client side
     if (typeof window === "undefined") return;
 
-    // Inject favicon if provided
-    if (favicon) {
-      // Remove existing favicon links
+    // Inject favicon if provided and it's different from what we've already injected
+    if (favicon && favicon !== faviconRef.current) {
       try {
+        // Remove only the favicons we've injected, not all favicons
+        // This prevents interfering with React's DOM management
         const existingFavicons = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
         existingFavicons.forEach((link) => {
           try {
-            // Use remove() method which is safer than removeChild
-            if (link && link.parentNode) {
+            // Only remove if it's one we injected (has data-injected attribute)
+            if (link.hasAttribute("data-injected")) {
               link.remove();
             }
           } catch (error) {
             // Element may have already been removed, ignore silently
           }
         });
+
+        // Add new favicon with marker
+        const link = document.createElement("link");
+        link.rel = "icon";
+        link.type = favicon.startsWith("data:") ? favicon.split(";")[0].split(":")[1] : "image/x-icon";
+        link.href = favicon;
+        link.setAttribute("data-injected", "true");
+        document.head.appendChild(link);
+
+        // Also add as shortcut icon
+        const shortcutLink = document.createElement("link");
+        shortcutLink.rel = "shortcut icon";
+        shortcutLink.href = favicon;
+        shortcutLink.setAttribute("data-injected", "true");
+        document.head.appendChild(shortcutLink);
+
+        // Add apple touch icon
+        const appleLink = document.createElement("link");
+        appleLink.rel = "apple-touch-icon";
+        appleLink.href = favicon;
+        appleLink.setAttribute("data-injected", "true");
+        document.head.appendChild(appleLink);
+
+        faviconRef.current = favicon;
       } catch (error) {
-        // Ignore errors when removing favicons
+        // Ignore errors when injecting favicons
+        console.warn("Error injecting favicon:", error);
       }
-
-      // Add new favicon
-      const link = document.createElement("link");
-      link.rel = "icon";
-      link.type = favicon.startsWith("data:") ? favicon.split(";")[0].split(":")[1] : "image/x-icon";
-      link.href = favicon;
-      document.head.appendChild(link);
-
-      // Also add as shortcut icon
-      const shortcutLink = document.createElement("link");
-      shortcutLink.rel = "shortcut icon";
-      shortcutLink.href = favicon;
-      document.head.appendChild(shortcutLink);
-
-      // Add apple touch icon
-      const appleLink = document.createElement("link");
-      appleLink.rel = "apple-touch-icon";
-      appleLink.href = favicon;
-      document.head.appendChild(appleLink);
     }
 
-    // Inject custom head code
-    if (headCode) {
+    // Inject custom head code (only once per unique headCode)
+    if (headCode && !injectedRef.current.has(headCode)) {
       try {
         // Create a temporary container to parse the HTML
         const tempDiv = document.createElement("div");
@@ -62,12 +72,8 @@ export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProp
         const elements = tempDiv.querySelectorAll("script, link, meta, style, title");
         elements.forEach((element) => {
           try {
-            // Clone the element to avoid issues
-            const clonedElement = element.cloneNode(true) as HTMLElement;
-            
             // For scripts, we need special handling
             if (element.tagName === "SCRIPT") {
-              const script = document.createElement("script");
               const scriptSrc = element.getAttribute("src");
               const scriptType = element.getAttribute("type");
               const scriptText = element.textContent || element.innerHTML;
@@ -81,70 +87,84 @@ export default function CustomHeadCode({ headCode, favicon }: CustomHeadCodeProp
                   scriptSrc.startsWith("chrome-extension://") ||
                   scriptSrc.startsWith("moz-extension://") ||
                   scriptSrc.startsWith("safari-extension://") ||
-                  scriptSrc.includes("extension://")
+                  scriptSrc.includes("extension://") ||
+                  scriptSrc.includes("webpage_content_reporter")
                 ))
               ) {
                 // Silently skip extension scripts
                 return; // Skip this script
               }
               
-              if (scriptSrc) {
-                script.src = scriptSrc;
-              }
-              if (scriptText) {
-                script.textContent = scriptText;
-              }
-              
-              // Set type - default to text/javascript for inline scripts
-              if (scriptType && scriptType !== "module") {
-                script.type = scriptType;
-              } else if (!scriptType) {
-                script.type = "text/javascript";
-              } else {
-                // Skip module scripts
-                return;
-              }
-              
-              // Copy other attributes (except src, type, and textContent)
-              Array.from(element.attributes).forEach((attr) => {
-                if (attr.name !== "src" && attr.name !== "type") {
-                  script.setAttribute(attr.name, attr.value);
-                }
-              });
-              
-              // Check if script already exists
+              // Check if script already exists before injecting
               const existingScript = scriptSrc 
-                ? document.querySelector(`script[src="${scriptSrc}"]`)
-                : document.querySelector(`script[type="${script.type}"]`);
+                ? document.querySelector(`script[src="${scriptSrc}"][data-injected="true"]`)
+                : document.querySelector(`script[data-injected="true"]`);
+              
               if (!existingScript) {
+                const script = document.createElement("script");
+                if (scriptSrc) {
+                  script.src = scriptSrc;
+                }
+                if (scriptText) {
+                  script.textContent = scriptText;
+                }
+                
+                // Set type - default to text/javascript for inline scripts
+                if (scriptType && scriptType !== "module") {
+                  script.type = scriptType;
+                } else if (!scriptType) {
+                  script.type = "text/javascript";
+                }
+                
+                // Copy other attributes
+                Array.from(element.attributes).forEach((attr) => {
+                  if (attr.name !== "src" && attr.name !== "type") {
+                    script.setAttribute(attr.name, attr.value);
+                  }
+                });
+                
+                script.setAttribute("data-injected", "true");
                 document.head.appendChild(script);
               }
             } else {
-              // Check if element already exists
-              const existing = document.querySelector(
-                `${element.tagName.toLowerCase()}${element.getAttribute("id") ? `[id="${element.getAttribute("id")}"]` : ""}${element.getAttribute("rel") ? `[rel="${element.getAttribute("rel")}"]` : ""}`
-              );
+              // For other elements, check if they already exist
+              const elementId = element.getAttribute("id");
+              const elementRel = element.getAttribute("rel");
+              const selector = elementId 
+                ? `${element.tagName.toLowerCase()}[id="${elementId}"]`
+                : elementRel
+                ? `${element.tagName.toLowerCase()}[rel="${elementRel}"]`
+                : null;
+              
+              const existing = selector ? document.querySelector(selector) : null;
               if (!existing) {
+                const clonedElement = element.cloneNode(true) as HTMLElement;
+                clonedElement.setAttribute("data-injected", "true");
                 document.head.appendChild(clonedElement);
               }
             }
           } catch (error) {
-            console.warn("Error injecting element:", error);
-            // Continue with next element
+            // Silently ignore errors to prevent breaking navigation
+            // console.warn("Error injecting element:", error);
           }
         });
+        
+        // Mark this headCode as injected
+        injectedRef.current.add(headCode);
       } catch (error) {
-        console.error("Error parsing head code:", error);
+        // Silently ignore parsing errors
+        // console.error("Error parsing head code:", error);
       }
     }
 
-    // Cleanup function
+    // Cleanup function - don't remove elements on navigation to avoid flickering
     return () => {
-      // Note: We don't remove injected elements on cleanup to avoid flickering
-      // If needed, you can add cleanup logic here
+      // Elements persist across navigations to maintain state
     };
   }, [headCode, favicon]);
 
+  // Return null - this component doesn't render anything
+  // It only manipulates the document head via useEffect
   return null;
 }
 

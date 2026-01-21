@@ -16,13 +16,16 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" suppressHydrationWarning>
       <CustomHeadCode headCode={site.customCode?.head} favicon={site.theme?.favicon} />
       {site.header && <HeaderRenderer site={site} />}
       <main className="flex-1">{children}</main>
       {site.footer && <FooterRenderer site={site} />}
       {site.customCode?.footer && (
-        <script dangerouslySetInnerHTML={{ __html: site.customCode.footer }} />
+        <script 
+          dangerouslySetInnerHTML={{ __html: site.customCode.footer }} 
+          suppressHydrationWarning
+        />
       )}
     </div>
   );
