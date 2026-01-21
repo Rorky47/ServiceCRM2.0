@@ -14,7 +14,7 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
   }
 
   const navItems = [
-    { href: `/admin/${params.slug}`, label: "Dashboard" },
+    { href: `/admin/${params.slug}/dashboard`, label: "Dashboard" },
     { href: `/admin/${params.slug}/pages`, label: "Pages" },
     { href: `/admin/${params.slug}/sections`, label: "Sections" },
     { href: `/admin/${params.slug}/media`, label: "Media" },

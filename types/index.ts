@@ -65,6 +65,19 @@ export type Site = {
     description?: string;
     keywords?: string;
   };
+  analytics?: {
+    googleAnalyticsId?: string;
+    googleTagManagerId?: string;
+    facebookPixelId?: string;
+  };
+  notifications?: {
+    enabled: boolean;
+    leadEmail?: string;
+  };
+  customCode?: {
+    head?: string;
+    footer?: string;
+  };
 };
 
 export type Page = {

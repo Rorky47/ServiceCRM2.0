@@ -26,26 +26,10 @@ if (!USE_DATABASE) {
 export async function getSite(slug: string): Promise<Site | null> {
   if (USE_DATABASE) {
     try {
-      // Try with new columns first, fallback to old schema if columns don't exist
-      let result;
-      try {
-        result = await query(
-          "SELECT id, slug, domains, name, theme, seo FROM sites WHERE slug = $1",
-          [slug]
-        );
-      } catch (error: any) {
-        // If columns don't exist, try with old schema
-        if (error?.code === '42703') {
-          console.log("⚠️  New columns not found, using old schema. Migration may be needed.");
-          result = await query(
-            "SELECT id, slug, name, theme FROM sites WHERE slug = $1",
-            [slug]
-          );
-        } else {
-          throw error;
-        }
-      }
-      
+      const result = await query(
+        "SELECT id, slug, domains, name, theme, seo FROM sites WHERE slug = $1",
+        [slug]
+      );
       if (result.rows.length === 0) return null;
       const row = result.rows[0];
       return {
@@ -86,22 +70,10 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
   if (USE_DATABASE) {
     try {
       // Search for site where domain matches
-      let result;
-      try {
-        result = await query(
-          "SELECT id, slug, domains, name, theme, seo FROM sites WHERE $1 = ANY(domains)",
-          [normalizedHost]
-        );
-      } catch (error: any) {
-        // If domains column doesn't exist, return null (no domain-based routing yet)
-        if (error?.code === '42703') {
-          console.log("⚠️  Domains column not found. Domain-based routing unavailable until migration runs.");
-          return null;
-        } else {
-          throw error;
-        }
-      }
-      
+      const result = await query(
+        "SELECT id, slug, domains, name, theme, seo FROM sites WHERE $1 = ANY(domains)",
+        [normalizedHost]
+      );
       if (result.rows.length === 0) return null;
       const row = result.rows[0];
       return {
@@ -141,20 +113,7 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
 export async function getAllSites(): Promise<Site[]> {
   if (USE_DATABASE) {
     try {
-      // Try with new columns first, fallback to old schema if columns don't exist
-      let result;
-      try {
-        result = await query("SELECT id, slug, domains, name, theme, seo FROM sites ORDER BY name");
-      } catch (error: any) {
-        // If columns don't exist, try with old schema
-        if (error?.code === '42703') {
-          console.log("⚠️  New columns not found, using old schema. Migration may be needed.");
-          result = await query("SELECT id, slug, name, theme FROM sites ORDER BY name");
-        } else {
-          throw error;
-        }
-      }
-      
+      const result = await query("SELECT id, slug, domains, name, theme, seo FROM sites ORDER BY name");
       return result.rows.map((row) => ({
         id: row.id,
         slug: row.slug,
@@ -201,7 +160,7 @@ export async function saveSite(site: Site): Promise<void> {
         [
           site.id,
           site.slug,
-          site.domains || [], // Pass array directly, pg library handles it
+          JSON.stringify(site.domains || []),
           site.name,
           JSON.stringify(site.theme),
           site.seo ? JSON.stringify(site.seo) : null,
@@ -441,7 +400,7 @@ export async function saveUser(user: User): Promise<void> {
          VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
          ON CONFLICT (email) 
          DO UPDATE SET role = $3, site_slugs = $4, updated_at = CURRENT_TIMESTAMP`,
-        [user.id, user.email, user.role, user.siteSlugs || []] // Pass array directly, pg library handles it
+        [user.id, user.email, user.role, JSON.stringify(user.siteSlugs || [])]
       );
     } catch (error) {
       console.error("Error saving user to database:", error);
