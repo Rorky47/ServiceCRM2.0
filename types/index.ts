@@ -78,6 +78,44 @@ export type Site = {
     head?: string;
     footer?: string;
   };
+  header?: {
+    showLogo: boolean;
+    logo?: string;
+    navigationLinks?: Array<{
+      label: string;
+      url: string;
+    }>;
+    phoneNumber?: string;
+    socialLinks?: Array<{
+      platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+      url: string;
+      label?: string;
+    }>;
+    showGetQuoteButton: boolean;
+    getQuoteButtonText?: string;
+    getQuoteButtonLink?: string;
+    backgroundColor?: string;
+    textColor?: string;
+  };
+  footer?: {
+    showLogo: boolean;
+    logo?: string;
+    copyrightText?: string;
+    columns?: Array<{
+      title: string;
+      links: Array<{
+        label: string;
+        url: string;
+      }>;
+    }>;
+    socialLinks?: Array<{
+      platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+      url: string;
+      label?: string;
+    }>;
+    backgroundColor?: string;
+    textColor?: string;
+  };
 };
 
 export type Page = {

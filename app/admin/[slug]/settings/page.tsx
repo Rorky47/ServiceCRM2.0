@@ -4,13 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Toast from "@/components/Toast";
+import HeaderEditor from "@/components/HeaderEditor";
+import FooterEditor from "@/components/FooterEditor";
 import { Site } from "@/types";
 
 interface SettingsPageProps {
   params: { slug: string };
 }
 
-type TabType = "general" | "theme" | "seo" | "domains" | "analytics" | "integrations" | "notifications";
+type TabType = "general" | "theme" | "header" | "footer" | "seo" | "domains" | "analytics" | "integrations" | "notifications";
 
 export default function SettingsPage({ params }: SettingsPageProps) {
   const router = useRouter();
@@ -21,6 +23,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
+  const [uploadingHeaderLogo, setUploadingHeaderLogo] = useState(false);
+  const [uploadingFooterLogo, setUploadingFooterLogo] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     primaryColor: "#0066cc",
@@ -37,8 +41,13 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     facebookPixelId: "",
     emailNotifications: true,
     leadEmail: "",
-    customHeadCode: "",
-    customFooterCode: "",
+  });
+  const [headerData, setHeaderData] = useState<Site["header"]>({
+    showLogo: false,
+    showGetQuoteButton: false,
+  });
+  const [footerData, setFooterData] = useState<Site["footer"]>({
+    showLogo: false,
   });
 
   useEffect(() => {
@@ -72,9 +81,9 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           facebookPixelId: data.analytics?.facebookPixelId || "",
           emailNotifications: data.notifications?.enabled ?? true,
           leadEmail: data.notifications?.leadEmail || "",
-          customHeadCode: data.customCode?.head || "",
-          customFooterCode: data.customCode?.footer || "",
         });
+        setHeaderData(data.header || { showLogo: false, showGetQuoteButton: false });
+        setFooterData(data.footer || { showLogo: false });
       }
     } catch (error) {
       console.error("Error fetching site:", error);
@@ -84,8 +93,12 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     }
   };
 
-  const handleImageUpload = async (file: File, type: "logo" | "favicon") => {
-    const setUploading = type === "logo" ? setUploadingLogo : setUploadingFavicon;
+  const handleImageUpload = async (file: File, type: "logo" | "favicon" | "headerLogo" | "footerLogo"): Promise<string> => {
+    const setUploading = 
+      type === "logo" ? setUploadingLogo : 
+      type === "favicon" ? setUploadingFavicon :
+      type === "headerLogo" ? setUploadingHeaderLogo :
+      setUploadingFooterLogo;
     setUploading(true);
     try {
       const formData = new FormData();
@@ -98,17 +111,22 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData((prev) => ({
-          ...prev,
-          [type]: data.url,
-        }));
-        showToast(`${type === "logo" ? "Logo" : "Favicon"} uploaded successfully`, "success");
+        if (type === "logo" || type === "favicon") {
+          setFormData((prev) => ({
+            ...prev,
+            [type]: data.url,
+          }));
+        }
+        showToast(`${type} uploaded successfully`, "success");
+        return data.url;
       } else {
         showToast(`Failed to upload ${type}`, "error");
+        throw new Error("Upload failed");
       }
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
       showToast(`Failed to upload ${type}`, "error");
+      throw error;
     } finally {
       setUploading(false);
     }
@@ -146,10 +164,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           enabled: formData.emailNotifications,
           leadEmail: formData.leadEmail || undefined,
         },
-        customCode: {
-          head: formData.customHeadCode || undefined,
-          footer: formData.customFooterCode || undefined,
-        },
+        header: headerData,
+        footer: footerData,
       };
 
       const response = await fetch("/api/sites", {
@@ -210,6 +226,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const tabs: { id: TabType; label: string; icon: string }[] = [
     { id: "general", label: "General", icon: "⚙️" },
     { id: "theme", label: "Theme", icon: "🎨" },
+    { id: "header", label: "Header", icon: "📋" },
+    { id: "footer", label: "Footer", icon: "📄" },
     { id: "seo", label: "SEO", icon: "🔍" },
     { id: "domains", label: "Domains", icon: "🌐" },
     { id: "analytics", label: "Analytics", icon: "📊" },
@@ -306,30 +324,6 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-500"
                 />
                 <p className="mt-1 text-xs text-gray-500">Site slug cannot be changed</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Custom Head Code</label>
-                <textarea
-                  value={formData.customHeadCode}
-                  onChange={(e) => setFormData({ ...formData, customHeadCode: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  rows={4}
-                  placeholder="<!-- Custom code for <head> section -->"
-                />
-                <p className="mt-1 text-xs text-gray-500">HTML/JavaScript code to inject in the &lt;head&gt; section</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Custom Footer Code</label>
-                <textarea
-                  value={formData.customFooterCode}
-                  onChange={(e) => setFormData({ ...formData, customFooterCode: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  rows={4}
-                  placeholder="<!-- Custom code before </body> -->"
-                />
-                <p className="mt-1 text-xs text-gray-500">HTML/JavaScript code to inject before the closing &lt;/body&gt; tag</p>
               </div>
             </div>
           </div>
@@ -474,6 +468,32 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                 <p className="mt-1 text-xs text-gray-500">Upload an image or enter a URL for your site favicon (recommended: 32x32px)</p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Header Tab */}
+        {activeTab === "header" && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-6">Header / Navigation Bar</h2>
+            <HeaderEditor
+              header={headerData || { showLogo: false, showGetQuoteButton: false }}
+              onChange={setHeaderData}
+              onImageUpload={async (file: File) => handleImageUpload(file, "headerLogo")}
+              uploadingLogo={uploadingHeaderLogo}
+            />
+          </div>
+        )}
+
+        {/* Footer Tab */}
+        {activeTab === "footer" && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-6">Footer</h2>
+            <FooterEditor
+              footer={footerData || { showLogo: false }}
+              onChange={setFooterData}
+              onImageUpload={async (file: File) => handleImageUpload(file, "footerLogo")}
+              uploadingLogo={uploadingFooterLogo}
+            />
           </div>
         )}
 
