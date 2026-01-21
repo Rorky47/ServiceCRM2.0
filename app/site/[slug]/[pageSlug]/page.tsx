@@ -33,18 +33,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DynamicPage({ params, searchParams }: PageProps) {
-  const site = await getSite(params.slug);
-  if (!site) {
+  try {
+    const site = await getSite(params.slug);
+    if (!site) {
+      notFound();
+    }
+
+    const page = await getPage(params.slug, params.pageSlug);
+    if (!page) {
+      notFound();
+    }
+
+    const isAdmin = searchParams.admin === "true";
+
+    return <PageRenderer site={site} page={page} isAdmin={isAdmin} />;
+  } catch (error) {
+    console.error("Error rendering page:", error);
     notFound();
   }
-
-  const page = await getPage(params.slug, params.pageSlug);
-  if (!page) {
-    notFound();
-  }
-
-  const isAdmin = searchParams.admin === "true";
-
-  return <PageRenderer site={site} page={page} isAdmin={isAdmin} />;
 }
 

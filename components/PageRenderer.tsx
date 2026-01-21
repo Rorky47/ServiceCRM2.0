@@ -82,7 +82,12 @@ function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug }: { s
 }
 
 export default function PageRenderer({ site, page: initialPage, isAdmin }: PageRendererProps) {
-  const [page, setPage] = useState(initialPage);
+  // Ensure page has sections array
+  const safePage = {
+    ...initialPage,
+    sections: initialPage.sections || [],
+  };
+  const [page, setPage] = useState(safePage);
   const [saving, setSaving] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
 
@@ -94,7 +99,8 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
   );
 
   const handleSectionUpdate = async (updatedSection: Section) => {
-    const newSections = page.sections.map((s) =>
+    const currentSections = page.sections || [];
+    const newSections = currentSections.map((s) =>
       s.id === updatedSection.id ? updatedSection : s
     );
     const updatedPage = { ...page, sections: newSections };
@@ -122,9 +128,11 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = page.sections.findIndex((s) => s.id === active.id);
-      const newIndex = page.sections.findIndex((s) => s.id === over.id);
-      const newSections = arrayMove(page.sections, oldIndex, newIndex);
+      const currentSections = page.sections || [];
+      const oldIndex = currentSections.findIndex((s) => s.id === active.id);
+      const newIndex = currentSections.findIndex((s) => s.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+      const newSections = arrayMove(currentSections, oldIndex, newIndex);
       handleSectionsReorder(newSections);
     }
   };
@@ -151,7 +159,8 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
   };
 
   const handleDeleteSection = async (sectionId: string) => {
-    const updatedPage = { ...page, sections: page.sections.filter((s) => s.id !== sectionId) };
+    const currentSections = page.sections || [];
+    const updatedPage = { ...page, sections: currentSections.filter((s) => s.id !== sectionId) };
     setPage(updatedPage);
 
     // Save to server
@@ -226,7 +235,8 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
         return;
     }
 
-    const updatedPage = { ...page, sections: [...page.sections, newSection] };
+    const currentSections = page.sections || [];
+    const updatedPage = { ...page, sections: [...currentSections, newSection] };
     setPage(updatedPage);
     setShowAddSectionModal(false);
 
@@ -264,7 +274,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
       )}
       {isAdmin ? (
         <>
-          {page.sections.length === 0 ? (
+          {(!page.sections || page.sections.length === 0) ? (
             <div className="min-h-screen flex items-center justify-center p-8">
               <div className="text-center max-w-md">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">No sections yet</h2>
@@ -284,10 +294,10 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
               onDragEnd={handleDragEnd}
             >
               <SortableContext
-                items={page.sections.map((s) => s.id)}
+                items={(page.sections || []).map((s) => s.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {page.sections.map((section) => (
+                {(page.sections || []).map((section) => (
                   <SortableSection
                     key={section.id}
                     section={section}
@@ -300,7 +310,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
               </SortableContext>
             </DndContext>
           )}
-          {page.sections.length > 0 && (
+          {page.sections && page.sections.length > 0 && (
             <div className="fixed bottom-4 right-4 flex flex-col gap-2">
               <button
                 onClick={() => setShowAddSectionModal(true)}
@@ -318,7 +328,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
           )}
         </>
       ) : (
-        page.sections.map((section) => (
+        (page.sections || []).map((section) => (
           <SectionRenderer
             key={section.id}
             section={section}

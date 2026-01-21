@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ErrorSuppressor from "@/components/ErrorSuppressor";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Service Business Website",
@@ -13,7 +15,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ErrorSuppressor />
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+      </body>
     </html>
   );
 }
