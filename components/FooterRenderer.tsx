@@ -76,39 +76,42 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
               </ul>
             </div>
           ))}
-        </div>
 
-        {/* Contact Information */}
-        {(footer.emailAddress || footer.phoneNumber) && (
-          <div className="mt-8 pt-8 border-t border-gray-600">
-            <div className="flex flex-col sm:flex-row gap-4 text-sm" style={{ color: footer.textColor || "#ffffff" }}>
-              {footer.emailAddress && (
-                <div className="flex items-center space-x-2">
-                  <FaEnvelope className="w-4 h-4" />
-                  <a
-                    href={`mailto:${footer.emailAddress}`}
-                    className="hover:opacity-80 transition-opacity"
-                    style={{ color: footer.textColor || "#ffffff" }}
-                  >
-                    {footer.emailAddress}
-                  </a>
-                </div>
-              )}
-              {footer.phoneNumber && (
-                <div className="flex items-center space-x-2">
-                  <FaPhone className="w-4 h-4" />
-                  <a
-                    href={`tel:${footer.phoneNumber.replace(/\s/g, '')}`}
-                    className="hover:opacity-80 transition-opacity"
-                    style={{ color: footer.textColor || "#ffffff" }}
-                  >
-                    {footer.phoneNumber}
-                  </a>
-                </div>
-              )}
+          {/* Contact Information - Right Side Column */}
+          {(footer.emailAddress || footer.phoneNumber) && (
+            <div className="col-span-1">
+              <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
+                Contact
+              </h3>
+              <div className="flex flex-col gap-4" style={{ color: footer.textColor || "#ffffff" }}>
+                {footer.emailAddress && (
+                  <div className="flex items-center space-x-3">
+                    <FaEnvelope className="w-5 h-5 flex-shrink-0" />
+                    <a
+                      href={`mailto:${footer.emailAddress}`}
+                      className="hover:opacity-80 transition-opacity text-base font-medium"
+                      style={{ color: footer.textColor || "#ffffff" }}
+                    >
+                      {footer.emailAddress}
+                    </a>
+                  </div>
+                )}
+                {footer.phoneNumber && (
+                  <div className="flex items-center space-x-3">
+                    <FaPhone className="w-5 h-5 flex-shrink-0" />
+                    <a
+                      href={`tel:${footer.phoneNumber.replace(/\s/g, '')}`}
+                      className="hover:opacity-80 transition-opacity text-base font-medium"
+                      style={{ color: footer.textColor || "#ffffff" }}
+                    >
+                      {footer.phoneNumber}
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Social Links and Copyright */}
         <div className={`mt-8 ${(footer.emailAddress || footer.phoneNumber) ? '' : 'pt-8 border-t border-gray-600'} flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0`}>
