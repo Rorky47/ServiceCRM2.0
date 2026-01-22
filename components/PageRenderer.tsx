@@ -326,6 +326,8 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
                   maxHeight: "90vh",
                   overflowY: "auto",
                   WebkitOverflowScrolling: "touch",
+                  display: "flex",
+                  flexDirection: "column",
                 }
               : {}
           }
@@ -342,6 +344,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
               width: '100%',
               maxWidth: '100%',
               minHeight: '100%',
+              flex: '1 1 auto',
             } : {}}
           >
           {/* Header in mobile preview - only show when in mobile preview mode */}
@@ -471,7 +474,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
           </div>
         </div>
       )}
-          </div>
+          
           {/* Footer in mobile preview - only show when in mobile preview mode */}
           {mobilePreview && isAdmin && site.footer && (
             <div className="w-full mt-auto" style={{ position: 'relative', zIndex: 1 }}>
@@ -485,6 +488,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
               <FooterRenderer site={site} />
             </div>
           )}
+          </div>
         </div>
       </div>
     </>

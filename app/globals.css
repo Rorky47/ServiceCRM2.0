@@ -187,3 +187,90 @@
     display: none !important;
   }
 }
+
+/* Force mobile grid layouts in mobile preview - override all responsive grid classes */
+.mobile-preview-wrapper .grid {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+/* Override all Tailwind responsive grid classes - force single column */
+.mobile-preview-wrapper [class*="grid-cols-1"],
+.mobile-preview-wrapper [class*="grid-cols-2"],
+.mobile-preview-wrapper [class*="grid-cols-3"],
+.mobile-preview-wrapper [class*="grid-cols-4"],
+.mobile-preview-wrapper [class*="grid-cols-5"] {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+/* Specifically target services section grid and any nested grids */
+.mobile-preview-wrapper section .grid,
+.mobile-preview-wrapper section [class*="grid"] {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+/* Force flex-col for any flex containers that should stack on mobile */
+.mobile-preview-wrapper [class*="flex-row"],
+.mobile-preview-wrapper [class*="md:flex-row"],
+.mobile-preview-wrapper [class*="lg:flex-row"] {
+  flex-direction: column !important;
+}
+
+/* Override all responsive padding/margins to mobile values */
+.mobile-preview-wrapper .sm\:px-6,
+.mobile-preview-wrapper .md\:px-8,
+.mobile-preview-wrapper .lg\:px-8 {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.mobile-preview-wrapper .sm\:py-16,
+.mobile-preview-wrapper .md\:py-20 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+/* Force mobile text sizes */
+.mobile-preview-wrapper .sm\:text-3xl,
+.mobile-preview-wrapper .md\:text-4xl {
+  font-size: 1.5rem !important;
+}
+
+/* Ensure max-width constraints work in mobile preview */
+.mobile-preview-wrapper .max-w-6xl,
+.mobile-preview-wrapper .max-w-7xl {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Force footer to bottom */
+.mobile-preview-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100% !important;
+}
+
+.mobile-preview-wrapper footer {
+  margin-top: auto !important;
+}
+
+/* Ensure all content respects mobile preview width */
+.mobile-preview-wrapper * {
+  box-sizing: border-box !important;
+}
+
+/* Override width constraints on sections and containers */
+.mobile-preview-wrapper section {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure images don't overflow */
+.mobile-preview-wrapper img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Prevent horizontal overflow */
+.mobile-preview-wrapper {
+  overflow-x: hidden !important;
+}
