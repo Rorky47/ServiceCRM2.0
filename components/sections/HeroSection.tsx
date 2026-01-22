@@ -131,7 +131,7 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
 
   return (
     <section
-      className={`relative min-h-screen flex items-center justify-center ${
+      className={`relative min-h-[50vh] sm:min-h-screen flex items-center justify-center overflow-hidden ${
         isAdmin ? "border-2 border-dashed border-blue-500" : ""
       }`}
       style={{
@@ -298,13 +298,16 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
       )}
 
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         {hasImage && (
           <OptimizedImage
             src={section.content.image}
             alt="Hero"
             fill
-            className="object-cover"
+            className="object-cover w-full h-full"
+            style={{
+              objectPosition: 'center',
+            }}
           />
         )}
         {/* Overlay - only show if there's an image and no custom background color */}
@@ -314,7 +317,7 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-4xl mx-auto">
+      <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-4xl mx-auto w-full py-8 sm:py-12">
         {editing === "headline" ? (
           <textarea
             value={tempValue}
@@ -332,9 +335,13 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
         ) : (
           <h1
             onClick={() => handleClick("headline", section.content.headline)}
-            className={`text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 px-2 ${
+            className={`text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 px-2 break-words ${
               isAdmin ? "cursor-pointer hover:bg-white/20 p-2 rounded" : ""
             }`}
+            style={{
+              wordBreak: 'break-word',
+              hyphens: 'auto',
+            }}
           >
             {section.content.headline}
           </h1>
@@ -356,9 +363,13 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
         ) : (
           <p
             onClick={() => handleClick("subheadline", section.content.subheadline)}
-            className={`text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 px-2 ${
+            className={`text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 px-2 break-words ${
               isAdmin ? "cursor-pointer hover:bg-white/20 p-2 rounded" : ""
             }`}
+            style={{
+              wordBreak: 'break-word',
+              hyphens: 'auto',
+            }}
           >
             {section.content.subheadline}
           </p>
