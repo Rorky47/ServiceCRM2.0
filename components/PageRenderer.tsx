@@ -5,6 +5,7 @@ import { Site, Page, Section } from "@/types";
 import SectionRenderer from "./SectionRenderer";
 import HeaderRenderer from "./HeaderRenderer";
 import FooterRenderer from "./FooterRenderer";
+import EditableFooterRenderer from "./EditableFooterRenderer";
 import {
   DndContext,
   closestCenter,
@@ -84,17 +85,37 @@ function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug, theme
   );
 }
 
-export default function PageRenderer({ site, page: initialPage, isAdmin }: PageRendererProps) {
+export default function PageRenderer({ site: initialSite, page: initialPage, isAdmin }: PageRendererProps) {
   // Ensure page has sections array
   const safePage = {
     ...initialPage,
     sections: initialPage.sections || [],
   };
+  const [site, setSite] = useState(initialSite);
   const [page, setPage] = useState(safePage);
   const [saving, setSaving] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
   const [mobileWidth, setMobileWidth] = useState<375 | 390 | 428>(375); // Common mobile widths
+
+  const handleSiteUpdate = async (updatedSite: Site) => {
+    setSite(updatedSite);
+    setSaving(true);
+    try {
+      const response = await fetch("/api/sites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedSite),
+      });
+      if (!response.ok) {
+        console.error("Failed to save site");
+      }
+    } catch (error) {
+      console.error("Error saving site:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -478,15 +499,20 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
           {/* Footer in mobile preview - only show when in mobile preview mode */}
           {mobilePreview && isAdmin && site.footer && (
             <div className="w-full mt-auto" style={{ position: 'relative', zIndex: 1 }}>
-              <FooterRenderer site={site} />
+              <EditableFooterRenderer site={site} isAdmin={isAdmin} onUpdate={handleSiteUpdate} />
             </div>
           )}
           
           {/* Footer in desktop admin mode - only show when NOT in mobile preview */}
           {!mobilePreview && isAdmin && site.footer && (
             <div className="w-full mt-8">
-              <FooterRenderer site={site} />
+              <EditableFooterRenderer site={site} isAdmin={isAdmin} onUpdate={handleSiteUpdate} />
             </div>
+          )}
+
+          {/* Footer in non-admin mode */}
+          {!isAdmin && site.footer && (
+            <FooterRenderer site={site} />
           )}
           </div>
         </div>
