@@ -9,9 +9,13 @@ if (!connectionString) {
 }
 
 // Create a connection pool
+// Note: If connectionString is undefined, Pool will use default connection params
+// which will fail on actual queries, but that's handled gracefully in query() function
 const pool = new Pool({
-  connectionString,
+  connectionString: connectionString || undefined,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+  // Add connection timeout to prevent hanging
+  connectionTimeoutMillis: 5000,
 });
 
 // Test connection
@@ -27,6 +31,10 @@ export default pool;
 
 // Helper function to execute queries
 export async function query(text: string, params?: any[]) {
+  if (!connectionString) {
+    throw new Error("DATABASE_URL not configured");
+  }
+  
   const start = Date.now();
   try {
     const res = await pool.query(text, params);

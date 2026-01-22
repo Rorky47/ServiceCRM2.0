@@ -20,11 +20,23 @@ export async function GET() {
   };
 
   // Check database connectivity if DATABASE_URL is set
+  // Use a timeout to prevent health check from hanging
   if (process.env.DATABASE_URL) {
     try {
-      const client = await pool.connect();
-      await client.query("SELECT 1");
-      client.release();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Database check timeout")), 2000);
+      });
+      
+      const dbCheckPromise = (async () => {
+        const client = await pool.connect();
+        try {
+          await client.query("SELECT 1");
+        } finally {
+          client.release();
+        }
+      })();
+      
+      await Promise.race([dbCheckPromise, timeoutPromise]);
       health.checks.database = "ok";
     } catch (error) {
       health.checks.database = "error";
