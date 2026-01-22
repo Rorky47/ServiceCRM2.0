@@ -20,6 +20,26 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
   // Use footer social links if set, otherwise use site social links
   const socialLinks = footer.socialLinks || site.socialLinks;
 
+  const hasLogo = footer.showLogo && logo;
+  const columnCount = footer.columns?.length || 0;
+  const hasContact = footer.emailAddress || footer.phoneNumber;
+  
+  // Calculate total items for grid
+  const totalItems = (hasLogo ? 1 : 0) + columnCount + (hasContact ? 1 : 0);
+  
+  // Dynamic grid classes that adapt to content
+  // Uses a flexible grid that distributes items evenly across available space
+  const getGridClasses = () => {
+    if (totalItems === 0) return "grid-cols-1";
+    if (totalItems === 1) return "grid-cols-1";
+    if (totalItems === 2) return "grid-cols-1 sm:grid-cols-2";
+    if (totalItems === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    if (totalItems === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+    if (totalItems === 5) return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5";
+    // For 6+ items, use responsive grid that adapts
+    return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
+  };
+
   return (
     <footer
       className="mt-auto"
@@ -29,18 +49,16 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-8 items-start">
-          {/* Left Side: Logo and Footer Columns */}
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 xl:gap-8 min-w-0">
-            {/* Logo Column */}
-            {footer.showLogo && logo && (
-              <div className="min-w-0">
+        <div className={`grid ${getGridClasses()} gap-6 sm:gap-8 lg:gap-10 xl:gap-12 items-start w-full justify-items-stretch`}>
+          {/* Logo */}
+          {hasLogo && (
+            <div className="min-w-0 w-full">
               <OptimizedImage
                 src={logo}
                 alt={site.name}
                 width={120}
                 height={48}
-                className={`w-auto mb-4 ${
+                className={`w-auto ${
                   footer.logoSize === "small"
                     ? "h-8 sm:h-10"
                     : footer.logoSize === "medium"
@@ -54,43 +72,42 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                 style={footer.logoScale ? { transform: `scale(${footer.logoScale / 100})`, transformOrigin: 'top left' } : undefined}
                 unoptimized
               />
-              </div>
-            )}
+            </div>
+          )}
 
-            {/* Footer Columns */}
-            {footer.columns?.map((column, columnIndex) => (
-              <div key={columnIndex} className="min-w-0">
-                <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
-                  {column.title}
-                </h3>
-                <ul className="space-y-2">
-                  {column.links.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      <SmartLink
-                        href={link.url}
-                        siteSlug={site.slug}
-                        className="hover:opacity-80 transition-opacity text-sm"
-                        style={{ color: footer.textColor || "#ffffff" }}
-                      >
-                        {link.label}
-                      </SmartLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {/* Footer Columns */}
+          {footer.columns?.map((column, columnIndex) => (
+            <div key={columnIndex} className="min-w-0 w-full">
+              <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
+                {column.title}
+              </h3>
+              <ul className="space-y-2">
+                {column.links.map((link, linkIndex) => (
+                  <li key={linkIndex}>
+                    <SmartLink
+                      href={link.url}
+                      siteSlug={site.slug}
+                      className="hover:opacity-80 transition-opacity text-sm"
+                      style={{ color: footer.textColor || "#ffffff" }}
+                    >
+                      {link.label}
+                    </SmartLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-          {/* Right Side: Contact Information */}
-          {(footer.emailAddress || footer.phoneNumber) && (
-            <div className="lg:flex-shrink-0 lg:min-w-[200px] xl:min-w-[256px] w-full lg:w-auto">
+          {/* Contact Information */}
+          {hasContact && (
+            <div className="min-w-0 w-full">
               <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
                 Contact
               </h3>
               <div className="flex flex-col gap-4" style={{ color: footer.textColor || "#ffffff" }}>
                 {footer.emailAddress && (
-                  <div className="flex items-center space-x-3">
-                    <FaEnvelope className="w-5 h-5 flex-shrink-0" />
+                  <div className="flex items-start space-x-3">
+                    <FaEnvelope className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <a
                       href={`mailto:${footer.emailAddress}`}
                       className="hover:opacity-80 transition-opacity text-base font-medium break-words"
@@ -101,11 +118,11 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                   </div>
                 )}
                 {footer.phoneNumber && (
-                  <div className="flex items-center space-x-3">
-                    <FaPhone className="w-5 h-5 flex-shrink-0" />
+                  <div className="flex items-start space-x-3">
+                    <FaPhone className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <a
                       href={`tel:${footer.phoneNumber.replace(/\s/g, '')}`}
-                      className="hover:opacity-80 transition-opacity text-base font-medium"
+                      className="hover:opacity-80 transition-opacity text-base font-medium break-words"
                       style={{ color: footer.textColor || "#ffffff" }}
                     >
                       {footer.phoneNumber}
