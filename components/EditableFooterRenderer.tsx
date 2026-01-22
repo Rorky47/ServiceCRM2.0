@@ -113,11 +113,7 @@ export default function EditableFooterRenderer({
     })
   );
 
-  if (!site.footer) return null;
-
-  const footer = site.footer;
-
-  // Sync spacing state when footer changes
+  // Sync spacing state when footer changes - must be before any conditional returns
   useEffect(() => {
     if (site.footer) {
       const footerAny = site.footer as any;
@@ -127,6 +123,10 @@ export default function EditableFooterRenderer({
       if (footerAny.bottomMargin !== undefined) setBottomMargin(footerAny.bottomMargin);
     }
   }, [site.footer]);
+
+  if (!site.footer) return null;
+
+  const footer = site.footer;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
