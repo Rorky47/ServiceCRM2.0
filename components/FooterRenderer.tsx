@@ -29,12 +29,12 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-8 items-start">
           {/* Left Side: Logo and Footer Columns */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 xl:gap-8 min-w-0">
             {/* Logo Column */}
             {footer.showLogo && logo && (
-              <div>
+              <div className="min-w-0">
               <OptimizedImage
                 src={logo}
                 alt={site.name}
@@ -59,7 +59,7 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
 
             {/* Footer Columns */}
             {footer.columns?.map((column, columnIndex) => (
-              <div key={columnIndex}>
+              <div key={columnIndex} className="min-w-0">
                 <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
                   {column.title}
                 </h3>
@@ -83,7 +83,7 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
 
           {/* Right Side: Contact Information */}
           {(footer.emailAddress || footer.phoneNumber) && (
-            <div className="lg:w-64 flex-shrink-0">
+            <div className="lg:flex-shrink-0 lg:min-w-[200px] xl:min-w-[256px] w-full lg:w-auto">
               <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
                 Contact
               </h3>
@@ -93,7 +93,7 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                     <FaEnvelope className="w-5 h-5 flex-shrink-0" />
                     <a
                       href={`mailto:${footer.emailAddress}`}
-                      className="hover:opacity-80 transition-opacity text-base font-medium"
+                      className="hover:opacity-80 transition-opacity text-base font-medium break-words"
                       style={{ color: footer.textColor || "#ffffff" }}
                     >
                       {footer.emailAddress}
