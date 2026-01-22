@@ -281,14 +281,14 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
           {items.map((item, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
               style={{
                 backgroundColor: item.color || undefined,
               }}
             >
               {/* Service Image */}
               {item.image && (
-                <div className="relative h-48 w-full">
+                <div className="relative h-48 w-full flex-shrink-0">
                   <OptimizedImage
                     src={item.image}
                     alt={item.title}
@@ -307,7 +307,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
               )}
 
               {/* Service Content */}
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-1">
                 {/* Admin Controls for Service */}
                 {isAdmin && (
                   <div className="mb-2 pb-2 border-b">
@@ -520,26 +520,29 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                   </div>
                 )}
 
-                {/* Service Button */}
-                {item.button && (
-                  <SmartLink
-                    href={item.button.link}
-                    siteSlug={siteSlug}
-                    className="mt-4 inline-block w-full text-center px-4 py-2.5 sm:py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base touch-manipulation"
-                  >
-                    {item.button.text}
-                  </SmartLink>
-                )}
+                {/* Button Container - Pushes buttons to bottom */}
+                <div className="mt-auto pt-4">
+                  {/* Service Button */}
+                  {item.button && (
+                    <SmartLink
+                      href={item.button.link}
+                      siteSlug={siteSlug}
+                      className="inline-block w-full text-center px-4 py-2.5 sm:py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base touch-manipulation"
+                    >
+                      {item.button.text}
+                    </SmartLink>
+                  )}
 
-                {/* Add Image Button (if no image) */}
-                {isAdmin && !item.image && (
-                  <button
-                    onClick={() => handleServiceImageUpload(index)}
-                    className="mt-4 w-full py-2 border-2 border-dashed border-gray-300 rounded text-gray-500 hover:border-gray-400 hover:text-gray-600"
-                  >
-                    + Add Image
-                  </button>
-                )}
+                  {/* Add Image Button (if no image) */}
+                  {isAdmin && !item.image && (
+                    <button
+                      onClick={() => handleServiceImageUpload(index)}
+                      className="w-full py-2 border-2 border-dashed border-gray-300 rounded text-gray-500 hover:border-gray-400 hover:text-gray-600"
+                    >
+                      + Add Image
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
