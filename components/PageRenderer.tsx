@@ -322,7 +322,10 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
                   overflow: "hidden",
                   boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
                   border: "4px solid #3b82f6",
-                  minHeight: "600px",
+                  minHeight: "667px", // Typical mobile viewport height
+                  maxHeight: "90vh",
+                  overflowY: "auto",
+                  WebkitOverflowScrolling: "touch",
                 }
               : {}
           }
@@ -337,11 +340,19 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
             style={mobilePreview && isAdmin ? {
               width: '100%',
               maxWidth: '100%',
+              minHeight: '100%',
             } : {}}
           >
-          {/* Header in mobile preview */}
+          {/* Header in mobile preview - only show when in mobile preview mode */}
           {mobilePreview && isAdmin && site.header && (
             <div className="w-full" style={{ position: 'relative', zIndex: 1 }}>
+              <HeaderRenderer site={site} />
+            </div>
+          )}
+          
+          {/* Header in desktop admin mode - only show when NOT in mobile preview */}
+          {!mobilePreview && isAdmin && site.header && (
+            <div className="w-full mb-4">
               <HeaderRenderer site={site} />
             </div>
           )}
@@ -460,9 +471,16 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
         </div>
       )}
           </div>
-          {/* Footer in mobile preview */}
+          {/* Footer in mobile preview - only show when in mobile preview mode */}
           {mobilePreview && isAdmin && site.footer && (
             <div className="w-full mt-auto" style={{ position: 'relative', zIndex: 1 }}>
+              <FooterRenderer site={site} />
+            </div>
+          )}
+          
+          {/* Footer in desktop admin mode - only show when NOT in mobile preview */}
+          {!mobilePreview && isAdmin && site.footer && (
+            <div className="w-full mt-8">
               <FooterRenderer site={site} />
             </div>
           )}

@@ -1,8 +1,8 @@
 import { getSite } from "@/lib/data";
 import { notFound } from "next/navigation";
 import CustomHeadCode from "@/components/CustomHeadCode";
-import HeaderRenderer from "@/components/HeaderRenderer";
-import FooterRenderer from "@/components/FooterRenderer";
+import ConditionalHeaderFooter from "./ConditionalHeaderFooter";
+import ConditionalFooter from "./ConditionalFooter";
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -18,9 +18,9 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
   return (
     <div className="flex flex-col min-h-screen" suppressHydrationWarning>
       <CustomHeadCode headCode={site.customCode?.head} favicon={site.theme?.favicon} />
-      {site.header && <HeaderRenderer site={site} />}
+      <ConditionalHeaderFooter site={site} />
       <main className="flex-1">{children}</main>
-      {site.footer && <FooterRenderer site={site} />}
+      <ConditionalFooter site={site} />
       {site.customCode?.footer && (
         <script 
           dangerouslySetInnerHTML={{ __html: site.customCode.footer }} 
