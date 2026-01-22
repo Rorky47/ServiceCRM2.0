@@ -62,11 +62,11 @@ function SortableFooterColumn({
       style={style}
       className="relative group"
     >
-      <div className="absolute -top-8 left-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+      <div className="absolute -top-8 left-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-auto">
         <button
           {...attributes}
           {...listeners}
-          className="bg-yellow-400 text-black px-2 py-1 rounded cursor-grab active:cursor-grabbing text-xs flex items-center gap-1"
+          className="bg-yellow-400 text-black px-2 py-1 rounded cursor-grab active:cursor-grabbing text-xs flex items-center gap-1 shadow-lg"
           title="Drag to reorder"
         >
           <FaGripVertical /> Drag
@@ -80,7 +80,7 @@ function SortableFooterColumn({
               footer: { ...footer, columns: newColumns },
             });
           }}
-          className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+          className="bg-red-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1 shadow-lg"
           title="Delete column"
         >
           <FaTimes /> Delete
@@ -127,6 +127,22 @@ export default function EditableFooterRenderer({
   if (!site.footer) return null;
 
   const footer = site.footer;
+  
+  // Calculate grid structure to match FooterRenderer
+  const hasLogo = footer.showLogo && (footer.logo || site.theme?.logo);
+  const columnCount = footer.columns?.length || 0;
+  const hasContact = footer.emailAddress || footer.phoneNumber;
+  const totalItems = (hasLogo ? 1 : 0) + columnCount + (hasContact ? 1 : 0);
+  
+  const getGridClasses = () => {
+    if (totalItems === 0) return "grid-cols-1";
+    if (totalItems === 1) return "grid-cols-1";
+    if (totalItems === 2) return "grid-cols-1 sm:grid-cols-2";
+    if (totalItems === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    if (totalItems === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+    if (totalItems === 5) return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5";
+    return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -320,26 +336,39 @@ export default function EditableFooterRenderer({
         </div>
       )}
 
-      {/* Footer with Drag-and-Drop Overlay */}
-      <div className="relative">
-        {footer.columns && footer.columns.length > 0 && (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={footer.columns.map((_, i) => `column-${i}`)}
-              strategy={horizontalListSortingStrategy}
-            >
-              {/* Overlay drag handles on footer columns */}
+      {/* Footer with Drag-and-Drop */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={footer.columns?.map((_, i) => `column-${i}`) || []}
+          strategy={horizontalListSortingStrategy}
+        >
+          <div className="relative">
+            {/* Render the footer with drag handles overlaid */}
+            <FooterRenderer site={site} />
+            
+            {/* Drag handles overlay - positioned absolutely over footer columns */}
+            {footer.columns && footer.columns.length > 0 && (
               <div className="absolute inset-0 pointer-events-none z-30">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 xl:gap-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{
+                  paddingTop: `${topPadding * 4}px`,
+                  paddingBottom: `${bottomPadding * 4}px`,
+                }}>
+                  <div 
+                    className={`grid ${getGridClasses()} items-start w-full justify-items-stretch`}
+                    style={{ gap: `${columnGap * 4}px` }}
+                  >
+                    {/* Empty cell for logo if present */}
+                    {hasLogo && <div></div>}
+                    
+                    {/* Drag handles for each column */}
                     {footer.columns.map((_, columnIndex) => (
                       <div
                         key={columnIndex}
-                        className="relative"
+                        className="relative h-full"
                         onMouseEnter={() => setHoveredColumnIndex(columnIndex)}
                         onMouseLeave={() => setHoveredColumnIndex(null)}
                       >
@@ -352,16 +381,16 @@ export default function EditableFooterRenderer({
                         />
                       </div>
                     ))}
+                    
+                    {/* Empty cell for contact if present */}
+                    {hasContact && <div></div>}
                   </div>
                 </div>
               </div>
-            </SortableContext>
-          </DndContext>
-        )}
-
-        {/* Render the actual footer */}
-        <FooterRenderer site={site} />
-      </div>
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
