@@ -618,41 +618,65 @@
 
 /* Hero section - all text elements - VERY SPECIFIC SELECTORS */
 .mobile-preview-wrapper section.relative.min-h-screen h1,
+.mobile-preview-wrapper section.relative.min-h-screen h1.text-xl,
 .mobile-preview-wrapper section.relative.min-h-screen h1.text-3xl,
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-2xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-3xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-4xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-5xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-6xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-7xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="sm:text-3xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="sm:text-4xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="md:text-4xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="md:text-5xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="lg:text-6xl"],
 .mobile-preview-wrapper section.relative.min-h-screen h1[class*="lg:text-7xl"] {
-  font-size: 1.875rem !important; /* text-3xl */
-  line-height: 1.2 !important;
+  font-size: 1.25rem !important; /* text-xl - smaller for mobile */
+  line-height: 1.3 !important;
 }
 
 .mobile-preview-wrapper section.relative.min-h-screen p,
+.mobile-preview-wrapper section.relative.min-h-screen p.text-sm,
 .mobile-preview-wrapper section.relative.min-h-screen p.text-base,
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-sm"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="text-base"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="text-lg"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="text-xl"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="text-2xl"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="sm:text-base"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="sm:text-lg"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="md:text-lg"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="md:text-xl"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="lg:text-xl"],
 .mobile-preview-wrapper section.relative.min-h-screen p[class*="lg:text-2xl"] {
-  font-size: 1rem !important; /* text-base */
+  font-size: 0.875rem !important; /* text-sm - smaller for mobile */
   line-height: 1.5 !important;
 }
 
 /* Hero section textareas (for editing) */
+.mobile-preview-wrapper section.relative.min-h-screen textarea.text-xl,
 .mobile-preview-wrapper section.relative.min-h-screen textarea.text-3xl,
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-"] {
-  font-size: 1.875rem !important; /* text-3xl */
-  line-height: 1.2 !important;
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-2xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-3xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-4xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-5xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-6xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-7xl"] {
+  font-size: 1.25rem !important; /* text-xl - smaller for mobile */
+  line-height: 1.3 !important;
 }
 
+.mobile-preview-wrapper section.relative.min-h-screen textarea.text-sm,
 .mobile-preview-wrapper section.relative.min-h-screen textarea.text-base,
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-base"] {
-  font-size: 1rem !important; /* text-base */
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-sm"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-base"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-lg"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-xl"],
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-2xl"] {
+  font-size: 0.875rem !important; /* text-sm - smaller for mobile */
   line-height: 1.5 !important;
 }
 

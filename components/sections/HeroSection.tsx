@@ -329,13 +329,13 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
                 handleSave();
               }
             }}
-            className="w-full text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold bg-white/90 text-black p-3 sm:p-4 rounded"
+            className="w-full text-xl sm:text-3xl md:text-4xl lg:text-6xl font-bold bg-white/90 text-black p-3 sm:p-4 rounded"
             autoFocus
           />
         ) : (
           <h1
             onClick={() => handleClick("headline", section.content.headline)}
-            className={`text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 px-2 break-words ${
+            className={`text-xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-4 sm:mb-6 px-2 break-words ${
               isAdmin ? "cursor-pointer hover:bg-white/20 p-2 rounded" : ""
             }`}
             style={{
@@ -357,13 +357,13 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
                 handleSave();
               }
             }}
-            className="w-full text-base sm:text-lg md:text-xl lg:text-2xl bg-white/90 text-black p-3 sm:p-4 rounded mb-4 sm:mb-6"
+            className="w-full text-sm sm:text-base md:text-lg lg:text-xl bg-white/90 text-black p-3 sm:p-4 rounded mb-4 sm:mb-6"
             autoFocus
           />
         ) : (
           <p
             onClick={() => handleClick("subheadline", section.content.subheadline)}
-            className={`text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 px-2 break-words ${
+            className={`text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 px-2 break-words ${
               isAdmin ? "cursor-pointer hover:bg-white/20 p-2 rounded" : ""
             }`}
             style={{
