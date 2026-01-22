@@ -617,66 +617,107 @@
    ============================================ */
 
 /* Hero section - all text elements - VERY SPECIFIC SELECTORS */
+/* Target both min-h-screen and min-h-[50vh] variants */
+.mobile-preview-wrapper section.relative[class*="min-h"] h1,
 .mobile-preview-wrapper section.relative.min-h-screen h1,
+.mobile-preview-wrapper section.relative.min-h-\[50vh\] h1,
+.mobile-preview-wrapper section.relative.min-h-screen h1.text-lg,
 .mobile-preview-wrapper section.relative.min-h-screen h1.text-xl,
+.mobile-preview-wrapper section.relative.min-h-screen h1.text-2xl,
 .mobile-preview-wrapper section.relative.min-h-screen h1.text-3xl,
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-2xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-3xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-4xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-5xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-6xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-7xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="sm:text-3xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="sm:text-4xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="md:text-4xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="md:text-5xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="lg:text-6xl"],
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="lg:text-7xl"] {
-  font-size: 1.25rem !important; /* text-xl - smaller for mobile */
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-lg"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-2xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-3xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-4xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-5xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-6xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="text-7xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="sm:text-2xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="sm:text-3xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="sm:text-4xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="md:text-3xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="md:text-4xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="md:text-5xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="lg:text-5xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="lg:text-6xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] h1[class*="lg:text-7xl"] {
+  font-size: 1.125rem !important; /* text-lg - even smaller for mobile */
   line-height: 1.3 !important;
 }
 
+/* Universal override for ANY h1 in hero section within mobile preview */
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] h1,
+.mobile-preview-wrapper section[class*="relative"][class*="flex"] h1 {
+  font-size: 1.25rem !important;
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper section.relative[class*="min-h"] p,
 .mobile-preview-wrapper section.relative.min-h-screen p,
+.mobile-preview-wrapper section.relative.min-h-\[50vh\] p,
+.mobile-preview-wrapper section.relative.min-h-screen p.text-xs,
 .mobile-preview-wrapper section.relative.min-h-screen p.text-sm,
 .mobile-preview-wrapper section.relative.min-h-screen p.text-base,
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-sm"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-base"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-lg"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-xl"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-2xl"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="sm:text-base"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="sm:text-lg"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="md:text-lg"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="md:text-xl"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="lg:text-xl"],
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="lg:text-2xl"] {
-  font-size: 0.875rem !important; /* text-sm - smaller for mobile */
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="text-xs"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="text-sm"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="text-base"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="text-lg"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="text-xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="text-2xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="sm:text-sm"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="sm:text-base"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="sm:text-lg"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="md:text-base"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="md:text-lg"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="md:text-xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="lg:text-lg"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="lg:text-xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] p[class*="lg:text-2xl"] {
+  font-size: 0.75rem !important; /* text-xs - even smaller for mobile */
+  line-height: 1.5 !important;
+}
+
+/* Universal override for ANY p in hero section within mobile preview */
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] p,
+.mobile-preview-wrapper section[class*="relative"][class*="flex"] p {
+  font-size: 0.875rem !important;
   line-height: 1.5 !important;
 }
 
 /* Hero section textareas (for editing) */
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea,
 .mobile-preview-wrapper section.relative.min-h-screen textarea.text-xl,
 .mobile-preview-wrapper section.relative.min-h-screen textarea.text-3xl,
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-2xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-3xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-4xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-5xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-6xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-7xl"] {
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-2xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-3xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-4xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-5xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-6xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-7xl"] {
   font-size: 1.25rem !important; /* text-xl - smaller for mobile */
   line-height: 1.3 !important;
 }
 
-.mobile-preview-wrapper section.relative.min-h-screen textarea.text-sm,
-.mobile-preview-wrapper section.relative.min-h-screen textarea.text-base,
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-sm"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-base"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-lg"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-xl"],
-.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-2xl"] {
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-sm"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-base"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-lg"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-xl"],
+.mobile-preview-wrapper section.relative[class*="min-h"] textarea[class*="text-2xl"] {
   font-size: 0.875rem !important; /* text-sm - smaller for mobile */
+  line-height: 1.5 !important;
+}
+
+/* Universal override for ANY textarea in hero section within mobile preview */
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] textarea {
+  font-size: 1.25rem !important;
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] textarea[class*="text-sm"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] textarea[class*="text-base"] {
+  font-size: 0.875rem !important;
   line-height: 1.5 !important;
 }
 
@@ -775,8 +816,11 @@
 .mobile-preview-wrapper section[class*="min-h-screen"] p[class*="text-base"][class*="lg:text-2xl"],
 .mobile-preview-wrapper section[class*="min-h-screen"] p[class*="sm:text-lg"],
 .mobile-preview-wrapper section[class*="min-h-screen"] p[class*="md:text-xl"],
-.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="lg:text-2xl"] {
-  font-size: 1rem !important; /* text-base */
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="lg:text-2xl"],
+.mobile-preview-wrapper section[class*="min-h"][class*="50vh"] p[class*="text-sm"][class*="sm:text-base"],
+.mobile-preview-wrapper section[class*="min-h"][class*="50vh"] p[class*="text-sm"][class*="md:text-lg"],
+.mobile-preview-wrapper section[class*="min-h"][class*="50vh"] p[class*="text-sm"][class*="lg:text-xl"] {
+  font-size: 0.875rem !important; /* text-sm - smaller for mobile */
   line-height: 1.5 !important;
 }
 
@@ -796,6 +840,61 @@
 }
 
 /* Nuclear option - override ANY element with these classes in mobile preview */
+/* But make hero section even smaller */
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-3xl"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-4xl"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-5xl"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-6xl"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-7xl"] {
+  font-size: 1.25rem !important; /* Force text-xl for hero section */
+}
+
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-2xl"]:not([class*="text-3xl"]) {
+  font-size: 1.25rem !important; /* Force text-xl for hero section */
+}
+
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-base"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-lg"],
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] *[class*="text-xl"] {
+  font-size: 0.875rem !important; /* Force text-sm for hero section */
+}
+
+/* Target the content div specifically */
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] div[class*="relative"][class*="z-10"] h1,
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] div[class*="relative"][class*="z-10"] p {
+  font-size: 1.25rem !important; /* h1 */
+}
+
+.mobile-preview-wrapper section[class*="relative"][class*="min-h"] div[class*="relative"][class*="z-10"] p {
+  font-size: 0.875rem !important; /* p */
+}
+
+/* FINAL NUCLEAR OPTION - Target hero content div directly */
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1,
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-lg"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-2xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-3xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-4xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-5xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-6xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] h1[class*="text-7xl"] {
+  font-size: 1.125rem !important; /* Force text-lg - even smaller */
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p,
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p[class*="text-xs"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p[class*="text-sm"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p[class*="text-base"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p[class*="text-lg"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p[class*="text-xl"],
+.mobile-preview-wrapper div[class*="relative"][class*="z-10"][class*="text-center"] p[class*="text-2xl"] {
+  font-size: 0.75rem !important; /* Force text-xs - even smaller */
+  line-height: 1.5 !important;
+}
+
+/* Universal fallback for hero section */
 .mobile-preview-wrapper *[class*="text-3xl"],
 .mobile-preview-wrapper *[class*="text-4xl"],
 .mobile-preview-wrapper *[class*="text-5xl"],
