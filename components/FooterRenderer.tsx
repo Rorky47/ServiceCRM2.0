@@ -119,19 +119,28 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
           )}
           {socialLinks && socialLinks.length > 0 && (
             <div className="flex items-center space-x-4">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.platform === "email" ? `mailto:${social.url}` : social.url}
-                  target={social.platform === "email" ? undefined : "_blank"}
-                  rel={social.platform === "email" ? undefined : "noopener noreferrer"}
-                  className="hover:opacity-80 transition-opacity"
-                  title={social.label || social.platform}
-                  style={{ color: footer.textColor || "#ffffff" }}
-                >
-                  <SocialIcon platform={social.platform} size="lg" />
-                </a>
-              ))}
+              {socialLinks.map((social, index) => {
+                // For email platform, ensure mailto: prefix is present
+                let href = social.url;
+                if (social.platform === "email") {
+                  // Remove any existing mailto: prefix to avoid duplication
+                  href = social.url.replace(/^mailto:/i, "");
+                  href = `mailto:${href}`;
+                }
+                return (
+                  <a
+                    key={index}
+                    href={href}
+                    target={social.platform === "email" ? undefined : "_blank"}
+                    rel={social.platform === "email" ? undefined : "noopener noreferrer"}
+                    className="hover:opacity-80 transition-opacity"
+                    title={social.label || social.platform}
+                    style={{ color: footer.textColor || "#ffffff" }}
+                  >
+                    <SocialIcon platform={social.platform} size="lg" />
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>

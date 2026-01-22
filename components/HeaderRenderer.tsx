@@ -196,19 +196,28 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
               )}
               {socialLinks && socialLinks.length > 0 && (
                 <div className="flex items-center space-x-4 pt-2 border-t border-opacity-10 mt-2" style={{ borderColor: header.textColor ? `${header.textColor}30` : 'rgba(0,0,0,0.1)' }}>
-                  {socialLinks.map((social, index) => (
-                    <a
-                      key={index}
-                      href={social.platform === "email" ? `mailto:${social.url}` : social.url}
-                      target={social.platform === "email" ? undefined : "_blank"}
-                      rel={social.platform === "email" ? undefined : "noopener noreferrer"}
-                      className="hover:opacity-80 transition-opacity p-2 rounded-md hover:bg-black/5 touch-manipulation"
-                      title={social.label || social.platform}
-                      style={{ color: header.textColor || "#000000" }}
-                    >
-                      <SocialIcon platform={social.platform} size="md" />
-                    </a>
-                  ))}
+                  {socialLinks.map((social, index) => {
+                    // For email platform, ensure mailto: prefix is present
+                    let href = social.url;
+                    if (social.platform === "email") {
+                      // Remove any existing mailto: prefix to avoid duplication
+                      href = social.url.replace(/^mailto:/i, "");
+                      href = `mailto:${href}`;
+                    }
+                    return (
+                      <a
+                        key={index}
+                        href={href}
+                        target={social.platform === "email" ? undefined : "_blank"}
+                        rel={social.platform === "email" ? undefined : "noopener noreferrer"}
+                        className="hover:opacity-80 transition-opacity p-2 rounded-md hover:bg-black/5 touch-manipulation"
+                        title={social.label || social.platform}
+                        style={{ color: header.textColor || "#000000" }}
+                      >
+                        <SocialIcon platform={social.platform} size="md" />
+                      </a>
+                    );
+                  })}
                 </div>
               )}
             </nav>
