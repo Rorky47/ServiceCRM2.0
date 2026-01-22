@@ -616,17 +616,29 @@
    More specific targeting for these sections
    ============================================ */
 
-/* Hero section - all text elements */
+/* Hero section - all text elements - VERY SPECIFIC SELECTORS */
 .mobile-preview-wrapper section.relative.min-h-screen h1,
 .mobile-preview-wrapper section.relative.min-h-screen h1.text-3xl,
-.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-"] {
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-3xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-4xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-5xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-7xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="sm:text-4xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="md:text-5xl"],
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="lg:text-7xl"] {
   font-size: 1.875rem !important; /* text-3xl */
   line-height: 1.2 !important;
 }
 
 .mobile-preview-wrapper section.relative.min-h-screen p,
 .mobile-preview-wrapper section.relative.min-h-screen p.text-base,
-.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-"] {
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-base"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-lg"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-xl"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-2xl"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="sm:text-lg"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="md:text-xl"],
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="lg:text-2xl"] {
   font-size: 1rem !important; /* text-base */
   line-height: 1.5 !important;
 }
@@ -644,18 +656,28 @@
   line-height: 1.5 !important;
 }
 
-/* TextImage section - all text elements */
+/* TextImage section - all text elements - VERY SPECIFIC SELECTORS */
 .mobile-preview-wrapper section.relative.py-12 h2,
 .mobile-preview-wrapper section.relative.py-12 h2.text-2xl,
-.mobile-preview-wrapper section.relative.py-12 h2[class*="text-"] {
+.mobile-preview-wrapper section.relative.py-12 h2[class*="text-2xl"],
+.mobile-preview-wrapper section.relative.py-12 h2[class*="text-3xl"],
+.mobile-preview-wrapper section.relative.py-12 h2[class*="sm:text-3xl"] {
   font-size: 1.5rem !important; /* text-2xl */
   line-height: 1.3 !important;
 }
 
 .mobile-preview-wrapper section.relative.py-12 div[class*="text-base"],
 .mobile-preview-wrapper section.relative.py-12 div[class*="text-lg"],
+.mobile-preview-wrapper section.relative.py-12 div[class*="sm:text-lg"],
 .mobile-preview-wrapper section.relative.py-12 div[class*="leading-relaxed"],
 .mobile-preview-wrapper section.relative.py-12 .rich-text-content {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.6 !important;
+}
+
+/* Target the div wrapper that contains RichTextDisplay */
+.mobile-preview-wrapper section.relative.py-12 > div > div[class*="text-base"],
+.mobile-preview-wrapper section.relative.py-12 > div > div[class*="sm:text-lg"] {
   font-size: 1rem !important; /* text-base */
   line-height: 1.6 !important;
 }
@@ -674,21 +696,162 @@
   /* Force mobile base sizes */
 }
 
-/* Specific overrides for common patterns */
-.mobile-preview-wrapper [class*="text-3xl"],
+/* Specific overrides for common patterns - target ALL instances */
+.mobile-preview-wrapper [class*="text-3xl"]:not([class*="text-2xl"]):not([class*="text-xl"]),
 .mobile-preview-wrapper [class*="text-4xl"],
 .mobile-preview-wrapper [class*="text-5xl"],
 .mobile-preview-wrapper [class*="text-7xl"] {
   font-size: 1.875rem !important; /* text-3xl max */
 }
 
-.mobile-preview-wrapper [class*="text-2xl"] {
+.mobile-preview-wrapper [class*="text-2xl"]:not([class*="text-3xl"]):not([class*="text-xl"]) {
   font-size: 1.5rem !important; /* text-2xl */
 }
 
-.mobile-preview-wrapper [class*="text-xl"],
-.mobile-preview-wrapper [class*="text-2xl"]:not(h1):not(h2) {
+.mobile-preview-wrapper [class*="text-xl"]:not([class*="text-2xl"]):not([class*="text-3xl"]),
+.mobile-preview-wrapper [class*="text-2xl"]:not(h1):not(h2):not([class*="text-3xl"]) {
   font-size: 1rem !important; /* text-base */
+}
+
+/* Override responsive classes directly - these have higher specificity */
+.mobile-preview-wrapper [class*="sm:text-4xl"],
+.mobile-preview-wrapper [class*="md:text-5xl"],
+.mobile-preview-wrapper [class*="lg:text-7xl"] {
+  font-size: 1.875rem !important; /* Force text-3xl */
+}
+
+.mobile-preview-wrapper [class*="sm:text-3xl"] {
+  font-size: 1.5rem !important; /* Force text-2xl */
+}
+
+.mobile-preview-wrapper [class*="sm:text-lg"],
+.mobile-preview-wrapper [class*="md:text-xl"],
+.mobile-preview-wrapper [class*="lg:text-2xl"] {
+  font-size: 1rem !important; /* Force text-base */
+}
+
+/* ============================================
+   ULTRA-SPECIFIC OVERRIDES FOR HERO & TEXTIMAGE
+   Target exact class combinations with maximum specificity
+   ============================================ */
+
+/* Hero Section - Force override ALL responsive text classes */
+.mobile-preview-wrapper section[class*="min-h-screen"] h1[class*="text-3xl"][class*="sm:text-4xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] h1[class*="text-3xl"][class*="md:text-5xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] h1[class*="text-3xl"][class*="lg:text-7xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] h1[class*="sm:text-4xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] h1[class*="md:text-5xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] h1[class*="lg:text-7xl"] {
+  font-size: 1.875rem !important; /* text-3xl */
+  line-height: 1.2 !important;
+}
+
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="text-base"][class*="sm:text-lg"],
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="text-base"][class*="md:text-xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="text-base"][class*="lg:text-2xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="sm:text-lg"],
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="md:text-xl"],
+.mobile-preview-wrapper section[class*="min-h-screen"] p[class*="lg:text-2xl"] {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.5 !important;
+}
+
+/* TextImage Section - Force override ALL responsive text classes */
+.mobile-preview-wrapper section[class*="py-12"] h2[class*="text-2xl"][class*="sm:text-3xl"],
+.mobile-preview-wrapper section[class*="py-12"] h2[class*="sm:text-3xl"] {
+  font-size: 1.5rem !important; /* text-2xl */
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper section[class*="py-12"] div[class*="text-base"][class*="sm:text-lg"],
+.mobile-preview-wrapper section[class*="py-12"] div[class*="sm:text-lg"],
+.mobile-preview-wrapper section[class*="py-12"] div[class*="leading-relaxed"][class*="text-base"],
+.mobile-preview-wrapper section[class*="py-12"] div[class*="leading-relaxed"][class*="sm:text-lg"] {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.6 !important;
+}
+
+/* Nuclear option - override ANY element with these classes in mobile preview */
+.mobile-preview-wrapper *[class*="text-3xl"],
+.mobile-preview-wrapper *[class*="text-4xl"],
+.mobile-preview-wrapper *[class*="text-5xl"],
+.mobile-preview-wrapper *[class*="text-7xl"] {
+  font-size: 1.875rem !important;
+}
+
+.mobile-preview-wrapper *[class*="text-2xl"]:not([class*="text-3xl"]) {
+  font-size: 1.5rem !important;
+}
+
+.mobile-preview-wrapper *[class*="text-base"],
+.mobile-preview-wrapper *[class*="text-lg"],
+.mobile-preview-wrapper *[class*="text-xl"] {
+  font-size: 1rem !important;
+}
+
+/* Override responsive classes at the element level */
+.mobile-preview-wrapper h1[class*="sm:"],
+.mobile-preview-wrapper h1[class*="md:"],
+.mobile-preview-wrapper h1[class*="lg:"] {
+  font-size: 1.875rem !important;
+}
+
+.mobile-preview-wrapper h2[class*="sm:"] {
+  font-size: 1.5rem !important;
+}
+
+.mobile-preview-wrapper p[class*="sm:"],
+.mobile-preview-wrapper p[class*="md:"],
+.mobile-preview-wrapper p[class*="lg:"],
+.mobile-preview-wrapper div[class*="sm:"] {
+  font-size: 1rem !important;
+}
+
+/* ============================================
+   FINAL NUCLEAR OPTION - Override ALL media queries
+   Force mobile sizes regardless of viewport width
+   ============================================ */
+
+/* Override Tailwind's responsive classes at ALL breakpoints */
+@media (min-width: 640px) {
+  .mobile-preview-wrapper h1[class*="sm:text-4xl"],
+  .mobile-preview-wrapper h1[class*="sm:text-5xl"],
+  .mobile-preview-wrapper h1[class*="sm:text-7xl"] {
+    font-size: 1.875rem !important; /* text-3xl */
+  }
+  
+  .mobile-preview-wrapper p[class*="sm:text-lg"],
+  .mobile-preview-wrapper p[class*="sm:text-xl"],
+  .mobile-preview-wrapper p[class*="sm:text-2xl"],
+  .mobile-preview-wrapper div[class*="sm:text-lg"] {
+    font-size: 1rem !important; /* text-base */
+  }
+  
+  .mobile-preview-wrapper h2[class*="sm:text-3xl"] {
+    font-size: 1.5rem !important; /* text-2xl */
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-preview-wrapper h1[class*="md:text-5xl"],
+  .mobile-preview-wrapper h1[class*="md:text-7xl"] {
+    font-size: 1.875rem !important; /* text-3xl */
+  }
+  
+  .mobile-preview-wrapper p[class*="md:text-xl"],
+  .mobile-preview-wrapper p[class*="md:text-2xl"] {
+    font-size: 1rem !important; /* text-base */
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-preview-wrapper h1[class*="lg:text-7xl"] {
+    font-size: 1.875rem !important; /* text-3xl */
+  }
+  
+  .mobile-preview-wrapper p[class*="lg:text-2xl"] {
+    font-size: 1rem !important; /* text-base */
+  }
 }
 
 /* ============================================
