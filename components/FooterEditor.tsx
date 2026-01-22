@@ -15,7 +15,7 @@ interface FooterColumn {
 }
 
 interface SocialLink {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
   url: string;
   label?: string;
 }
@@ -25,6 +25,8 @@ interface FooterData {
   logo?: string;
   logoSize?: "small" | "medium" | "large" | "xlarge";
   copyrightText?: string;
+  emailAddress?: string;
+  phoneNumber?: string;
   columns?: FooterColumn[];
   socialLinks?: SocialLink[];
   backgroundColor?: string;
@@ -183,6 +185,39 @@ export default function FooterEditor({
           className="w-full border border-gray-300 rounded-lg px-3 py-2"
           placeholder="© 2024 Your Company. All rights reserved."
         />
+      </div>
+
+      {/* Contact Information */}
+      <div className="border border-gray-200 rounded-lg p-4">
+        <h3 className="font-medium mb-4">Contact Information</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+            <input
+              type="email"
+              value={footer.emailAddress || ""}
+              onChange={(e) => updateFooter({ emailAddress: e.target.value || undefined })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              placeholder="contact@example.com"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This will be displayed in the footer with a clickable mailto link.
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+            <input
+              type="tel"
+              value={footer.phoneNumber || ""}
+              onChange={(e) => updateFooter({ phoneNumber: e.target.value || undefined })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              placeholder="(555) 123-4567"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This will be displayed in the footer with a clickable tel link.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Footer Columns */}

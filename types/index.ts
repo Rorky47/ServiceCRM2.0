@@ -52,7 +52,7 @@ export type Section =
     };
 
 export type SocialLink = {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
   url: string;
   label?: string;
 };
@@ -112,6 +112,8 @@ export type Site = {
     logo?: string;
     logoSize?: "small" | "medium" | "large" | "xlarge";
     copyrightText?: string;
+    emailAddress?: string;
+    phoneNumber?: string;
     columns?: Array<{
       title: string;
       links: Array<{

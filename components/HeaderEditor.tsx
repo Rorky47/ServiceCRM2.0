@@ -27,7 +27,7 @@ interface NavigationLink {
 }
 
 interface SocialLink {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
   url: string;
   label?: string;
 }

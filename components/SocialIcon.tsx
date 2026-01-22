@@ -1,7 +1,7 @@
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaLink } from "react-icons/fa";
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaEnvelope, FaLink } from "react-icons/fa";
 
 interface SocialIconProps {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom";
+  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
   size?: "sm" | "md" | "lg";
   className?: string;
 }
@@ -26,6 +26,8 @@ export default function SocialIcon({ platform, size = "md", className = "" }: So
       return <FaLinkedin className={iconClass} />;
     case "youtube":
       return <FaYoutube className={iconClass} />;
+    case "email":
+      return <FaEnvelope className={iconClass} />;
     default:
       return <FaLink className={iconClass} />;
   }

@@ -199,9 +199,9 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                   {socialLinks.map((social, index) => (
                     <a
                       key={index}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={social.platform === "email" ? `mailto:${social.url}` : social.url}
+                      target={social.platform === "email" ? undefined : "_blank"}
+                      rel={social.platform === "email" ? undefined : "noopener noreferrer"}
                       className="hover:opacity-80 transition-opacity p-2 rounded-md hover:bg-black/5 touch-manipulation"
                       title={social.label || social.platform}
                       style={{ color: header.textColor || "#000000" }}

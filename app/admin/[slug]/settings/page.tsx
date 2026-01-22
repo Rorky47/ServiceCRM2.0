@@ -470,13 +470,20 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                         <option value="instagram">Instagram</option>
                         <option value="linkedin">LinkedIn</option>
                         <option value="youtube">YouTube</option>
+                        <option value="email">Email</option>
                         <option value="custom">Custom</option>
                       </select>
                       <input
-                        type="text"
+                        type={newSocialPlatform === "email" ? "email" : "text"}
                         value={newSocialUrl}
                         onChange={(e) => setNewSocialUrl(e.target.value)}
-                        placeholder="https://facebook.com/yourpage"
+                        placeholder={
+                          newSocialPlatform === "email"
+                            ? "contact@example.com"
+                            : newSocialPlatform === "custom"
+                            ? "https://example.com"
+                            : `https://${newSocialPlatform}.com/yourpage`
+                        }
                         className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
                         onKeyPress={(e) => {
                           if (e.key === "Enter" && newSocialUrl.trim()) {
