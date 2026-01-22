@@ -134,8 +134,8 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                   <a
                     key={index}
                     href={href}
-                    target={social.platform === "email" ? undefined : "_blank"}
-                    rel={social.platform === "email" ? undefined : "noopener noreferrer"}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="hover:opacity-80 transition-opacity"
                     title={social.label || social.platform}
                     style={{ color: footer.textColor || "#ffffff" }}
