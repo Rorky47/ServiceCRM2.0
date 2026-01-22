@@ -510,10 +510,7 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             </div>
           )}
 
-          {/* Footer in non-admin mode */}
-          {!isAdmin && site.footer && (
-            <FooterRenderer site={site} />
-          )}
+          {/* Note: Footer in non-admin mode is rendered by ConditionalFooter in the layout */}
           </div>
         </div>
       </div>
