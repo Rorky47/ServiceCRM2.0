@@ -95,19 +95,21 @@ export default function EditableFooterRenderer({
   isAdmin,
   onUpdate,
 }: EditableFooterRendererProps) {
-  if (!site.footer) return null;
-
+  // All hooks must be called at the top level, before any conditional returns
   const [saving, setSaving] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [hoveredColumnIndex, setHoveredColumnIndex] = useState<number | null>(null);
 
-  const footer = site.footer;
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  if (!site.footer) return null;
+
+  const footer = site.footer;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
