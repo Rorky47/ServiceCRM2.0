@@ -59,17 +59,28 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
           className={`grid ${getGridClasses()} items-start w-full justify-items-stretch`}
           style={{
             gap: `${((footer as any)?.columnGap ?? 6) * 4}px`,
+            // On mobile (single column), ensure sufficient vertical spacing
+            rowGap: `clamp(24px, ${((footer as any)?.columnGap ?? 6) * 4}px, 48px)`,
           }}
         >
           {/* Logo */}
           {hasLogo && (
-            <div className="min-w-0 w-full">
+            <div 
+              className="min-w-0 w-full footer-logo-container" 
+              style={{ 
+                maxWidth: '100%',
+                overflow: 'hidden',
+                // Add bottom margin to ensure spacing before next grid item
+                marginBottom: '0',
+                paddingBottom: '1rem', // Padding instead of margin for better grid behavior
+              }}
+            >
               <OptimizedImage
                 src={logo}
                 alt={site.name}
                 width={120}
                 height={48}
-                className={`w-auto ${
+                className={`w-auto max-w-full footer-logo-image ${
                   footer.logoSize === "small"
                     ? "h-8 sm:h-10"
                     : footer.logoSize === "medium"
@@ -80,7 +91,13 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                     ? "h-20 sm:h-24"
                     : "h-12 sm:h-14" // default medium
                 }`}
-                style={footer.logoScale ? { transform: `scale(${footer.logoScale / 100})`, transformOrigin: 'top left' } : undefined}
+                style={footer.logoScale ? { 
+                  transform: `scale(${footer.logoScale / 100})`, 
+                  transformOrigin: 'top left',
+                  maxWidth: '100%',
+                } : {
+                  maxWidth: '100%',
+                }}
                 unoptimized
               />
             </div>
