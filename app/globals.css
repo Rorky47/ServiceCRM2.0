@@ -360,14 +360,43 @@
   font-size: 2.25rem !important; /* text-4xl */
 }
 
-/* Force specific text sizes for headings */
-.mobile-preview-wrapper h1 {
-  font-size: 1.75rem !important;
+.mobile-preview-wrapper .md\:text-5xl {
+  font-size: 1.875rem !important; /* text-3xl */
+}
+
+.mobile-preview-wrapper .lg\:text-7xl {
+  font-size: 1.875rem !important; /* text-3xl */
+}
+
+.mobile-preview-wrapper .md\:text-xl,
+.mobile-preview-wrapper .lg\:text-2xl {
+  font-size: 1rem !important; /* text-base */
+}
+
+/* Force specific text sizes for headings - override all responsive classes */
+.mobile-preview-wrapper h1,
+.mobile-preview-wrapper h1[class*="text-"] {
+  font-size: 1.875rem !important; /* text-3xl */
   line-height: 1.2 !important;
 }
 
-.mobile-preview-wrapper h2 {
-  font-size: 1.5rem !important;
+.mobile-preview-wrapper h1.text-3xl,
+.mobile-preview-wrapper h1.sm\:text-4xl,
+.mobile-preview-wrapper h1.md\:text-5xl,
+.mobile-preview-wrapper h1.lg\:text-7xl {
+  font-size: 1.875rem !important; /* text-3xl - mobile size */
+  line-height: 1.2 !important;
+}
+
+.mobile-preview-wrapper h2,
+.mobile-preview-wrapper h2[class*="text-"] {
+  font-size: 1.5rem !important; /* text-2xl */
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper h2.text-2xl,
+.mobile-preview-wrapper h2.sm\:text-3xl {
+  font-size: 1.5rem !important; /* text-2xl - mobile size */
   line-height: 1.3 !important;
 }
 
@@ -384,6 +413,40 @@
 .mobile-preview-wrapper .text-base {
   font-size: 1rem !important;
   line-height: 1.5 !important;
+}
+
+/* Hero section specific text overrides */
+.mobile-preview-wrapper section[class*="min-h-screen"] h1,
+.mobile-preview-wrapper section[class*="min-h-screen"] .text-3xl,
+.mobile-preview-wrapper section[class*="min-h-screen"] .sm\:text-4xl,
+.mobile-preview-wrapper section[class*="min-h-screen"] .md\:text-5xl,
+.mobile-preview-wrapper section[class*="min-h-screen"] .lg\:text-7xl {
+  font-size: 1.875rem !important; /* text-3xl */
+  line-height: 1.2 !important;
+}
+
+.mobile-preview-wrapper section[class*="min-h-screen"] p,
+.mobile-preview-wrapper section[class*="min-h-screen"] .text-base,
+.mobile-preview-wrapper section[class*="min-h-screen"] .sm\:text-lg,
+.mobile-preview-wrapper section[class*="min-h-screen"] .md\:text-xl,
+.mobile-preview-wrapper section[class*="min-h-screen"] .lg\:text-2xl {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.5 !important;
+}
+
+/* TextImage section specific text overrides */
+.mobile-preview-wrapper section[class*="py-12"] h2,
+.mobile-preview-wrapper section[class*="py-12"] .text-2xl,
+.mobile-preview-wrapper section[class*="py-12"] .sm\:text-3xl {
+  font-size: 1.5rem !important; /* text-2xl */
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper section[class*="py-12"] .text-base,
+.mobile-preview-wrapper section[class*="py-12"] .sm\:text-lg,
+.mobile-preview-wrapper section[class*="py-12"] [class*="leading-relaxed"] {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.6 !important;
 }
 
 .mobile-preview-wrapper .text-sm {
@@ -528,10 +591,10 @@
   height: auto !important;
 }
 
-/* Text content scaling */
-.mobile-preview-wrapper .text-gray-600,
-.mobile-preview-wrapper .text-gray-700,
-.mobile-preview-wrapper .text-gray-900 {
+/* Text content scaling - but preserve larger text in hero/text sections */
+.mobile-preview-wrapper .text-gray-600:not(h1):not(h2):not(h3):not(p),
+.mobile-preview-wrapper .text-gray-700:not(h1):not(h2):not(h3):not(p),
+.mobile-preview-wrapper .text-gray-900:not(h1):not(h2):not(h3):not(p) {
   font-size: 0.875rem !important; /* text-sm */
   line-height: 1.5 !important;
 }
@@ -546,4 +609,84 @@
 
 .mobile-preview-wrapper .sm\:text-base {
   font-size: 0.875rem !important;
+}
+
+/* ============================================
+   HERO & TEXTIMAGE SECTION TEXT OVERRIDES
+   More specific targeting for these sections
+   ============================================ */
+
+/* Hero section - all text elements */
+.mobile-preview-wrapper section.relative.min-h-screen h1,
+.mobile-preview-wrapper section.relative.min-h-screen h1.text-3xl,
+.mobile-preview-wrapper section.relative.min-h-screen h1[class*="text-"] {
+  font-size: 1.875rem !important; /* text-3xl */
+  line-height: 1.2 !important;
+}
+
+.mobile-preview-wrapper section.relative.min-h-screen p,
+.mobile-preview-wrapper section.relative.min-h-screen p.text-base,
+.mobile-preview-wrapper section.relative.min-h-screen p[class*="text-"] {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.5 !important;
+}
+
+/* Hero section textareas (for editing) */
+.mobile-preview-wrapper section.relative.min-h-screen textarea.text-3xl,
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-"] {
+  font-size: 1.875rem !important; /* text-3xl */
+  line-height: 1.2 !important;
+}
+
+.mobile-preview-wrapper section.relative.min-h-screen textarea.text-base,
+.mobile-preview-wrapper section.relative.min-h-screen textarea[class*="text-base"] {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.5 !important;
+}
+
+/* TextImage section - all text elements */
+.mobile-preview-wrapper section.relative.py-12 h2,
+.mobile-preview-wrapper section.relative.py-12 h2.text-2xl,
+.mobile-preview-wrapper section.relative.py-12 h2[class*="text-"] {
+  font-size: 1.5rem !important; /* text-2xl */
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper section.relative.py-12 div[class*="text-base"],
+.mobile-preview-wrapper section.relative.py-12 div[class*="text-lg"],
+.mobile-preview-wrapper section.relative.py-12 div[class*="leading-relaxed"],
+.mobile-preview-wrapper section.relative.py-12 .rich-text-content {
+  font-size: 1rem !important; /* text-base */
+  line-height: 1.6 !important;
+}
+
+/* TextImage section textareas (for editing) */
+.mobile-preview-wrapper section.relative.py-12 textarea.text-2xl,
+.mobile-preview-wrapper section.relative.py-12 textarea[class*="text-"] {
+  font-size: 1.5rem !important; /* text-2xl */
+  line-height: 1.3 !important;
+}
+
+/* Override ALL responsive text classes more aggressively */
+.mobile-preview-wrapper [class*="sm:text-"],
+.mobile-preview-wrapper [class*="md:text-"],
+.mobile-preview-wrapper [class*="lg:text-"] {
+  /* Force mobile base sizes */
+}
+
+/* Specific overrides for common patterns */
+.mobile-preview-wrapper [class*="text-3xl"],
+.mobile-preview-wrapper [class*="text-4xl"],
+.mobile-preview-wrapper [class*="text-5xl"],
+.mobile-preview-wrapper [class*="text-7xl"] {
+  font-size: 1.875rem !important; /* text-3xl max */
+}
+
+.mobile-preview-wrapper [class*="text-2xl"] {
+  font-size: 1.5rem !important; /* text-2xl */
+}
+
+.mobile-preview-wrapper [class*="text-xl"],
+.mobile-preview-wrapper [class*="text-2xl"]:not(h1):not(h2) {
+  font-size: 1rem !important; /* text-base */
 }
