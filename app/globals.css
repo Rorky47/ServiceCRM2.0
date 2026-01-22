@@ -1096,7 +1096,7 @@
 }
 
 /* Footer logo constraints on mobile to prevent overlap */
-/* Using preset spacing: 20px base unit */
+/* Using preset spacing: 40px base unit */
 @media (max-width: 640px) {
   .footer-logo-container {
     max-width: 100% !important;
@@ -1126,4 +1126,14 @@
   .footer-logo-container {
     margin-bottom: 0 !important;
   }
+}
+
+/* Prevent inverse scaling when logoScale is applied */
+/* When a custom scale is set, use fixed base size regardless of viewport */
+.footer-logo-image[style*="transform: scale"] {
+  /* Override responsive height classes when scale is applied */
+  height: auto !important;
+  /* Ensure the base size doesn't change with viewport */
+  min-height: 0 !important;
+  max-height: none !important;
 }

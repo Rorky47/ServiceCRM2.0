@@ -85,20 +85,33 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                 width={120}
                 height={48}
                 className={`w-auto max-w-full footer-logo-image ${
-                  footer.logoSize === "small"
-                    ? "h-8 sm:h-10"
-                    : footer.logoSize === "medium"
-                    ? "h-12 sm:h-14"
-                    : footer.logoSize === "large"
-                    ? "h-16 sm:h-20"
-                    : footer.logoSize === "xlarge"
-                    ? "h-20 sm:h-24"
-                    : "h-12 sm:h-14" // default medium
+                  // When logoScale is set, use fixed height to prevent inverse scaling
+                  footer.logoScale 
+                    ? (footer.logoSize === "small"
+                        ? "h-8"
+                        : footer.logoSize === "medium"
+                        ? "h-12"
+                        : footer.logoSize === "large"
+                        ? "h-16"
+                        : footer.logoSize === "xlarge"
+                        ? "h-20"
+                        : "h-12") // default medium - fixed height when scaled
+                    : (footer.logoSize === "small"
+                        ? "h-8 sm:h-10"
+                        : footer.logoSize === "medium"
+                        ? "h-12 sm:h-14"
+                        : footer.logoSize === "large"
+                        ? "h-16 sm:h-20"
+                        : footer.logoSize === "xlarge"
+                        ? "h-20 sm:h-24"
+                        : "h-12 sm:h-14") // default medium - responsive when not scaled
                 }`}
                 style={footer.logoScale ? { 
                   transform: `scale(${footer.logoScale / 100})`, 
                   transformOrigin: 'top left',
                   maxWidth: '100%',
+                  // Ensure consistent sizing regardless of viewport
+                  height: 'auto',
                 } : {
                   maxWidth: '100%',
                 }}
