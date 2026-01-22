@@ -274,3 +274,276 @@
 .mobile-preview-wrapper {
   overflow-x: hidden !important;
 }
+
+/* ============================================
+   COMPREHENSIVE MOBILE PREVIEW SCALING FIXES
+   ============================================ */
+
+/* Override responsive height classes for logos - use mobile values */
+.mobile-preview-wrapper footer .h-8,
+.mobile-preview-wrapper footer .sm\:h-10 {
+  height: 2rem !important; /* h-8 */
+}
+
+.mobile-preview-wrapper footer .h-12,
+.mobile-preview-wrapper footer .sm\:h-14 {
+  height: 3rem !important; /* h-12 */
+}
+
+.mobile-preview-wrapper footer .h-16,
+.mobile-preview-wrapper footer .sm\:h-20 {
+  height: 4rem !important; /* h-16 */
+}
+
+.mobile-preview-wrapper footer .h-20,
+.mobile-preview-wrapper footer .sm\:h-24 {
+  height: 5rem !important; /* h-20 */
+}
+
+/* Force logo images to scale properly */
+.mobile-preview-wrapper footer img,
+.mobile-preview-wrapper header img {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: 60px !important;
+}
+
+/* Service card images - ensure they scale */
+.mobile-preview-wrapper .relative.h-48 {
+  height: 200px !important;
+  max-height: 200px !important;
+}
+
+.mobile-preview-wrapper .relative[class*="h-"] {
+  height: auto !important;
+  min-height: 150px !important;
+  max-height: 250px !important;
+}
+
+/* Override responsive text size classes - use base mobile size */
+.mobile-preview-wrapper .sm\:text-sm,
+.mobile-preview-wrapper .sm\:text-base,
+.mobile-preview-wrapper .sm\:text-lg,
+.mobile-preview-wrapper .sm\:text-xl,
+.mobile-preview-wrapper .sm\:text-2xl,
+.mobile-preview-wrapper .sm\:text-3xl,
+.mobile-preview-wrapper .md\:text-4xl {
+  /* Use the base size instead of responsive size */
+}
+
+.mobile-preview-wrapper .sm\:text-sm {
+  font-size: 0.875rem !important; /* text-sm */
+}
+
+.mobile-preview-wrapper .sm\:text-base {
+  font-size: 1rem !important; /* text-base */
+}
+
+.mobile-preview-wrapper .sm\:text-lg {
+  font-size: 1.125rem !important; /* text-lg */
+}
+
+.mobile-preview-wrapper .sm\:text-xl {
+  font-size: 1.25rem !important; /* text-xl */
+}
+
+.mobile-preview-wrapper .sm\:text-2xl {
+  font-size: 1.5rem !important; /* text-2xl */
+}
+
+.mobile-preview-wrapper .sm\:text-3xl {
+  font-size: 1.875rem !important; /* text-3xl */
+}
+
+.mobile-preview-wrapper .md\:text-4xl {
+  font-size: 2.25rem !important; /* text-4xl */
+}
+
+/* Force specific text sizes for headings */
+.mobile-preview-wrapper h1 {
+  font-size: 1.75rem !important;
+  line-height: 1.2 !important;
+}
+
+.mobile-preview-wrapper h2 {
+  font-size: 1.5rem !important;
+  line-height: 1.3 !important;
+}
+
+.mobile-preview-wrapper h3 {
+  font-size: 1.25rem !important;
+  line-height: 1.4 !important;
+}
+
+.mobile-preview-wrapper h4 {
+  font-size: 1.125rem !important;
+}
+
+.mobile-preview-wrapper p,
+.mobile-preview-wrapper .text-base {
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.mobile-preview-wrapper .text-sm {
+  font-size: 0.875rem !important;
+}
+
+.mobile-preview-wrapper .text-xs {
+  font-size: 0.75rem !important;
+}
+
+/* Override responsive padding classes - use mobile base values */
+.mobile-preview-wrapper .sm\:px-6,
+.mobile-preview-wrapper .sm\:px-8,
+.mobile-preview-wrapper .md\:px-8,
+.mobile-preview-wrapper .lg\:px-8 {
+  padding-left: 1rem !important; /* px-4 */
+  padding-right: 1rem !important;
+}
+
+.mobile-preview-wrapper .sm\:py-16,
+.mobile-preview-wrapper .md\:py-20 {
+  padding-top: 3rem !important; /* py-12 */
+  padding-bottom: 3rem !important;
+}
+
+.mobile-preview-wrapper .sm\:p-6 {
+  padding: 1rem !important; /* p-4 */
+}
+
+/* Override responsive margin classes - keep reasonable spacing */
+.mobile-preview-wrapper .sm\:mb-10,
+.mobile-preview-wrapper .sm\:mb-12 {
+  margin-bottom: 2rem !important; /* mb-8 */
+}
+
+/* Override responsive gap classes */
+.mobile-preview-wrapper .sm\:gap-6,
+.mobile-preview-wrapper .sm\:gap-8,
+.mobile-preview-wrapper .md\:gap-8 {
+  gap: 1rem !important; /* gap-4 */
+}
+
+.mobile-preview-wrapper footer .sm\:gap-8,
+.mobile-preview-wrapper footer .lg\:gap-10,
+.mobile-preview-wrapper footer .xl\:gap-12 {
+  gap: 1.5rem !important; /* gap-6 */
+}
+
+/* Override space classes - use gap instead for better mobile support */
+.mobile-preview-wrapper .space-x-2 > * + *,
+.mobile-preview-wrapper .space-x-3 > * + *,
+.mobile-preview-wrapper .space-x-4 > * + *,
+.mobile-preview-wrapper .space-x-6 > * + * {
+  margin-left: 0.5rem !important;
+}
+
+.mobile-preview-wrapper .space-y-2 > * + *,
+.mobile-preview-wrapper .space-y-4 > * + * {
+  margin-top: 0.5rem !important;
+}
+
+/* Ensure all images scale properly */
+.mobile-preview-wrapper img {
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.mobile-preview-wrapper img.object-cover {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: 250px !important;
+}
+
+/* Override max-width constraints */
+.mobile-preview-wrapper .max-w-md,
+.mobile-preview-wrapper .max-w-lg,
+.mobile-preview-wrapper .max-w-xl,
+.mobile-preview-wrapper .max-w-2xl,
+.mobile-preview-wrapper .max-w-4xl,
+.mobile-preview-wrapper .max-w-6xl,
+.mobile-preview-wrapper .max-w-7xl {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Force footer grid to single column */
+.mobile-preview-wrapper footer .grid {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  gap: 1.5rem !important;
+}
+
+/* Ensure footer content stacks properly */
+.mobile-preview-wrapper footer .flex-col,
+.mobile-preview-wrapper footer .md\:flex-row {
+  flex-direction: column !important;
+}
+
+.mobile-preview-wrapper footer .md\:space-y-0 {
+  gap: 1rem !important;
+}
+
+/* ============================================
+   AGGRESSIVE OVERRIDES FOR ALL RESPONSIVE CLASSES
+   Force mobile behavior regardless of viewport
+   ============================================ */
+
+/* Use a container query approach - force all sm:, md:, lg: classes to use base values */
+.mobile-preview-wrapper [class*="sm:"] {
+  /* Reset all sm: classes to their base equivalents */
+}
+
+/* Specifically target common responsive patterns */
+.mobile-preview-wrapper section {
+  /* Force sections to use mobile padding */
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Service card specific fixes */
+.mobile-preview-wrapper .bg-white.rounded-lg.shadow-md {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.mobile-preview-wrapper .bg-white.rounded-lg.shadow-md .p-6 {
+  padding: 1rem !important;
+}
+
+/* Ensure service card images don't break layout */
+.mobile-preview-wrapper .relative.h-48 img {
+  width: 100% !important;
+  height: 200px !important;
+  object-fit: cover !important;
+}
+
+/* Footer logo specific scaling */
+.mobile-preview-wrapper footer img[alt] {
+  max-width: 120px !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Text content scaling */
+.mobile-preview-wrapper .text-gray-600,
+.mobile-preview-wrapper .text-gray-700,
+.mobile-preview-wrapper .text-gray-900 {
+  font-size: 0.875rem !important; /* text-sm */
+  line-height: 1.5 !important;
+}
+
+/* Button text scaling */
+.mobile-preview-wrapper button,
+.mobile-preview-wrapper a.button,
+.mobile-preview-wrapper [class*="button"] {
+  font-size: 0.875rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.mobile-preview-wrapper .sm\:text-base {
+  font-size: 0.875rem !important;
+}
