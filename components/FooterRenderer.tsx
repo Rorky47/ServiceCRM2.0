@@ -29,57 +29,60 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo Column */}
-          {footer.showLogo && logo && (
-            <div className="col-span-1">
-              <OptimizedImage
-                src={logo}
-                alt={site.name}
-                width={120}
-                height={48}
-                className={`w-auto mb-4 ${
-                  footer.logoSize === "small"
-                    ? "h-8 sm:h-10"
-                    : footer.logoSize === "medium"
-                    ? "h-12 sm:h-14"
-                    : footer.logoSize === "large"
-                    ? "h-16 sm:h-20"
-                    : footer.logoSize === "xlarge"
-                    ? "h-20 sm:h-24"
-                    : "h-12 sm:h-14" // default medium
-                }`}
-                unoptimized
-              />
-            </div>
-          )}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Side: Logo and Footer Columns */}
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Logo Column */}
+            {footer.showLogo && logo && (
+              <div>
+                <OptimizedImage
+                  src={logo}
+                  alt={site.name}
+                  width={120}
+                  height={48}
+                  className={`w-auto mb-4 ${
+                    footer.logoSize === "small"
+                      ? "h-8 sm:h-10"
+                      : footer.logoSize === "medium"
+                      ? "h-12 sm:h-14"
+                      : footer.logoSize === "large"
+                      ? "h-16 sm:h-20"
+                      : footer.logoSize === "xlarge"
+                      ? "h-20 sm:h-24"
+                      : "h-12 sm:h-14" // default medium
+                  }`}
+                  unoptimized
+                />
+              </div>
+            )}
 
-          {/* Footer Columns */}
-          {footer.columns?.map((column, columnIndex) => (
-            <div key={columnIndex}>
-              <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
-                {column.title}
-              </h3>
-              <ul className="space-y-2">
-                {column.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    <SmartLink
-                      href={link.url}
-                      siteSlug={site.slug}
-                      className="hover:opacity-80 transition-opacity text-sm"
-                      style={{ color: footer.textColor || "#ffffff" }}
-                    >
-                      {link.label}
-                    </SmartLink>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            {/* Footer Columns */}
+            {footer.columns?.map((column, columnIndex) => (
+              <div key={columnIndex}>
+                <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
+                  {column.title}
+                </h3>
+                <ul className="space-y-2">
+                  {column.links.map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      <SmartLink
+                        href={link.url}
+                        siteSlug={site.slug}
+                        className="hover:opacity-80 transition-opacity text-sm"
+                        style={{ color: footer.textColor || "#ffffff" }}
+                      >
+                        {link.label}
+                      </SmartLink>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-          {/* Contact Information - Right Side Column */}
+          {/* Right Side: Contact Information */}
           {(footer.emailAddress || footer.phoneNumber) && (
-            <div className="col-span-1">
+            <div className="lg:w-64 flex-shrink-0">
               <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
                 Contact
               </h3>
