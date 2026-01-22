@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Site, Page, Section } from "@/types";
 import SectionRenderer from "./SectionRenderer";
+import HeaderRenderer from "./HeaderRenderer";
+import FooterRenderer from "./FooterRenderer";
 import {
   DndContext,
   closestCenter,
@@ -301,17 +303,18 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
         </div>
       )}
       <div
-        className={mobilePreview && isAdmin ? "flex justify-center bg-gray-200 min-h-screen pt-12" : ""}
+        className={mobilePreview && isAdmin ? "flex justify-center bg-gray-200 min-h-screen pt-12 pb-12" : ""}
         style={{
           fontFamily: site.theme.font || "system-ui",
           color: site.theme.primaryColor || "#000",
         }}
       >
         <div
-          className={mobilePreview && isAdmin ? "w-full transition-all duration-300 shadow-2xl bg-white relative" : "w-full"}
+          className={mobilePreview && isAdmin ? "transition-all duration-300 shadow-2xl bg-white relative flex flex-col" : "w-full"}
           style={
             mobilePreview && isAdmin
               ? {
+                  width: `${mobileWidth}px`,
                   maxWidth: `${mobileWidth}px`,
                   marginTop: "20px",
                   marginBottom: "20px",
@@ -319,6 +322,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
                   overflow: "hidden",
                   boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
                   border: "4px solid #3b82f6",
+                  minHeight: "600px",
                 }
               : {}
           }
@@ -328,7 +332,19 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
               Mobile Preview - {mobileWidth}px
             </div>
           )}
-          <div className={mobilePreview && isAdmin ? "pt-6" : ""}>
+          <div 
+            className={mobilePreview && isAdmin ? "pt-6 flex flex-col" : ""}
+            style={mobilePreview && isAdmin ? {
+              width: '100%',
+              maxWidth: '100%',
+            } : {}}
+          >
+          {/* Header in mobile preview */}
+          {mobilePreview && isAdmin && site.header && (
+            <div className="w-full" style={{ position: 'relative', zIndex: 1 }}>
+              <HeaderRenderer site={site} />
+            </div>
+          )}
           {isAdmin ? (
         <>
           {(!page.sections || page.sections.length === 0) ? (
@@ -444,6 +460,12 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
         </div>
       )}
           </div>
+          {/* Footer in mobile preview */}
+          {mobilePreview && isAdmin && site.footer && (
+            <div className="w-full mt-auto" style={{ position: 'relative', zIndex: 1 }}>
+              <FooterRenderer site={site} />
+            </div>
+          )}
         </div>
       </div>
     </>

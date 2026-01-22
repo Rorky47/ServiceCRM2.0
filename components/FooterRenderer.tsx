@@ -35,24 +35,25 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
             {/* Logo Column */}
             {footer.showLogo && logo && (
               <div>
-                <OptimizedImage
-                  src={logo}
-                  alt={site.name}
-                  width={120}
-                  height={48}
-                  className={`w-auto mb-4 ${
-                    footer.logoSize === "small"
-                      ? "h-8 sm:h-10"
-                      : footer.logoSize === "medium"
-                      ? "h-12 sm:h-14"
-                      : footer.logoSize === "large"
-                      ? "h-16 sm:h-20"
-                      : footer.logoSize === "xlarge"
-                      ? "h-20 sm:h-24"
-                      : "h-12 sm:h-14" // default medium
-                  }`}
-                  unoptimized
-                />
+              <OptimizedImage
+                src={logo}
+                alt={site.name}
+                width={120}
+                height={48}
+                className={`w-auto mb-4 ${
+                  footer.logoSize === "small"
+                    ? "h-8 sm:h-10"
+                    : footer.logoSize === "medium"
+                    ? "h-12 sm:h-14"
+                    : footer.logoSize === "large"
+                    ? "h-16 sm:h-20"
+                    : footer.logoSize === "xlarge"
+                    ? "h-20 sm:h-24"
+                    : "h-12 sm:h-14" // default medium
+                }`}
+                style={footer.logoScale ? { transform: `scale(${footer.logoScale / 100})`, transformOrigin: 'top left' } : undefined}
+                unoptimized
+              />
               </div>
             )}
 

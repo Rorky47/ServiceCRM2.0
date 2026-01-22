@@ -3,6 +3,23 @@
 import { useState } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
 import LinkInput from "@/components/LinkInput";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface FooterLink {
   label: string;
@@ -24,6 +41,7 @@ interface FooterData {
   showLogo: boolean;
   logo?: string;
   logoSize?: "small" | "medium" | "large" | "xlarge";
+  logoScale?: number;
   copyrightText?: string;
   emailAddress?: string;
   phoneNumber?: string;
@@ -51,8 +69,27 @@ export default function FooterEditor({
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const updateFooter = (updates: Partial<FooterData>) => {
     onChange({ ...footer, ...updates });
+  };
+
+  const handleColumnDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id && footer.columns) {
+      const oldIndex = footer.columns.findIndex((_, i) => i.toString() === active.id);
+      const newIndex = footer.columns.findIndex((_, i) => i.toString() === over.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newColumns = arrayMove(footer.columns, oldIndex, newIndex);
+        updateFooter({ columns: newColumns });
+      }
+    }
   };
 
   const addColumn = () => {
@@ -160,15 +197,34 @@ export default function FooterEditor({
               <select
                 value={footer.logoSize || "medium"}
                 onChange={(e) => updateFooter({ logoSize: e.target.value as "small" | "medium" | "large" | "xlarge" })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2"
               >
                 <option value="small">Small (32-40px)</option>
                 <option value="medium">Medium (48-56px) - Default</option>
                 <option value="large">Large (64-80px)</option>
                 <option value="xlarge">Extra Large (80-96px)</option>
               </select>
+              <div className="mt-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Custom Logo Scale: {footer.logoScale || 100}%
+                </label>
+                <input
+                  type="range"
+                  min="50"
+                  max="200"
+                  step="5"
+                  value={footer.logoScale || 100}
+                  onChange={(e) => updateFooter({ logoScale: Number(e.target.value) })}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>50%</span>
+                  <span>100%</span>
+                  <span>200%</span>
+                </div>
+              </div>
               <p className="text-xs text-gray-500 mt-1">
-                Logo height on mobile / desktop
+                Logo height on mobile / desktop. Use scale to fine-tune the size.
               </p>
             </div>
           </div>
@@ -223,69 +279,42 @@ export default function FooterEditor({
       {/* Footer Columns */}
       <div className="border border-gray-200 rounded-lg p-4">
         <h3 className="font-medium mb-4">Footer Columns</h3>
-        <div className="space-y-4">
-          {footer.columns?.map((column, columnIndex) => (
-            <div key={columnIndex} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium">{column.title}</h4>
-                <button
-                  onClick={() => removeColumn(columnIndex)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Remove Column
-                </button>
-              </div>
-              <div className="space-y-2 mb-3">
-                {column.links.map((link, linkIndex) => (
-                  <div key={linkIndex} className="flex items-center justify-between bg-white p-2 rounded">
-                    <span className="text-sm">{link.label}</span>
-                    <span className="text-xs text-gray-500">{link.url}</span>
-                    <button
-                      onClick={() => removeLinkFromColumn(columnIndex, linkIndex)}
-                      className="text-red-600 hover:text-red-800 text-xs ml-2"
-                    >
-                      ×
-                    </button>
-                  </div>
+        {footer.columns && footer.columns.length > 0 && (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleColumnDragEnd}
+          >
+            <SortableContext
+              items={footer.columns.map((_, i) => i.toString())}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-4 mb-4">
+                {footer.columns.map((column, columnIndex) => (
+                  <SortableFooterColumn
+                    key={columnIndex}
+                    id={columnIndex.toString()}
+                    column={column}
+                    columnIndex={columnIndex}
+                    footer={footer}
+                    updateFooter={updateFooter}
+                    removeColumn={removeColumn}
+                    selectedColumnIndex={selectedColumnIndex}
+                    setSelectedColumnIndex={setSelectedColumnIndex}
+                    newLinkLabel={newLinkLabel}
+                    setNewLinkLabel={setNewLinkLabel}
+                    newLinkUrl={newLinkUrl}
+                    setNewLinkUrl={setNewLinkUrl}
+                    addLinkToColumn={addLinkToColumn}
+                    removeLinkFromColumn={removeLinkFromColumn}
+                    siteSlug={siteSlug}
+                  />
                 ))}
               </div>
-              {selectedColumnIndex === columnIndex && (
-                <div className="space-y-2 mb-2">
-                  <input
-                    type="text"
-                    value={newLinkLabel}
-                    onChange={(e) => setNewLinkLabel(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                    placeholder="Link Label"
-                    onKeyPress={(e) => e.key === "Enter" && addLinkToColumn(columnIndex)}
-                  />
-                  <LinkInput
-                    value={newLinkUrl}
-                    onChange={setNewLinkUrl}
-                    siteSlug={siteSlug}
-                    placeholder="/about or https://example.com"
-                    className="text-sm"
-                  />
-                  <button
-                    onClick={() => addLinkToColumn(columnIndex)}
-                    className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                  >
-                    Add Link
-                  </button>
-                </div>
-              )}
-              <button
-                onClick={() => {
-                  setSelectedColumnIndex(columnIndex);
-                  setNewLinkLabel("");
-                  setNewLinkUrl("");
-                }}
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                + Add Link
-              </button>
-            </div>
-          ))}
+            </SortableContext>
+          </DndContext>
+        )}
+          <div className="space-y-4">
           <div className="flex space-x-2">
             <input
               type="text"
@@ -353,6 +382,130 @@ export default function FooterEditor({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SortableFooterColumn({
+  id,
+  column,
+  columnIndex,
+  footer,
+  updateFooter,
+  removeColumn,
+  selectedColumnIndex,
+  setSelectedColumnIndex,
+  newLinkLabel,
+  setNewLinkLabel,
+  newLinkUrl,
+  setNewLinkUrl,
+  addLinkToColumn,
+  removeLinkFromColumn,
+  siteSlug,
+}: {
+  id: string;
+  column: FooterColumn;
+  columnIndex: number;
+  footer: FooterData;
+  updateFooter: (updates: Partial<FooterData>) => void;
+  removeColumn: (index: number) => void;
+  selectedColumnIndex: number | null;
+  setSelectedColumnIndex: (index: number | null) => void;
+  newLinkLabel: string;
+  setNewLinkLabel: (value: string) => void;
+  newLinkUrl: string;
+  setNewLinkUrl: (value: string) => void;
+  addLinkToColumn: (columnIndex: number) => void;
+  removeLinkFromColumn: (columnIndex: number, linkIndex: number) => void;
+  siteSlug: string;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <button
+            {...attributes}
+            {...listeners}
+            className="text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+            title="Drag to reorder"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+          <h4 className="font-medium">{column.title}</h4>
+        </div>
+        <button
+          onClick={() => removeColumn(columnIndex)}
+          className="text-red-600 hover:text-red-800 text-sm"
+        >
+          Remove Column
+        </button>
+      </div>
+      <div className="space-y-2 mb-3">
+        {column.links.map((link, linkIndex) => (
+          <div key={linkIndex} className="flex items-center justify-between bg-white p-2 rounded">
+            <span className="text-sm">{link.label}</span>
+            <span className="text-xs text-gray-500">{link.url}</span>
+            <button
+              onClick={() => removeLinkFromColumn(columnIndex, linkIndex)}
+              className="text-red-600 hover:text-red-800 text-xs ml-2"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+      {selectedColumnIndex === columnIndex && (
+        <div className="space-y-2 mb-2">
+          <input
+            type="text"
+            value={newLinkLabel}
+            onChange={(e) => setNewLinkLabel(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            placeholder="Link Label"
+            onKeyPress={(e) => e.key === "Enter" && addLinkToColumn(columnIndex)}
+          />
+          <LinkInput
+            value={newLinkUrl}
+            onChange={setNewLinkUrl}
+            siteSlug={siteSlug}
+            placeholder="/about or https://example.com"
+            className="text-sm"
+          />
+          <button
+            onClick={() => addLinkToColumn(columnIndex)}
+            className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+          >
+            Add Link
+          </button>
+        </div>
+      )}
+      <button
+        onClick={() => {
+          setSelectedColumnIndex(columnIndex);
+          setNewLinkLabel("");
+          setNewLinkUrl("");
+        }}
+        className="text-sm text-blue-600 hover:text-blue-800"
+      >
+        + Add Link
+      </button>
     </div>
   );
 }

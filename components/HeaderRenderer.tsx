@@ -49,6 +49,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                   width={120}
                   height={40}
                   className="w-auto h-[90%] max-h-[58px] object-contain"
+                  style={header.logoScale ? { transform: `scale(${header.logoScale / 100})`, transformOrigin: 'center' } : undefined}
                   unoptimized
                 />
               </Link>

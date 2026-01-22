@@ -35,6 +35,7 @@ interface SocialLink {
 interface HeaderData {
   showLogo: boolean;
   logo?: string;
+  logoScale?: number; // Percentage scale (50-200)
   navigationLinks?: NavigationLink[];
   phoneNumber?: string;
   socialLinks?: SocialLink[];
@@ -194,9 +195,28 @@ export default function HeaderEditor({
                 type="text"
                 value={header.logo || ""}
                 onChange={(e) => updateHeader({ logo: e.target.value || undefined })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2"
                 placeholder="https://example.com/logo.png or leave empty for theme logo"
               />
+              <div className="mt-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Logo Scale: {header.logoScale || 100}%
+                </label>
+                <input
+                  type="range"
+                  min="50"
+                  max="200"
+                  step="5"
+                  value={header.logoScale || 100}
+                  onChange={(e) => updateHeader({ logoScale: Number(e.target.value) })}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>50%</span>
+                  <span>100%</span>
+                  <span>200%</span>
+                </div>
+              </div>
             </div>
           </div>
         )}

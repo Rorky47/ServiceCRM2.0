@@ -93,6 +93,7 @@ export type Site = {
     // If logo is not set, will use theme.logo
     logo?: string;
     logoSize?: "small" | "medium" | "large" | "xlarge";
+    logoScale?: number; // Percentage scale (50-200)
     navigationLinks?: Array<{
       label: string;
       url: string;
@@ -111,6 +112,7 @@ export type Site = {
     // If logo is not set, will use theme.logo
     logo?: string;
     logoSize?: "small" | "medium" | "large" | "xlarge";
+    logoScale?: number; // Percentage scale (50-200)
     copyrightText?: string;
     emailAddress?: string;
     phoneNumber?: string;
