@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Site } from "@/types";
 import FooterRenderer from "./FooterRenderer";
 import {
@@ -99,6 +99,12 @@ export default function EditableFooterRenderer({
   const [saving, setSaving] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [hoveredColumnIndex, setHoveredColumnIndex] = useState<number | null>(null);
+  
+  // Spacing state - initialize from footer config or defaults
+  const [columnGap, setColumnGap] = useState<number>((site.footer as any)?.columnGap ?? 6);
+  const [topPadding, setTopPadding] = useState<number>((site.footer as any)?.topPadding ?? 12);
+  const [bottomPadding, setBottomPadding] = useState<number>((site.footer as any)?.bottomPadding ?? 8);
+  const [bottomMargin, setBottomMargin] = useState<number>((site.footer as any)?.bottomMargin ?? 6);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -110,6 +116,17 @@ export default function EditableFooterRenderer({
   if (!site.footer) return null;
 
   const footer = site.footer;
+
+  // Sync spacing state when footer changes
+  useEffect(() => {
+    if (site.footer) {
+      const footerAny = site.footer as any;
+      if (footerAny.columnGap !== undefined) setColumnGap(footerAny.columnGap);
+      if (footerAny.topPadding !== undefined) setTopPadding(footerAny.topPadding);
+      if (footerAny.bottomPadding !== undefined) setBottomPadding(footerAny.bottomPadding);
+      if (footerAny.bottomMargin !== undefined) setBottomMargin(footerAny.bottomMargin);
+    }
+  }, [site.footer]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -145,6 +162,16 @@ export default function EditableFooterRenderer({
 
   const updateLogoScale = (scale: number) => {
     handleUpdate({ ...footer, logoScale: scale });
+  };
+
+  const updateSpacing = async (field: 'columnGap' | 'topPadding' | 'bottomPadding' | 'bottomMargin', value: number) => {
+    const updatedFooter = { ...footer, [field]: value } as any;
+    await handleUpdate(updatedFooter);
+    // Update local state
+    if (field === 'columnGap') setColumnGap(value);
+    if (field === 'topPadding') setTopPadding(value);
+    if (field === 'bottomPadding') setBottomPadding(value);
+    if (field === 'bottomMargin') setBottomMargin(value);
   };
 
   if (!isAdmin) {
@@ -225,6 +252,66 @@ export default function EditableFooterRenderer({
                   className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
                 />
               </div>
+            </div>
+
+            {/* Column Gap */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Column Gap: {columnGap * 4}px
+              </label>
+              <input
+                type="range"
+                min="2"
+                max="16"
+                value={columnGap}
+                onChange={(e) => updateSpacing('columnGap', Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            {/* Top Padding */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Top Padding: {topPadding * 4}px
+              </label>
+              <input
+                type="range"
+                min="4"
+                max="32"
+                value={topPadding}
+                onChange={(e) => updateSpacing('topPadding', Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            {/* Bottom Padding */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Bottom Padding: {bottomPadding * 4}px
+              </label>
+              <input
+                type="range"
+                min="4"
+                max="32"
+                value={bottomPadding}
+                onChange={(e) => updateSpacing('bottomPadding', Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+
+            {/* Bottom Margin */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Bottom Margin: {bottomMargin * 4}px
+              </label>
+              <input
+                type="range"
+                min="2"
+                max="16"
+                value={bottomMargin}
+                onChange={(e) => updateSpacing('bottomMargin', Number(e.target.value))}
+                className="w-full"
+              />
             </div>
           </div>
           {saving && (

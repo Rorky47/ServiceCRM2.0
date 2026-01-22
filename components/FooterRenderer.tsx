@@ -48,8 +48,19 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
         color: footer.textColor || "#ffffff",
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-        <div className={`grid ${getGridClasses()} gap-6 sm:gap-8 lg:gap-10 xl:gap-12 items-start w-full justify-items-stretch`}>
+      <div 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        style={{
+          paddingTop: `${((footer as any)?.topPadding ?? 12) * 4}px`,
+          paddingBottom: `${((footer as any)?.bottomPadding ?? 8) * 4}px`,
+        }}
+      >
+        <div 
+          className={`grid ${getGridClasses()} items-start w-full justify-items-stretch`}
+          style={{
+            gap: `${((footer as any)?.columnGap ?? 6) * 4}px`,
+          }}
+        >
           {/* Logo */}
           {hasLogo && (
             <div className="min-w-0 w-full">
@@ -135,7 +146,12 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
         </div>
 
         {/* Social Links and Copyright */}
-        <div className={`mt-6 ${(footer.emailAddress || footer.phoneNumber) ? '' : 'pt-6 border-t border-gray-600'} flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0`}>
+        <div 
+          className={`${(footer.emailAddress || footer.phoneNumber) ? '' : 'pt-6 border-t border-gray-600'} flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0`}
+          style={{
+            marginTop: `${((footer as any)?.bottomMargin ?? 6) * 4}px`,
+          }}
+        >
           {footer.copyrightText && (
             <p className="text-sm" style={{ color: footer.textColor || "#ffffff" }}>
               {footer.copyrightText}
