@@ -87,19 +87,28 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
             {/* Social Links */}
             {socialLinks && socialLinks.length > 0 && (
               <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
-                {socialLinks.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:opacity-80 transition-opacity"
-                    title={social.label || social.platform}
-                    style={{ color: header.textColor || "#000000" }}
-                  >
-                    <SocialIcon platform={social.platform} size="md" />
-                  </a>
-                ))}
+                {socialLinks.map((social, index) => {
+                  // For email platform, ensure mailto: prefix is present
+                  let href = social.url;
+                  if (social.platform === "email") {
+                    // Remove any existing mailto: prefix to avoid duplication
+                    href = social.url.replace(/^mailto:/i, "");
+                    href = `mailto:${href}`;
+                  }
+                  return (
+                    <a
+                      key={index}
+                      href={href}
+                      target={social.platform === "email" ? undefined : "_blank"}
+                      rel={social.platform === "email" ? undefined : "noopener noreferrer"}
+                      className="hover:opacity-80 transition-opacity"
+                      title={social.label || social.platform}
+                      style={{ color: header.textColor || "#000000" }}
+                    >
+                      <SocialIcon platform={social.platform} size="md" />
+                    </a>
+                  );
+                })}
               </div>
             )}
 
