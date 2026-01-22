@@ -7,7 +7,7 @@ import Toast from "@/components/Toast";
 import HeaderEditor from "@/components/HeaderEditor";
 import FooterEditor from "@/components/FooterEditor";
 import SocialIcon from "@/components/SocialIcon";
-import { Site } from "@/types";
+import { Site, SocialLink } from "@/types";
 
 interface SettingsPageProps {
   params: { slug: string };
@@ -25,7 +25,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Site["socialLinks"]>([]);
-  const [newSocialPlatform, setNewSocialPlatform] = useState<"facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "custom">("facebook");
+  const [newSocialPlatform, setNewSocialPlatform] = useState<SocialLink["platform"]>("facebook");
   const [newSocialUrl, setNewSocialUrl] = useState("");
   const [newSocialLabel, setNewSocialLabel] = useState("");
   const [formData, setFormData] = useState({

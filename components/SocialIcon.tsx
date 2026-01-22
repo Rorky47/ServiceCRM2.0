@@ -1,7 +1,8 @@
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaEnvelope, FaLink } from "react-icons/fa";
+import { SocialLink } from "@/types";
 
 interface SocialIconProps {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
+  platform: SocialLink["platform"];
   size?: "sm" | "md" | "lg";
   className?: string;
 }
