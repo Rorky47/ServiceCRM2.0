@@ -509,4 +509,3 @@ function SortableFooterColumn({
     </div>
   );
 }
-
