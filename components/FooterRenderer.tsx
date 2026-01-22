@@ -69,10 +69,7 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
               className="min-w-0 w-full footer-logo-container" 
               style={{ 
                 maxWidth: '100%',
-                overflow: 'hidden',
-                // Add bottom margin to ensure spacing before next grid item
-                marginBottom: '0',
-                paddingBottom: '1rem', // Padding instead of margin for better grid behavior
+                overflow: 'visible', // Allow logo to display fully
               }}
             >
               <OptimizedImage
