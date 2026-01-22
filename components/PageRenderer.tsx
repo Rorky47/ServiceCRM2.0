@@ -335,8 +335,9 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
               Mobile Preview - {mobileWidth}px
             </div>
           )}
+          {/* Mobile Preview Wrapper - Forces mobile viewport behavior */}
           <div 
-            className={mobilePreview && isAdmin ? "pt-6 flex flex-col" : ""}
+            className={mobilePreview && isAdmin ? "pt-6 flex flex-col mobile-preview-wrapper" : ""}
             style={mobilePreview && isAdmin ? {
               width: '100%',
               maxWidth: '100%',
@@ -345,7 +346,7 @@ export default function PageRenderer({ site, page: initialPage, isAdmin }: PageR
           >
           {/* Header in mobile preview - only show when in mobile preview mode */}
           {mobilePreview && isAdmin && site.header && (
-            <div className="w-full" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="w-full mobile-preview-header" style={{ position: 'relative', zIndex: 1 }}>
               <HeaderRenderer site={site} />
             </div>
           )}

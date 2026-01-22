@@ -110,3 +110,80 @@
 .animate-slide-down {
   animation: slide-down 0.2s ease-out;
 }
+
+/* Mobile Preview Overrides - Forces mobile viewport behavior */
+.mobile-preview-wrapper {
+  /* Force mobile viewport width for responsive breakpoints */
+  --mobile-width: 375px;
+}
+
+/* Force mobile menu to show in mobile preview - override Tailwind responsive classes */
+.mobile-preview-wrapper .mobile-menu-button {
+  display: block !important;
+}
+
+/* Hide desktop navigation in mobile preview */
+.mobile-preview-wrapper nav.desktop-nav {
+  display: none !important;
+}
+
+/* Hide desktop-only elements in mobile preview */
+.mobile-preview-wrapper .desktop-nav,
+.mobile-preview-wrapper .desktop-phone,
+.mobile-preview-wrapper .desktop-social,
+.mobile-preview-wrapper .desktop-cta {
+  display: none !important;
+}
+
+/* Show mobile navigation menu when open */
+.mobile-preview-wrapper .md\:hidden[aria-expanded="true"] ~ div {
+  display: block !important;
+}
+
+/* Ensure text scales properly for mobile */
+.mobile-preview-wrapper {
+  font-size: 16px; /* Base mobile font size */
+  /* Reset any desktop-specific font scaling */
+}
+
+.mobile-preview-wrapper h1 {
+  font-size: 1.75rem !important;
+}
+
+.mobile-preview-wrapper h2 {
+  font-size: 1.5rem !important;
+}
+
+.mobile-preview-wrapper h3 {
+  font-size: 1.25rem !important;
+}
+
+/* Ensure images scale properly */
+.mobile-preview-wrapper img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Override any desktop-specific spacing to mobile values */
+.mobile-preview-wrapper .sm\:px-6,
+.mobile-preview-wrapper .lg\:px-8 {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Ensure mobile menu button is always visible in preview */
+.mobile-preview-wrapper .mobile-menu-button {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Force mobile viewport behavior - override Tailwind breakpoints */
+@media (min-width: 768px) {
+  .mobile-preview-wrapper .md\:hidden {
+    display: block !important;
+  }
+  
+  .mobile-preview-wrapper .md\:flex {
+    display: none !important;
+  }
+}

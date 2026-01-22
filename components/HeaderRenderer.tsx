@@ -56,8 +56,8 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
             </div>
           )}
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex space-x-6 flex-1 justify-center">
+          {/* Navigation Links - Desktop Only */}
+          <nav className="hidden md:flex desktop-nav space-x-6 flex-1 justify-center">
             {header.navigationLinks?.map((link, index) => (
               <SmartLink
                 key={index}
@@ -74,20 +74,20 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
 
           {/* Right Side: Phone, Social, CTA */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Phone Number */}
+            {/* Phone Number - Desktop Only */}
             {header.phoneNumber && (
               <a
                 href={`tel:${header.phoneNumber.replace(/\D/g, "")}`}
-                className="hidden sm:block hover:opacity-80 transition-opacity text-sm lg:text-base"
+                className="hidden sm:block desktop-phone hover:opacity-80 transition-opacity text-sm lg:text-base"
                 style={{ color: header.textColor || "#000000" }}
               >
                 {header.phoneNumber}
               </a>
             )}
 
-            {/* Social Links */}
+            {/* Social Links - Desktop Only */}
             {socialLinks && socialLinks.length > 0 && (
-              <div className="hidden md:flex items-center space-x-2 lg:space-x-3">
+              <div className="hidden md:flex desktop-social items-center space-x-2 lg:space-x-3">
                 {socialLinks.map((social, index) => {
                   // For email platform, ensure mailto: prefix is present
                   let href = social.url;
@@ -113,12 +113,12 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
               </div>
             )}
 
-            {/* Get Quote Button */}
+            {/* Get Quote Button - Desktop Only */}
             {header.showGetQuoteButton && header.getQuoteButtonLink && (
               <SmartLink
                 href={header.getQuoteButtonLink}
                 siteSlug={site.slug}
-                className="hidden sm:inline-block px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-xs sm:text-sm"
+                className="hidden sm:inline-block desktop-cta px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-xs sm:text-sm"
                 style={{
                   backgroundColor: site.theme.primaryColor || "#0066cc",
                   color: "#ffffff",
@@ -133,7 +133,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
             {(header.navigationLinks && header.navigationLinks.length > 0) && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 -mr-2 rounded-md hover:bg-black/10 active:bg-black/20 transition-colors touch-manipulation"
+                className="md:hidden mobile-menu-button p-2 -mr-2 rounded-md hover:bg-black/10 active:bg-black/20 transition-colors touch-manipulation"
                 style={{ color: header.textColor || "#000000" }}
                 aria-label="Menu"
                 aria-expanded={mobileMenuOpen}
