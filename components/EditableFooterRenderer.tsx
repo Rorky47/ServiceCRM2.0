@@ -3,6 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Site } from "@/types";
 import FooterRenderer from "./FooterRenderer";
+
+// Preset spacing system - all spacing uses multiples of 40px
+const PRESET_SPACING_UNIT = 40; // Base unit in pixels
+const getPresetSpacing = (multiplier: number): number => multiplier * PRESET_SPACING_UNIT;
 import {
   DndContext,
   closestCenter,
@@ -101,11 +105,12 @@ export default function EditableFooterRenderer({
   const [hoveredColumnIndex, setHoveredColumnIndex] = useState<number | null>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   
-  // Spacing state - initialize from footer config or defaults
-  const [columnGap, setColumnGap] = useState<number>((site.footer as any)?.columnGap ?? 6);
-  const [topPadding, setTopPadding] = useState<number>((site.footer as any)?.topPadding ?? 12);
-  const [bottomPadding, setBottomPadding] = useState<number>((site.footer as any)?.bottomPadding ?? 8);
-  const [bottomMargin, setBottomMargin] = useState<number>((site.footer as any)?.bottomMargin ?? 6);
+  // Spacing state - initialize from footer config or defaults (stored as preset multipliers)
+  // Defaults: columnGap=1 (40px), topPadding=1 (40px), bottomPadding=1 (40px), bottomMargin=0.75 (30px)
+  const [columnGap, setColumnGap] = useState<number>((site.footer as any)?.columnGap ?? 1);
+  const [topPadding, setTopPadding] = useState<number>((site.footer as any)?.topPadding ?? 1);
+  const [bottomPadding, setBottomPadding] = useState<number>((site.footer as any)?.bottomPadding ?? 1);
+  const [bottomMargin, setBottomMargin] = useState<number>((site.footer as any)?.bottomMargin ?? 0.75);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -274,12 +279,13 @@ export default function EditableFooterRenderer({
             {/* Column Gap */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Column Gap: {columnGap * 4}px
+                Column Gap: {getPresetSpacing(columnGap)}px ({columnGap} × 40px)
               </label>
               <input
                 type="range"
-                min="2"
-                max="16"
+                min="0.25"
+                max="4"
+                step="0.25"
                 value={columnGap}
                 onChange={(e) => updateSpacing('columnGap', Number(e.target.value))}
                 className="w-full"
@@ -289,12 +295,13 @@ export default function EditableFooterRenderer({
             {/* Top Padding */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Top Padding: {topPadding * 4}px
+                Top Padding: {getPresetSpacing(topPadding)}px ({topPadding} × 40px)
               </label>
               <input
                 type="range"
-                min="4"
-                max="32"
+                min="0.5"
+                max="5"
+                step="0.25"
                 value={topPadding}
                 onChange={(e) => updateSpacing('topPadding', Number(e.target.value))}
                 className="w-full"
@@ -304,12 +311,13 @@ export default function EditableFooterRenderer({
             {/* Bottom Padding */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Bottom Padding: {bottomPadding * 4}px
+                Bottom Padding: {getPresetSpacing(bottomPadding)}px ({bottomPadding} × 40px)
               </label>
               <input
                 type="range"
-                min="4"
-                max="32"
+                min="0.5"
+                max="5"
+                step="0.25"
                 value={bottomPadding}
                 onChange={(e) => updateSpacing('bottomPadding', Number(e.target.value))}
                 className="w-full"
@@ -319,12 +327,13 @@ export default function EditableFooterRenderer({
             {/* Bottom Margin */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Bottom Margin: {bottomMargin * 4}px
+                Bottom Margin: {getPresetSpacing(bottomMargin)}px ({bottomMargin} × 40px)
               </label>
               <input
                 type="range"
-                min="2"
-                max="16"
+                min="0.25"
+                max="3"
+                step="0.25"
                 value={bottomMargin}
                 onChange={(e) => updateSpacing('bottomMargin', Number(e.target.value))}
                 className="w-full"
@@ -370,7 +379,7 @@ export default function EditableFooterRenderer({
                       className="absolute pointer-events-auto"
                       style={{
                         left: `${colPercent}%`,
-                        top: `${topPadding * 4 + 8}px`,
+                        top: `${getPresetSpacing(topPadding) + 8}px`, // Use preset spacing + small offset
                         transform: 'translateX(-50%)',
                       }}
                       onMouseEnter={() => setHoveredColumnIndex(columnIndex)}

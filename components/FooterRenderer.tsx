@@ -11,6 +11,10 @@ interface FooterRendererProps {
   site: Site;
 }
 
+// Preset spacing system - all spacing uses multiples of 40px
+const PRESET_SPACING_UNIT = 40; // Base unit in pixels
+const getPresetSpacing = (multiplier: number): number => multiplier * PRESET_SPACING_UNIT;
+
 export default function FooterRenderer({ site }: FooterRendererProps) {
   if (!site.footer) return null;
 
@@ -51,16 +55,19 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
       <div 
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         style={{
-          paddingTop: `${((footer as any)?.topPadding ?? 12) * 4}px`,
-          paddingBottom: `${((footer as any)?.bottomPadding ?? 8) * 4}px`,
+          // Use preset spacing: topPadding stored as multiplier (default 1 = 40px)
+          paddingTop: `${getPresetSpacing((footer as any)?.topPadding ?? 1)}px`,
+          // Use preset spacing: bottomPadding stored as multiplier (default 1 = 40px)
+          paddingBottom: `${getPresetSpacing((footer as any)?.bottomPadding ?? 1)}px`,
         }}
       >
         <div 
           className={`grid ${getGridClasses()} items-start w-full justify-items-stretch`}
           style={{
-            gap: `${((footer as any)?.columnGap ?? 6) * 4}px`,
-            // On mobile (single column), ensure sufficient vertical spacing
-            rowGap: `clamp(24px, ${((footer as any)?.columnGap ?? 6) * 4}px, 48px)`,
+            // Use preset spacing: columnGap stored as multiplier (default 1 = 40px)
+            gap: `${getPresetSpacing((footer as any)?.columnGap ?? 1)}px`,
+            // On mobile (single column), ensure minimum preset spacing
+            rowGap: `${getPresetSpacing((footer as any)?.columnGap ?? 1)}px`,
           }}
         >
           {/* Logo */}
@@ -103,10 +110,20 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
           {/* Footer Columns */}
           {footer.columns?.map((column, columnIndex) => (
             <div key={columnIndex} className="min-w-0 w-full">
-              <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
+              <h3 
+                className="font-semibold" 
+                style={{ 
+                  color: footer.textColor || "#ffffff",
+                  marginBottom: `${getPresetSpacing(0.5)}px`, // 20px = 0.5 unit
+                }}
+              >
                 {column.title}
               </h3>
-              <ul className="space-y-2">
+              <ul style={{ 
+                display: 'flex',
+                flexDirection: 'column',
+                gap: `${getPresetSpacing(0.25)}px`, // 10px = 0.25 unit
+              }}>
                 {column.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
                     <SmartLink
@@ -126,13 +143,28 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
           {/* Contact Information */}
           {hasContact && (
             <div className="min-w-0 w-full">
-              <h3 className="font-semibold mb-4" style={{ color: footer.textColor || "#ffffff" }}>
+              <h3 
+                className="font-semibold" 
+                style={{ 
+                  color: footer.textColor || "#ffffff",
+                  marginBottom: `${getPresetSpacing(0.5)}px`, // 20px = 0.5 unit
+                }}
+              >
                 Contact
               </h3>
-              <div className="flex flex-col gap-4" style={{ color: footer.textColor || "#ffffff" }}>
+              <div 
+                className="flex flex-col" 
+                style={{ 
+                  color: footer.textColor || "#ffffff",
+                  gap: `${getPresetSpacing(0.5)}px`, // 20px = 0.5 unit
+                }}
+              >
                 {footer.emailAddress && (
-                  <div className="flex items-start space-x-3">
-                    <FaEnvelope className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div 
+                    className="flex items-start" 
+                    style={{ gap: `${getPresetSpacing(0.375)}px` }} // 15px = 0.375 unit
+                  >
+                    <FaEnvelope className="w-5 h-5 flex-shrink-0" style={{ marginTop: '2px' }} />
                     <a
                       href={`mailto:${footer.emailAddress}`}
                       className="hover:opacity-80 transition-opacity text-base font-medium break-words"
@@ -143,8 +175,11 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
                   </div>
                 )}
                 {footer.phoneNumber && (
-                  <div className="flex items-start space-x-3">
-                    <FaPhone className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div 
+                    className="flex items-start" 
+                    style={{ gap: `${getPresetSpacing(0.375)}px` }} // 15px = 0.375 unit
+                  >
+                    <FaPhone className="w-5 h-5 flex-shrink-0" style={{ marginTop: '2px' }} />
                     <a
                       href={`tel:${footer.phoneNumber.replace(/\s/g, '')}`}
                       className="hover:opacity-80 transition-opacity text-base font-medium break-words"
@@ -161,9 +196,11 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
 
         {/* Social Links and Copyright */}
         <div 
-          className={`${(footer.emailAddress || footer.phoneNumber) ? '' : 'pt-6 border-t border-gray-600'} flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0`}
+          className={`${(footer.emailAddress || footer.phoneNumber) ? '' : 'border-t border-gray-600'} flex flex-col md:flex-row justify-between items-center`}
           style={{
-            marginTop: `${((footer as any)?.bottomMargin ?? 6) * 4}px`,
+            marginTop: `${getPresetSpacing((footer as any)?.bottomMargin ?? 0.75)}px`, // 30px = 0.75 units
+            paddingTop: (footer.emailAddress || footer.phoneNumber) ? 0 : `${getPresetSpacing(0.75)}px`, // 30px = 0.75 units
+            gap: `${getPresetSpacing(0.5)}px`, // 20px = 0.5 unit (for mobile vertical spacing)
           }}
         >
           {footer.copyrightText && (
@@ -172,7 +209,10 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
             </p>
           )}
           {socialLinks && socialLinks.length > 0 && (
-            <div className="flex items-center space-x-4">
+            <div 
+              className="flex items-center" 
+              style={{ gap: `${getPresetSpacing(0.5)}px` }} // 20px = 0.5 unit
+            >
               {socialLinks.map((social, index) => {
                 // For email platform, ensure mailto: prefix is present
                 let href = social.url;
