@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Site } from "@/types";
 import FooterRenderer from "./FooterRenderer";
 import {
@@ -99,6 +99,7 @@ export default function EditableFooterRenderer({
   const [saving, setSaving] = useState(false);
   const [showControls, setShowControls] = useState(false);
   const [hoveredColumnIndex, setHoveredColumnIndex] = useState<number | null>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
   
   // Spacing state - initialize from footer config or defaults
   const [columnGap, setColumnGap] = useState<number>((site.footer as any)?.columnGap ?? 6);
@@ -346,46 +347,45 @@ export default function EditableFooterRenderer({
           items={footer.columns?.map((_, i) => `column-${i}`) || []}
           strategy={horizontalListSortingStrategy}
         >
-          <div className="relative">
-            {/* Render the footer with drag handles overlaid */}
+          <div className="relative" ref={footerRef}>
+            {/* Render the footer */}
             <FooterRenderer site={site} />
             
-            {/* Drag handles overlay - positioned absolutely over footer columns */}
+            {/* Drag handles - positioned using refs to avoid grid duplication */}
             {footer.columns && footer.columns.length > 0 && (
-              <div className="absolute inset-0 pointer-events-none z-30">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{
-                  paddingTop: `${topPadding * 4}px`,
-                  paddingBottom: `${bottomPadding * 4}px`,
-                }}>
-                  <div 
-                    className={`grid ${getGridClasses()} items-start w-full justify-items-stretch`}
-                    style={{ gap: `${columnGap * 4}px` }}
-                  >
-                    {/* Empty cell for logo if present */}
-                    {hasLogo && <div></div>}
-                    
-                    {/* Drag handles for each column */}
-                    {footer.columns.map((_, columnIndex) => (
-                      <div
-                        key={columnIndex}
-                        className="relative h-full"
-                        onMouseEnter={() => setHoveredColumnIndex(columnIndex)}
-                        onMouseLeave={() => setHoveredColumnIndex(null)}
-                      >
-                        <SortableFooterColumn
-                          column={footer.columns![columnIndex]}
-                          columnIndex={columnIndex}
-                          footer={footer}
-                          onUpdate={onUpdate}
-                          site={site}
-                        />
-                      </div>
-                    ))}
-                    
-                    {/* Empty cell for contact if present */}
-                    {hasContact && <div></div>}
-                  </div>
-                </div>
+              <div 
+                className="absolute inset-0 pointer-events-none z-30"
+                style={{ overflow: 'visible' }}
+              >
+                {/* Use CSS to position handles over columns without duplicating grid */}
+                {footer.columns.map((_, columnIndex) => {
+                  // Calculate approximate position based on grid layout
+                  const columnStart = (hasLogo ? 1 : 0) + columnIndex;
+                  const columnsPerRow = totalItems <= 4 ? totalItems : (totalItems > 5 ? 5 : totalItems);
+                  const colPercent = (100 / columnsPerRow) * columnStart;
+                  
+                  return (
+                    <div
+                      key={columnIndex}
+                      className="absolute pointer-events-auto"
+                      style={{
+                        left: `${colPercent}%`,
+                        top: `${topPadding * 4 + 8}px`,
+                        transform: 'translateX(-50%)',
+                      }}
+                      onMouseEnter={() => setHoveredColumnIndex(columnIndex)}
+                      onMouseLeave={() => setHoveredColumnIndex(null)}
+                    >
+                      <SortableFooterColumn
+                        column={footer.columns![columnIndex]}
+                        columnIndex={columnIndex}
+                        footer={footer}
+                        onUpdate={onUpdate}
+                        site={site}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
