@@ -113,6 +113,14 @@ export type Site = {
     logo?: string;
     logoSize?: "small" | "medium" | "large" | "xlarge";
     logoScale?: number; // Percentage scale (50-200)
+    /**
+     * Footer spacing configuration, stored as multipliers of the preset spacing unit.
+     * Example: 1 = 40px when PRESET_SPACING_UNIT is 40.
+     */
+    columnGap?: number;
+    topPadding?: number;
+    bottomPadding?: number;
+    bottomMargin?: number;
     copyrightText?: string;
     emailAddress?: string;
     phoneNumber?: string;

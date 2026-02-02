@@ -56,18 +56,18 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         style={{
           // Use preset spacing: topPadding stored as multiplier (default 1 = 40px)
-          paddingTop: `${getPresetSpacing((footer as any)?.topPadding ?? 1)}px`,
+          paddingTop: `${getPresetSpacing(footer.topPadding ?? 1)}px`,
           // Use preset spacing: bottomPadding stored as multiplier (default 1 = 40px)
-          paddingBottom: `${getPresetSpacing((footer as any)?.bottomPadding ?? 1)}px`,
+          paddingBottom: `${getPresetSpacing(footer.bottomPadding ?? 1)}px`,
         }}
       >
         <div 
           className={`grid ${getGridClasses()} items-start w-full justify-items-stretch`}
           style={{
             // Use preset spacing: columnGap stored as multiplier (default 1 = 40px)
-            gap: `${getPresetSpacing((footer as any)?.columnGap ?? 1)}px`,
+            gap: `${getPresetSpacing(footer.columnGap ?? 1)}px`,
             // On mobile (single column), ensure minimum preset spacing
-            rowGap: `${getPresetSpacing((footer as any)?.columnGap ?? 1)}px`,
+            rowGap: `${getPresetSpacing(footer.columnGap ?? 1)}px`,
           }}
         >
           {/* Logo */}
@@ -211,7 +211,7 @@ export default function FooterRenderer({ site }: FooterRendererProps) {
         <div 
           className={`${(footer.emailAddress || footer.phoneNumber) ? '' : 'border-t border-gray-600'} flex flex-col md:flex-row justify-between items-center`}
           style={{
-            marginTop: `${getPresetSpacing((footer as any)?.bottomMargin ?? 0.75)}px`, // 30px = 0.75 units
+            marginTop: `${getPresetSpacing(footer.bottomMargin ?? 0.75)}px`, // 30px = 0.75 units
             paddingTop: (footer.emailAddress || footer.phoneNumber) ? 0 : `${getPresetSpacing(0.75)}px`, // 30px = 0.75 units
             gap: `${getPresetSpacing(0.5)}px`, // 20px = 0.5 unit (for mobile vertical spacing)
           }}

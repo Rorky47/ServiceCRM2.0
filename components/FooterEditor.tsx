@@ -3,6 +3,7 @@
 import { useState } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
 import LinkInput from "@/components/LinkInput";
+import { Site } from "@/types";
 import {
   DndContext,
   closestCenter,
@@ -21,35 +22,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-interface FooterLink {
-  label: string;
-  url: string;
-}
-
-interface FooterColumn {
-  title: string;
-  links: FooterLink[];
-}
-
-interface SocialLink {
-  platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
-  url: string;
-  label?: string;
-}
-
-interface FooterData {
-  showLogo: boolean;
-  logo?: string;
-  logoSize?: "small" | "medium" | "large" | "xlarge";
-  logoScale?: number;
-  copyrightText?: string;
-  emailAddress?: string;
-  phoneNumber?: string;
-  columns?: FooterColumn[];
-  socialLinks?: SocialLink[];
-  backgroundColor?: string;
-  textColor?: string;
-}
+type FooterData = NonNullable<Site["footer"]>;
+type FooterColumn = NonNullable<FooterData["columns"]>[number];
+type FooterLink = FooterColumn["links"][number];
 
 interface FooterEditorProps {
   footer: FooterData;
@@ -196,7 +171,7 @@ export default function FooterEditor({
               </label>
               <select
                 value={footer.logoSize || "medium"}
-                onChange={(e) => updateFooter({ logoSize: e.target.value as "small" | "medium" | "large" | "xlarge" })}
+                onChange={(e) => updateFooter({ logoSize: e.target.value as FooterData["logoSize"] })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2"
               >
                 <option value="small">Small (32-40px)</option>

@@ -28,6 +28,19 @@ export default function SettingsPage({ params }: SettingsPageProps) {
   const [newSocialPlatform, setNewSocialPlatform] = useState<SocialLink["platform"]>("facebook");
   const [newSocialUrl, setNewSocialUrl] = useState("");
   const [newSocialLabel, setNewSocialLabel] = useState("");
+
+  const SOCIAL_PLATFORMS: SocialLink["platform"][] = [
+    "facebook",
+    "twitter",
+    "instagram",
+    "linkedin",
+    "youtube",
+    "email",
+    "custom",
+  ];
+
+  const isSocialPlatform = (value: string): value is SocialLink["platform"] =>
+    SOCIAL_PLATFORMS.includes(value as SocialLink["platform"]);
   const [formData, setFormData] = useState({
     name: "",
     primaryColor: "#0066cc",
@@ -462,7 +475,10 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                     <div className="flex space-x-2">
                       <select
                         value={newSocialPlatform}
-                        onChange={(e) => setNewSocialPlatform(e.target.value as any)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setNewSocialPlatform(isSocialPlatform(value) ? value : "facebook");
+                        }}
                         className="border border-gray-300 rounded-lg px-3 py-2"
                       >
                         <option value="facebook">Facebook</option>

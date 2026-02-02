@@ -107,10 +107,10 @@ export default function EditableFooterRenderer({
   
   // Spacing state - initialize from footer config or defaults (stored as preset multipliers)
   // Defaults: columnGap=1 (40px), topPadding=1 (40px), bottomPadding=1 (40px), bottomMargin=0.75 (30px)
-  const [columnGap, setColumnGap] = useState<number>((site.footer as any)?.columnGap ?? 1);
-  const [topPadding, setTopPadding] = useState<number>((site.footer as any)?.topPadding ?? 1);
-  const [bottomPadding, setBottomPadding] = useState<number>((site.footer as any)?.bottomPadding ?? 1);
-  const [bottomMargin, setBottomMargin] = useState<number>((site.footer as any)?.bottomMargin ?? 0.75);
+  const [columnGap, setColumnGap] = useState<number>(site.footer?.columnGap ?? 1);
+  const [topPadding, setTopPadding] = useState<number>(site.footer?.topPadding ?? 1);
+  const [bottomPadding, setBottomPadding] = useState<number>(site.footer?.bottomPadding ?? 1);
+  const [bottomMargin, setBottomMargin] = useState<number>(site.footer?.bottomMargin ?? 0.75);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -122,11 +122,10 @@ export default function EditableFooterRenderer({
   // Sync spacing state when footer changes - must be before any conditional returns
   useEffect(() => {
     if (site.footer) {
-      const footerAny = site.footer as any;
-      if (footerAny.columnGap !== undefined) setColumnGap(footerAny.columnGap);
-      if (footerAny.topPadding !== undefined) setTopPadding(footerAny.topPadding);
-      if (footerAny.bottomPadding !== undefined) setBottomPadding(footerAny.bottomPadding);
-      if (footerAny.bottomMargin !== undefined) setBottomMargin(footerAny.bottomMargin);
+      if (site.footer.columnGap !== undefined) setColumnGap(site.footer.columnGap);
+      if (site.footer.topPadding !== undefined) setTopPadding(site.footer.topPadding);
+      if (site.footer.bottomPadding !== undefined) setBottomPadding(site.footer.bottomPadding);
+      if (site.footer.bottomMargin !== undefined) setBottomMargin(site.footer.bottomMargin);
     }
   }, [site.footer]);
 
@@ -186,8 +185,9 @@ export default function EditableFooterRenderer({
     handleUpdate({ ...footer, logoScale: scale });
   };
 
-  const updateSpacing = async (field: 'columnGap' | 'topPadding' | 'bottomPadding' | 'bottomMargin', value: number) => {
-    const updatedFooter = { ...footer, [field]: value } as any;
+  type FooterSpacingField = "columnGap" | "topPadding" | "bottomPadding" | "bottomMargin";
+  const updateSpacing = async (field: FooterSpacingField, value: number) => {
+    const updatedFooter = { ...footer, [field]: value };
     await handleUpdate(updatedFooter);
     // Update local state
     if (field === 'columnGap') setColumnGap(value);

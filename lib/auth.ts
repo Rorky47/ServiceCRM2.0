@@ -38,11 +38,11 @@ export async function getCurrentUser(request: NextRequest): Promise<User | null>
 export async function requireAccess(
   request: NextRequest,
   siteSlug: string
-): Promise<{ user: User; hasAccess: boolean }> {
+): Promise<{ user: User | null; hasAccess: boolean }> {
   const user = await getCurrentUser(request);
   
   if (!user) {
-    return { user: null as any, hasAccess: false };
+    return { user: null, hasAccess: false };
   }
 
   const hasAccess = checkAccess(user, siteSlug);
