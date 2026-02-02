@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { Site } from "@/types";
-import Link from "next/link";
-import { normalizeInternalLink } from "@/lib/link-utils";
 import SocialIcon from "@/components/SocialIcon";
 import OptimizedImage from "@/components/OptimizedImage";
 import SmartLink from "@/components/SmartLink";
@@ -42,7 +40,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
           {/* Logo */}
           {header.showLogo && logo && (
             <div className="flex-shrink-0 h-full flex items-center">
-              <Link href="/" className="h-full flex items-center">
+              <SmartLink href={header.logoLink ?? "/"} siteSlug={site.slug} className="h-full flex items-center">
                 <OptimizedImage
                   src={logo}
                   alt={site.name}
@@ -52,7 +50,7 @@ export default function HeaderRenderer({ site }: HeaderRendererProps) {
                   style={header.logoScale ? { transform: `scale(${header.logoScale / 100})`, transformOrigin: 'center' } : undefined}
                   unoptimized
                 />
-              </Link>
+              </SmartLink>
             </div>
           )}
 

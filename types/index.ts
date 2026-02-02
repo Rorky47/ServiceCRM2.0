@@ -92,6 +92,7 @@ export type Site = {
     showLogo: boolean;
     // If logo is not set, will use theme.logo
     logo?: string;
+    logoLink?: string; // Where the logo links (default: site home)
     logoSize?: "small" | "medium" | "large" | "xlarge";
     logoScale?: number; // Percentage scale (50-200)
     navigationLinks?: Array<{

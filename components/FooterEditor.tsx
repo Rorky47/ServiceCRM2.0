@@ -3,6 +3,7 @@
 import { useState } from "react";
 import OptimizedImage from "@/components/OptimizedImage";
 import LinkInput from "@/components/LinkInput";
+import Slider from "@/components/Slider";
 import { Site } from "@/types";
 import {
   DndContext,
@@ -102,9 +103,11 @@ export default function FooterEditor({
 
   return (
     <div className="space-y-6">
-      {/* Logo Settings */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-4">
+      {/* Logo */}
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Logo</h3>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -180,23 +183,16 @@ export default function FooterEditor({
                 <option value="xlarge">Extra Large (80-96px)</option>
               </select>
               <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Custom Logo Scale: {footer.logoScale || 100}%
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="200"
-                  step="5"
+                <Slider
+                  min={50}
+                  max={200}
+                  step={5}
                   value={footer.logoScale || 100}
-                  onChange={(e) => updateFooter({ logoScale: Number(e.target.value) })}
-                  className="w-full"
+                  onChange={(v) => updateFooter({ logoScale: v })}
+                  label="Custom Logo Scale:"
+                  valueLabel={`${footer.logoScale || 100}%`}
+                  hint="50% / 100% / 200%"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>50%</span>
-                  <span>100%</span>
-                  <span>200%</span>
-                </div>
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Logo height on mobile / desktop. Use scale to fine-tune the size.
@@ -204,57 +200,62 @@ export default function FooterEditor({
             </div>
           </div>
         )}
-      </div>
+        </div>
+      </section>
 
-      {/* Copyright Text */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Copyright Text</label>
+      {/* Copyright & Contact */}
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Copyright & Contact</h3>
+        <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Copyright Text</label>
         <input
           type="text"
           value={footer.copyrightText || ""}
           onChange={(e) => updateFooter({ copyrightText: e.target.value })}
           className="w-full border border-gray-300 rounded-lg px-3 py-2"
           placeholder="© 2024 Your Company. All rights reserved."
-        />
-      </div>
-
-      {/* Contact Information */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium mb-4">Contact Information</h3>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-            <input
-              type="email"
-              value={footer.emailAddress || ""}
-              onChange={(e) => updateFooter({ emailAddress: e.target.value || undefined })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              placeholder="contact@example.com"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              This will be displayed in the footer with a clickable mailto link.
-            </p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-            <input
-              type="tel"
-              value={footer.phoneNumber || ""}
-              onChange={(e) => updateFooter({ phoneNumber: e.target.value || undefined })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              placeholder="(555) 123-4567"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              This will be displayed in the footer with a clickable tel link.
-            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Contact Information</label>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <input
+                  type="email"
+                  value={footer.emailAddress || ""}
+                  onChange={(e) => updateFooter({ emailAddress: e.target.value || undefined })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="contact@example.com"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Displayed in the footer as a clickable mailto link.
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  value={footer.phoneNumber || ""}
+                  onChange={(e) => updateFooter({ phoneNumber: e.target.value || undefined })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="(555) 123-4567"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Displayed in the footer as a clickable tel link.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Footer Columns */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium mb-4">Footer Columns</h3>
-        {footer.columns && footer.columns.length > 0 && (
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Footer Columns</h3>
+        <div className="border border-gray-200 rounded-lg p-4">
+          {footer.columns && footer.columns.length > 0 && (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -288,16 +289,16 @@ export default function FooterEditor({
               </div>
             </SortableContext>
           </DndContext>
-        )}
+          )}
           <div className="space-y-4">
-          <div className="flex space-x-2">
+            <div className="flex space-x-2">
             <input
               type="text"
               value={newColumnTitle}
               onChange={(e) => setNewColumnTitle(e.target.value)}
               className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
               placeholder="Column Title (e.g., 'Quick Links')"
-              onKeyPress={(e) => e.key === "Enter" && addColumn()}
+              onKeyDown={(e) => e.key === "Enter" && addColumn()}
             />
             <button
               onClick={addColumn}
@@ -305,22 +306,22 @@ export default function FooterEditor({
             >
               Add Column
             </button>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Social Links Info */}
-      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-        <h3 className="font-medium mb-2">Social Media Links</h3>
+      <div className="bg-gray-50 rounded-lg p-3">
         <p className="text-sm text-gray-600">
-          Social media links are managed in the <strong>General</strong> tab. They will be shared between the header and footer.
+          Social links are set in the <strong>General</strong> tab and shared with the header.
         </p>
       </div>
 
       {/* Colors */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium mb-4">Colors</h3>
-        <div className="grid grid-cols-2 gap-4">
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Colors</h3>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
             <div className="flex items-center space-x-2">
@@ -356,7 +357,8 @@ export default function FooterEditor({
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

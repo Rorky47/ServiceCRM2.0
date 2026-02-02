@@ -186,6 +186,7 @@ export default function SettingsPage({ params }: SettingsPageProps) {
         backgroundColor: headerData.backgroundColor || undefined,
         textColor: headerData.textColor || undefined,
         logo: headerData.logo || undefined,
+        logoLink: headerData.logoLink || undefined,
         // Don't include socialLinks - use shared social links instead
       }) : undefined;
 
@@ -448,104 +449,104 @@ export default function SettingsPage({ params }: SettingsPageProps) {
 
               {/* Social Links */}
               <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-medium mb-4">Social Media Links</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  These links will be shared between the header and footer. You can override them individually in the Header and Footer tabs if needed.
-                </p>
-                <div className="space-y-3">
-                  {(socialLinks || []).map((link, index) => (
-                    <div key={index} className="flex items-center space-x-2 bg-gray-50 p-3 rounded">
-                      <SocialIcon platform={link.platform} size="md" className="text-gray-600" />
-                      <span className="flex-1 font-medium capitalize">{link.platform}</span>
-                      {link.label && <span className="text-sm text-gray-500">({link.label})</span>}
-                      <span className="text-sm text-gray-500 truncate max-w-xs">{link.url}</span>
-                      <button
-                        onClick={() => {
-                          const newLinks = [...(socialLinks || [])];
-                          newLinks.splice(index, 1);
-                          setSocialLinks(newLinks);
-                        }}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <div className="space-y-2">
-                    <div className="flex space-x-2">
-                      <select
-                        value={newSocialPlatform}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setNewSocialPlatform(isSocialPlatform(value) ? value : "facebook");
-                        }}
-                        className="border border-gray-300 rounded-lg px-3 py-2"
-                      >
-                        <option value="facebook">Facebook</option>
-                        <option value="twitter">Twitter</option>
-                        <option value="instagram">Instagram</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="youtube">YouTube</option>
-                        <option value="email">Email</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                      <input
-                        type={newSocialPlatform === "email" ? "email" : "text"}
-                        value={newSocialUrl}
-                        onChange={(e) => setNewSocialUrl(e.target.value)}
-                        placeholder={
-                          newSocialPlatform === "email"
-                            ? "contact@example.com"
-                            : newSocialPlatform === "custom"
-                            ? "https://example.com"
-                            : `https://${newSocialPlatform}.com/yourpage`
-                        }
-                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter" && newSocialUrl.trim()) {
-                            setSocialLinks([
-                              ...(socialLinks || []),
-                              {
-                                platform: newSocialPlatform,
-                                url: newSocialUrl.trim(),
-                                label: newSocialLabel || undefined,
-                              },
-                            ]);
-                            setNewSocialUrl("");
-                            setNewSocialLabel("");
-                          }
-                        }}
-                      />
-                      <button
-                        onClick={() => {
-                          if (newSocialUrl.trim()) {
-                            setSocialLinks([
-                              ...(socialLinks || []),
-                              {
-                                platform: newSocialPlatform,
-                                url: newSocialUrl.trim(),
-                                label: newSocialLabel || undefined,
-                              },
-                            ]);
-                            setNewSocialUrl("");
-                            setNewSocialLabel("");
-                          }
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                      >
-                        Add
-                      </button>
-                    </div>
-                    {newSocialPlatform === "custom" && (
-                      <input
-                        type="text"
-                        value={newSocialLabel}
-                        onChange={(e) => setNewSocialLabel(e.target.value)}
-                        placeholder="Custom label (optional)"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                      />
-                    )}
-                  </div>
+                <h3 className="font-medium mb-1">Social Media Links</h3>
+                <p className="text-xs text-gray-500 mb-3">Shared with header and footer.</p>
+                {(socialLinks || []).length > 0 && (
+                  <ul className="space-y-1.5 mb-3">
+                    {(socialLinks || []).map((link, index) => (
+                      <li key={index} className="flex items-center gap-2 text-sm bg-gray-50 py-2 px-3 rounded">
+                        <SocialIcon platform={link.platform} size="md" className="text-gray-600 flex-shrink-0" />
+                        <span className="capitalize font-medium min-w-[4rem]">{link.platform}</span>
+                        {link.label && <span className="text-gray-500">({link.label})</span>}
+                        <span className="truncate flex-1 text-gray-600" title={link.url}>{link.url}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newLinks = [...(socialLinks || [])];
+                            newLinks.splice(index, 1);
+                            setSocialLinks(newLinks);
+                          }}
+                          className="text-red-600 hover:text-red-800 flex-shrink-0"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={newSocialPlatform}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setNewSocialPlatform(isSocialPlatform(value) ? value : "facebook");
+                    }}
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="facebook">Facebook</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="email">Email</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                  <input
+                    type={newSocialPlatform === "email" ? "email" : "text"}
+                    value={newSocialUrl}
+                    onChange={(e) => setNewSocialUrl(e.target.value)}
+                    placeholder={
+                      newSocialPlatform === "email"
+                        ? "contact@example.com"
+                        : newSocialPlatform === "custom"
+                        ? "https://example.com"
+                        : `https://${newSocialPlatform}.com/yourpage`
+                    }
+                    className="flex-1 min-w-[12rem] border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newSocialUrl.trim()) {
+                        setSocialLinks([
+                          ...(socialLinks || []),
+                          {
+                            platform: newSocialPlatform,
+                            url: newSocialUrl.trim(),
+                            label: newSocialLabel || undefined,
+                          },
+                        ]);
+                        setNewSocialUrl("");
+                        setNewSocialLabel("");
+                      }
+                    }}
+                  />
+                  {newSocialPlatform === "custom" && (
+                    <input
+                      type="text"
+                      value={newSocialLabel}
+                      onChange={(e) => setNewSocialLabel(e.target.value)}
+                      placeholder="Label (optional)"
+                      className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newSocialUrl.trim()) {
+                        setSocialLinks([
+                          ...(socialLinks || []),
+                          {
+                            platform: newSocialPlatform,
+                            url: newSocialUrl.trim(),
+                            label: newSocialLabel || undefined,
+                          },
+                        ]);
+                        setNewSocialUrl("");
+                        setNewSocialLabel("");
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                  >
+                    Add
+                  </button>
                 </div>
               </div>
             </div>
@@ -932,8 +933,8 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           </div>
         )}
 
-        {/* Save Button */}
-        <div className="flex justify-end space-x-3 bg-white shadow rounded-lg p-4">
+        {/* Save Button - sticky so it stays visible when scrolling */}
+        <div className="sticky bottom-0 z-10 flex justify-end space-x-3 bg-white shadow rounded-lg p-4 border-t border-gray-200">
           <button
             onClick={() => router.back()}
             className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"

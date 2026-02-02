@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Page } from "@/types";
 import OptimizedImage from "@/components/OptimizedImage";
 import LinkInput from "@/components/LinkInput";
+import Slider from "@/components/Slider";
 import {
   DndContext,
   closestCenter,
@@ -35,6 +37,7 @@ interface SocialLink {
 interface HeaderData {
   showLogo: boolean;
   logo?: string;
+  logoLink?: string; // Where the logo links (default: site home)
   logoScale?: number; // Percentage scale (50-200)
   navigationLinks?: NavigationLink[];
   phoneNumber?: string;
@@ -64,6 +67,48 @@ export default function HeaderEditor({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editLabel, setEditLabel] = useState("");
   const [editUrl, setEditUrl] = useState("");
+  const [pages, setPages] = useState<Page[]>([]);
+  const [showCustomLink, setShowCustomLink] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const res = await fetch(`/api/pages?siteSlug=${siteSlug}`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setPages(data);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [siteSlug]);
+
+  function urlToSlug(url: string): string {
+    if (url.startsWith(`/site/${siteSlug}/`)) return url.replace(`/site/${siteSlug}/`, "").replace(/\/$/, "") || "home";
+    if (url.startsWith("/")) return url.replace(/^\//, "").replace(/\/$/, "") || "home";
+    return url;
+  }
+  const navSlugs = new Set((header.navigationLinks || []).map((link) => urlToSlug(link.url)));
+  const pagesNotInNav = pages.filter((p) => !navSlugs.has(p.slug));
+
+  function pageDisplayLabel(page: Page): string {
+    if (page.title?.trim()) return page.title.trim();
+    if (page.slug === "home") return "Home";
+    return page.slug.charAt(0).toUpperCase() + page.slug.slice(1).replace(/-/g, " ");
+  }
+
+  const addPageToNav = (page: Page) => {
+    updateHeader({
+      navigationLinks: [
+        ...(header.navigationLinks || []),
+        { label: pageDisplayLabel(page), url: `/${page.slug}` },
+      ],
+    });
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -136,9 +181,11 @@ export default function HeaderEditor({
 
   return (
     <div className="space-y-6">
-      {/* Logo Settings */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-4">
+      {/* Logo */}
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Logo</h3>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -198,33 +245,38 @@ export default function HeaderEditor({
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-2"
                 placeholder="https://example.com/logo.png or leave empty for theme logo"
               />
-              <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Logo Scale: {header.logoScale || 100}%
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="200"
-                  step="5"
-                  value={header.logoScale || 100}
-                  onChange={(e) => updateHeader({ logoScale: Number(e.target.value) })}
-                  className="w-full"
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Logo link</label>
+                <LinkInput
+                  value={header.logoLink ?? ""}
+                  onChange={(url) => updateHeader({ logoLink: url || undefined })}
+                  siteSlug={siteSlug}
+                  placeholder="Site home (leave empty) or /about, #contact"
                 />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>50%</span>
-                  <span>100%</span>
-                  <span>200%</span>
-                </div>
+                <p className="mt-1 text-xs text-gray-500">Where the logo goes when clicked. Leave empty for site home.</p>
+              </div>
+              <div className="mt-2">
+                <Slider
+                  min={50}
+                  max={200}
+                  step={5}
+                  value={header.logoScale || 100}
+                  onChange={(v) => updateHeader({ logoScale: v })}
+                  label="Logo Scale:"
+                  valueLabel={`${header.logoScale || 100}%`}
+                  hint="50% / 100% / 200%"
+                />
               </div>
             </div>
           </div>
         )}
-      </div>
+        </div>
+      </section>
 
-      {/* Navigation Links */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium mb-4">Navigation Links</h3>
+      {/* Navigation */}
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Navigation Links</h3>
+        <div className="border border-gray-200 rounded-lg p-4">
         {header.navigationLinks && header.navigationLinks.length > 0 && (
           <DndContext
             sensors={sensors}
@@ -258,86 +310,129 @@ export default function HeaderEditor({
             </SortableContext>
           </DndContext>
         )}
-        <div className="space-y-2">
-          <input
-            type="text"
-            value={newLinkLabel}
-            onChange={(e) => setNewLinkLabel(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2"
-            placeholder="Link Label"
-            onKeyPress={(e) => e.key === "Enter" && addNavigationLink()}
-          />
-          <LinkInput
-            value={newLinkUrl}
-            onChange={setNewLinkUrl}
-            siteSlug={siteSlug}
-            placeholder="/about or https://example.com"
-          />
-          <button
-            onClick={addNavigationLink}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Add Link
-          </button>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Add page to menu</label>
+            <select
+              value=""
+              onChange={(e) => {
+                const slug = e.target.value;
+                if (slug) {
+                  const page = pages.find((p) => p.slug === slug);
+                  if (page) addPageToNav(page);
+                  e.target.value = "";
+                }
+              }}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select a page to add...</option>
+              {pagesNotInNav.map((page) => (
+                <option key={page.slug} value={page.slug}>
+                  {pageDisplayLabel(page)}
+                </option>
+              ))}
+              {pagesNotInNav.length === 0 && pages.length > 0 && (
+                <option value="" disabled>All pages are already in the menu</option>
+              )}
+              {pages.length === 0 && (
+                <option value="" disabled>No pages yet</option>
+              )}
+            </select>
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowCustomLink(!showCustomLink)}
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              {showCustomLink ? "− Hide custom link" : "+ Add custom link (URL or anchor)"}
+            </button>
+            {showCustomLink && (
+              <div className="mt-2 space-y-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <input
+                  type="text"
+                  value={newLinkLabel}
+                  onChange={(e) => setNewLinkLabel(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="Link Label"
+                  onKeyPress={(e) => e.key === "Enter" && addNavigationLink()}
+                />
+                <LinkInput
+                  value={newLinkUrl}
+                  onChange={setNewLinkUrl}
+                  siteSlug={siteSlug}
+                  placeholder="/about or https://example.com"
+                />
+                <button
+                  onClick={addNavigationLink}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  Add custom link
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Phone Number */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-        <input
-          type="tel"
-          value={header.phoneNumber || ""}
-          onChange={(e) => updateHeader({ phoneNumber: e.target.value })}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2"
-          placeholder="(555) 123-4567"
-        />
-      </div>
-
-      {/* Social Links Info */}
-      <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-        <h3 className="font-medium mb-2">Social Media Links</h3>
-        <p className="text-sm text-gray-600">
-          Social media links are managed in the <strong>General</strong> tab. They will be shared between the header and footer.
-        </p>
-      </div>
-
-      {/* Get Quote Button */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={header.showGetQuoteButton}
-              onChange={(e) => updateHeader({ showGetQuoteButton: e.target.checked })}
-              className="rounded"
-            />
-            <span className="font-medium">Show Get Quote Button</span>
-          </label>
         </div>
-        {header.showGetQuoteButton && (
-          <div className="space-y-3">
+      </section>
+
+      {/* Contact & CTA */}
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Contact & CTA</h3>
+        <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
             <input
-              type="text"
-              value={header.getQuoteButtonText || ""}
-              onChange={(e) => updateHeader({ getQuoteButtonText: e.target.value })}
+              type="tel"
+              value={header.phoneNumber || ""}
+              onChange={(e) => updateHeader({ phoneNumber: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              placeholder="Get Free Quote"
-            />
-            <LinkInput
-              value={header.getQuoteButtonLink || ""}
-              onChange={(url) => updateHeader({ getQuoteButtonLink: url })}
-              siteSlug={siteSlug}
-              placeholder="#contact or /contact"
+              placeholder="(555) 123-4567"
             />
           </div>
-        )}
-      </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-sm text-gray-600">
+              Social links are set in the <strong>General</strong> tab and shared with the footer.
+            </p>
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={header.showGetQuoteButton}
+                  onChange={(e) => updateHeader({ showGetQuoteButton: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="font-medium">Show Get Quote Button</span>
+              </label>
+            </div>
+            {header.showGetQuoteButton && (
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={header.getQuoteButtonText || ""}
+                  onChange={(e) => updateHeader({ getQuoteButtonText: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  placeholder="Get Free Quote"
+                />
+                <LinkInput
+                  value={header.getQuoteButtonLink || ""}
+                  onChange={(url) => updateHeader({ getQuoteButtonLink: url })}
+                  siteSlug={siteSlug}
+                  placeholder="#contact or /contact"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Colors */}
-      <div className="border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium mb-4">Colors</h3>
-        <div className="grid grid-cols-2 gap-4">
+      <section>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Colors</h3>
+        <div className="border border-gray-200 rounded-lg p-4">
+          <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
             <div className="flex items-center space-x-2">
@@ -372,8 +467,9 @@ export default function HeaderEditor({
               />
             </div>
           </div>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

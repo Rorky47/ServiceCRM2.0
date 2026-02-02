@@ -25,6 +25,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FaGripVertical, FaTimes, FaCog } from "react-icons/fa";
+import Slider from "@/components/Slider";
 
 interface EditableFooterRendererProps {
   site: Site;
@@ -219,17 +220,14 @@ export default function EditableFooterRenderer({
             {/* Logo Scale */}
             {footer.showLogo && (
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Logo Scale: {footer.logoScale || 100}%
-                </label>
-                <input
-                  type="range"
-                  min="50"
-                  max="200"
-                  step="5"
+                <Slider
+                  min={50}
+                  max={200}
+                  step={5}
                   value={footer.logoScale || 100}
-                  onChange={(e) => updateLogoScale(Number(e.target.value))}
-                  className="w-full"
+                  onChange={(v) => updateLogoScale(v)}
+                  label="Logo Scale:"
+                  valueLabel={`${footer.logoScale || 100}%`}
                 />
               </div>
             )}
@@ -278,65 +276,53 @@ export default function EditableFooterRenderer({
 
             {/* Column Gap */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Column Gap: {getPresetSpacing(columnGap)}px ({columnGap} × 40px)
-              </label>
-              <input
-                type="range"
-                min="0.25"
-                max="4"
-                step="0.25"
+              <Slider
+                min={0.25}
+                max={4}
+                step={0.25}
                 value={columnGap}
-                onChange={(e) => updateSpacing('columnGap', Number(e.target.value))}
-                className="w-full"
+                onChange={(v) => updateSpacing("columnGap", v)}
+                label="Column Gap:"
+                valueLabel={`${getPresetSpacing(columnGap)}px (${columnGap} × 40px)`}
               />
             </div>
 
             {/* Top Padding */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Top Padding: {getPresetSpacing(topPadding)}px ({topPadding} × 40px)
-              </label>
-              <input
-                type="range"
-                min="0.5"
-                max="5"
-                step="0.25"
+              <Slider
+                min={0.5}
+                max={5}
+                step={0.25}
                 value={topPadding}
-                onChange={(e) => updateSpacing('topPadding', Number(e.target.value))}
-                className="w-full"
+                onChange={(v) => updateSpacing("topPadding", v)}
+                label="Top Padding:"
+                valueLabel={`${getPresetSpacing(topPadding)}px (${topPadding} × 40px)`}
               />
             </div>
 
             {/* Bottom Padding */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Bottom Padding: {getPresetSpacing(bottomPadding)}px ({bottomPadding} × 40px)
-              </label>
-              <input
-                type="range"
-                min="0.5"
-                max="5"
-                step="0.25"
+              <Slider
+                min={0.5}
+                max={5}
+                step={0.25}
                 value={bottomPadding}
-                onChange={(e) => updateSpacing('bottomPadding', Number(e.target.value))}
-                className="w-full"
+                onChange={(v) => updateSpacing("bottomPadding", v)}
+                label="Bottom Padding:"
+                valueLabel={`${getPresetSpacing(bottomPadding)}px (${bottomPadding} × 40px)`}
               />
             </div>
 
             {/* Bottom Margin */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Bottom Margin: {getPresetSpacing(bottomMargin)}px ({bottomMargin} × 40px)
-              </label>
-              <input
-                type="range"
-                min="0.25"
-                max="3"
-                step="0.25"
+              <Slider
+                min={0.25}
+                max={3}
+                step={0.25}
                 value={bottomMargin}
-                onChange={(e) => updateSpacing('bottomMargin', Number(e.target.value))}
-                className="w-full"
+                onChange={(v) => updateSpacing("bottomMargin", v)}
+                label="Bottom Margin:"
+                valueLabel={`${getPresetSpacing(bottomMargin)}px (${bottomMargin} × 40px)`}
               />
             </div>
           </div>
