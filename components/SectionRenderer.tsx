@@ -1,6 +1,6 @@
 "use client";
 
-import { Section } from "@/types";
+import { Section, Site } from "@/types";
 import HeroSection from "./sections/HeroSection";
 import ServicesSection from "./sections/ServicesSection";
 import TextImageSection from "./sections/TextImageSection";
@@ -13,14 +13,16 @@ interface SectionRendererProps {
   onUpdate: (section: Section) => void;
   siteSlug: string;
   themeColor?: string;
+  site?: Site;
+  onSiteUpdate?: (site: Site) => void;
 }
 
-export default function SectionRenderer({ section, isAdmin, onUpdate, siteSlug, themeColor }: SectionRendererProps) {
+export default function SectionRenderer({ section, isAdmin, onUpdate, siteSlug, themeColor, site, onSiteUpdate }: SectionRendererProps) {
   switch (section.type) {
     case "hero":
       return <HeroSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} themeColor={themeColor} />;
     case "services":
-      return <ServicesSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} themeColor={themeColor} />;
+      return <ServicesSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} themeColor={themeColor} site={site} onSiteUpdate={onSiteUpdate} />;
     case "textImage":
       return <TextImageSection section={section} isAdmin={isAdmin} onUpdate={onUpdate} siteSlug={siteSlug} themeColor={themeColor} />;
     case "intro":

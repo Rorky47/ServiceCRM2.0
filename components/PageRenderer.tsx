@@ -33,7 +33,7 @@ interface PageRendererProps {
   isAdmin: boolean;
 }
 
-function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug, themeColor }: { section: Section; isAdmin: boolean; onUpdate: (section: Section) => void; onDelete: (sectionId: string) => void; siteSlug: string; themeColor?: string }) {
+function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug, themeColor, site, onSiteUpdate }: { section: Section; isAdmin: boolean; onUpdate: (section: Section) => void; onDelete: (sectionId: string) => void; siteSlug: string; themeColor?: string; site: Site; onSiteUpdate: (site: Site) => void }) {
   const {
     attributes,
     listeners,
@@ -81,6 +81,8 @@ function SortableSection({ section, isAdmin, onUpdate, onDelete, siteSlug, theme
         onUpdate={onUpdate}
         siteSlug={siteSlug}
         themeColor={themeColor}
+        site={site}
+        onSiteUpdate={onSiteUpdate}
       />
     </div>
   );
@@ -231,7 +233,6 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
           type: "services",
           content: {
             title: "Our Services",
-            items: [],
             columns: GRID_DEFAULTS.servicesColumns,
           },
         };
@@ -409,6 +410,8 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
                     onDelete={handleDeleteSection}
                     siteSlug={site.slug}
                     themeColor={site.theme?.primaryColor}
+                    site={site}
+                    onSiteUpdate={handleSiteUpdate}
                   />
                 ))}
               </SortableContext>
@@ -441,6 +444,8 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             onUpdate={handleSectionUpdate}
             siteSlug={site.slug}
             themeColor={site.theme?.primaryColor}
+            site={site}
+            onSiteUpdate={handleSiteUpdate}
           />
         ))
       )}

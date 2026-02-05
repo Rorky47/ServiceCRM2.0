@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Section } from "@/types";
+import { useState, useMemo } from "react";
+import { Section, Site, Service } from "@/types";
 import { GRID_DEFAULTS } from "@/lib/constants";
 import RichTextEditor from "@/components/RichTextEditor";
 import RichTextDisplay from "@/components/RichTextDisplay";
 import OptimizedImage from "@/components/OptimizedImage";
 import SmartLink from "@/components/SmartLink";
+
+/** Display item: service with id for keys (from site.services or legacy with generated id). */
+type DisplayItem = Service & { id: string };
 
 interface ServicesSectionProps {
   section: Extract<Section, { type: "services" }>;
@@ -14,22 +17,36 @@ interface ServicesSectionProps {
   onUpdate: (section: Section) => void;
   siteSlug: string;
   themeColor?: string;
+  site?: Site;
+  onSiteUpdate?: (site: Site) => void;
 }
 
-export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, themeColor }: ServicesSectionProps) {
+export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, themeColor, site, onSiteUpdate }: ServicesSectionProps) {
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
   const [showSectionControls, setShowSectionControls] = useState(false);
   const [showServiceControls, setShowServiceControls] = useState<number | null>(null);
 
-  // Ensure items are in the new format (migrate old string[] to new format)
-  const items = section.content.items.map((item) => {
-    if (typeof item === "string") {
-      return { title: item, description: "", image: "", color: "" };
+  const useSiteServices = Boolean(site?.services && onSiteUpdate);
+
+  const items: DisplayItem[] = useMemo(() => {
+    if (useSiteServices && site!.services!.length > 0) {
+      const svc = site!.services!;
+      const ids = section.content.serviceIds;
+      if (ids?.length) {
+        return ids.map((id) => svc.find((s) => s.id === id)).filter(Boolean) as DisplayItem[];
+      }
+      return [...svc];
     }
-    return item;
-  });
+    const legacy = section.content.items ?? [];
+    return legacy.map((item, i) => {
+      if (typeof item === "string") {
+        return { id: `legacy-${i}`, title: item, description: "", image: "", color: "" };
+      }
+      return { id: (item as Service & { id?: string }).id ?? `legacy-${i}`, ...item } as DisplayItem;
+    });
+  }, [useSiteServices, site, section.content.serviceIds, section.content.items]);
 
   const handleTitleClick = () => {
     if (!isAdmin) return;
@@ -55,51 +72,40 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
       });
     } else if (editing?.startsWith("service-title-")) {
       const index = parseInt(editing.split("-")[2]);
-      const newItems = [...items];
-      newItems[index] = { ...newItems[index], title: tempValue };
-      onUpdate({
-        ...section,
-        content: { ...section.content, items: newItems },
-      });
+      updateServiceAt(index, (s) => ({ ...s, title: tempValue }));
     } else if (editing?.startsWith("service-desc-")) {
       const index = parseInt(editing.split("-")[2]);
-      const newItems = [...items];
-      newItems[index] = { ...newItems[index], description: tempValue };
-      onUpdate({
-        ...section,
-        content: { ...section.content, items: newItems },
-      });
+      updateServiceAt(index, (s) => ({ ...s, description: tempValue }));
     } else if (editing?.startsWith("service-button-text-")) {
       const index = parseInt(editing.split("-")[3]);
-      const newItems = [...items];
-      newItems[index] = {
-        ...newItems[index],
-        button: {
-          text: tempValue,
-          link: newItems[index].button?.link || "#",
-        },
-      };
-      onUpdate({
-        ...section,
-        content: { ...section.content, items: newItems },
-      });
+      updateServiceAt(index, (s) => ({
+        ...s,
+        button: { text: tempValue, link: items[index].button?.link || "#" },
+      }));
     } else if (editing?.startsWith("service-button-link-")) {
       const index = parseInt(editing.split("-")[3]);
-      const newItems = [...items];
-      newItems[index] = {
-        ...newItems[index],
-        button: {
-          text: newItems[index].button?.text || "Learn More",
-          link: tempValue,
-        },
-      };
-      onUpdate({
-        ...section,
-        content: { ...section.content, items: newItems },
-      });
+      updateServiceAt(index, (s) => ({
+        ...s,
+        button: { text: items[index].button?.text || "Learn More", link: tempValue },
+      }));
     }
     setEditing(null);
   };
+
+  function updateServiceAt(index: number, updater: (s: DisplayItem) => DisplayItem) {
+    if (useSiteServices && site && onSiteUpdate) {
+      const id = items[index]?.id;
+      if (id == null) return;
+      const next = (site.services ?? []).map((s) => (s.id === id ? updater(s as DisplayItem) : s));
+      onSiteUpdate({ ...site, services: next });
+      return;
+    }
+    const newItems = [...items].map((s, i) => (i === index ? updater(s) : s));
+    onUpdate({
+      ...section,
+      content: { ...section.content, items: newItems.map(({ id: _id, ...rest }) => rest) },
+    });
+  }
 
   const handleServiceImageUpload = (index: number) => {
     const input = document.createElement("input");
@@ -108,10 +114,10 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-      
+
       const formData = new FormData();
       formData.append("file", file);
-      
+
       try {
         const response = await fetch("/api/cloudinary", {
           method: "POST",
@@ -119,12 +125,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
         });
         const data = await response.json();
         if (data.url) {
-          const newItems = [...items];
-          newItems[index] = { ...newItems[index], image: data.url };
-          onUpdate({
-            ...section,
-            content: { ...section.content, items: newItems },
-          });
+          updateServiceAt(index, (s) => ({ ...s, image: data.url }));
         }
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -136,32 +137,15 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
 
   const handleServiceImageUrl = (index: number) => {
     const url = prompt("Enter image URL:");
-    if (url) {
-      const newItems = [...items];
-      newItems[index] = { ...newItems[index], image: url };
-      onUpdate({
-        ...section,
-        content: { ...section.content, items: newItems },
-      });
-    }
+    if (url) updateServiceAt(index, (s) => ({ ...s, image: url }));
   };
 
   const handleServiceImageRemove = (index: number) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], image: "" };
-    onUpdate({
-      ...section,
-      content: { ...section.content, items: newItems },
-    });
+    updateServiceAt(index, (s) => ({ ...s, image: "" }));
   };
 
   const handleServiceColorChange = (index: number, color: string) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], color: color };
-    onUpdate({
-      ...section,
-      content: { ...section.content, items: newItems },
-    });
+    updateServiceAt(index, (s) => ({ ...s, color }));
   };
 
   const handleBackgroundColorChange = (color: string) => {
@@ -172,42 +156,46 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
   };
 
   const handleAddService = () => {
+    if (useSiteServices && site && onSiteUpdate) {
+      const newService: Service = {
+        id: `service-${Date.now()}`,
+        title: "New Service",
+        description: "",
+        image: "",
+        color: "",
+      };
+      onSiteUpdate({ ...site, services: [...(site.services ?? []), newService] });
+      return;
+    }
     const newItems = [...items, { title: "New Service", description: "", image: "", color: "" }];
     onUpdate({
       ...section,
-      content: { ...section.content, items: newItems },
+      content: { ...section.content, items: newItems.map(({ id: _id, ...rest }) => rest) },
     });
   };
 
   const handleButtonAdd = (index: number) => {
-    const newItems = [...items];
-    newItems[index] = {
-      ...newItems[index],
-      button: { text: "Learn More", link: "#" },
-    };
-    onUpdate({
-      ...section,
-      content: { ...section.content, items: newItems },
-    });
+    updateServiceAt(index, (s) => ({ ...s, button: { text: "Learn More", link: "#" } }));
   };
 
   const handleButtonRemove = (index: number) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], button: undefined };
-    onUpdate({
-      ...section,
-      content: { ...section.content, items: newItems },
-    });
+    updateServiceAt(index, (s) => ({ ...s, button: undefined }));
   };
 
   const handleRemoveService = (index: number) => {
-    if (confirm("Remove this service?")) {
-      const newItems = items.filter((_, i) => i !== index);
-      onUpdate({
-        ...section,
-        content: { ...section.content, items: newItems },
-      });
+    if (!confirm("Remove this service?")) return;
+    if (useSiteServices && site && onSiteUpdate) {
+      const id = items[index]?.id;
+      if (id == null) return;
+      const next = (site.services ?? []).filter((s) => s.id !== id);
+      onSiteUpdate({ ...site, services: next });
+      return;
     }
+    const newItems = items.filter((_, i) => i !== index);
+    onUpdate({
+      ...section,
+      content: { ...section.content, items: newItems.map(({ id: _id, ...rest }) => rest) },
+    });
   };
 
   const backgroundColor = section.content.backgroundColor || "#ffffff";
@@ -403,7 +391,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
         <div className={`grid ${gridColsClass} gap-4 sm:gap-6 md:gap-8`}>
           {items.map((item, index) => (
             <div
-              key={index}
+              key={item.id}
               className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
               style={{
                 backgroundColor: item.color || undefined,

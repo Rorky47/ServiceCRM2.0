@@ -77,7 +77,7 @@ export async function getSite(slug: string): Promise<Site | null> {
       let result;
       try {
         result = await query(
-          'SELECT id, slug, name, theme, seo, header, footer, domains, analytics, notifications, sociallinks FROM sites WHERE slug = $1',
+          'SELECT id, slug, name, theme, seo, header, footer, domains, analytics, notifications, sociallinks, services FROM sites WHERE slug = $1',
           [slug]
         );
       } catch {
@@ -87,10 +87,10 @@ export async function getSite(slug: string): Promise<Site | null> {
           [slug]
         );
       }
-      
+
       if (result.rows.length === 0) return null;
       const row = result.rows[0];
-      
+
       return {
         id: row.id,
         slug: row.slug,
@@ -103,6 +103,7 @@ export async function getSite(slug: string): Promise<Site | null> {
         analytics: row.analytics || undefined,
         notifications: row.notifications || undefined,
         socialLinks: row.sociallinks || row.socialLinks || undefined,
+        services: row.services || undefined,
       };
     } catch (error) {
       console.error("Error fetching site from database:", error);
@@ -139,8 +140,8 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
       } catch {}
       
       // Search for site where domain matches
-      const         result = await query(
-          'SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks FROM sites WHERE $1 = ANY(domains)',
+      const result = await query(
+          'SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks, services FROM sites WHERE $1 = ANY(domains)',
           [normalizedHost]
         );
       if (result.rows.length === 0) return null;
@@ -157,6 +158,7 @@ export async function getSiteByDomain(hostname: string): Promise<Site | null> {
         analytics: row.analytics || undefined,
         notifications: row.notifications || undefined,
         socialLinks: row.sociallinks || row.socialLinks || undefined,
+        services: row.services || undefined,
       };
     } catch (error) {
       console.error("Error fetching site by domain from database:", error);
@@ -190,7 +192,7 @@ export async function getAllSites(): Promise<Site[]> {
       // Try to get all columns, fallback if some don't exist
       let result;
       try {
-        result = await query('SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks FROM sites ORDER BY name LIMIT 1000');
+        result = await query('SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks, services FROM sites ORDER BY name LIMIT 1000');
       } catch {
         result = await query("SELECT id, slug, name, theme, seo FROM sites ORDER BY name LIMIT 1000");
       }
@@ -209,6 +211,7 @@ export async function getAllSites(): Promise<Site[]> {
         analytics: row.analytics || undefined,
         notifications: row.notifications || undefined,
         socialLinks: row.sociallinks || row.socialLinks || undefined,
+        services: row.services || undefined,
       }));
     } catch (error) {
       console.error("Error fetching sites from database:", error);
@@ -275,10 +278,13 @@ export async function saveSite(site: Site): Promise<void> {
           }
         }
       }
-      
+      if (!existingColumns.includes('services')) {
+        await query("ALTER TABLE sites ADD COLUMN services JSONB");
+      }
+
       await query(
-        `INSERT INTO sites (id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
+        `INSERT INTO sites (id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks, services, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP)
          ON CONFLICT (slug) 
          DO UPDATE SET 
            domains = $3, 
@@ -290,6 +296,7 @@ export async function saveSite(site: Site): Promise<void> {
            analytics = $9, 
            notifications = $10, 
            sociallinks = $11, 
+           services = $12, 
            updated_at = CURRENT_TIMESTAMP`,
         [
           site.id,
@@ -303,6 +310,7 @@ export async function saveSite(site: Site): Promise<void> {
           site.analytics ? JSON.stringify(site.analytics) : null,
           site.notifications ? JSON.stringify(site.notifications) : null,
           site.socialLinks ? JSON.stringify(site.socialLinks) : null,
+          site.services ? JSON.stringify(site.services) : null,
         ]
       );
       await ensureSiteSchema(site.id);

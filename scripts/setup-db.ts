@@ -86,6 +86,9 @@ async function setupDatabase() {
       if (!existingColumns.has('sociallinks')) {
         columnsToAdd.push({ name: 'sociallinks', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS sociallinks JSONB" });
       }
+      if (!existingColumns.has('services')) {
+        columnsToAdd.push({ name: 'services', sql: "ALTER TABLE sites ADD COLUMN IF NOT EXISTS services JSONB" });
+      }
 
       // Add all missing columns in parallel
       if (columnsToAdd.length > 0) {

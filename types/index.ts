@@ -25,7 +25,10 @@ export type Section =
         introText?: string;
         columns?: 1 | 2 | 3 | 4;
         backgroundColor?: string;
-        items: Array<{
+        /** Optional: show only these service IDs in this order. If absent, show all site.services. */
+        serviceIds?: string[];
+        /** Legacy: inline items when site.services is not used (backward compat). */
+        items?: Array<{
           title: string;
           description?: string;
           image?: string;
@@ -71,6 +74,19 @@ export type Section =
       };
     };
 
+/** A reusable service object stored at site level; referenced by services sections and future service pages. */
+export type Service = {
+  id: string;
+  title: string;
+  description?: string;
+  image?: string;
+  color?: string;
+  button?: {
+    text: string;
+    link: string;
+  };
+};
+
 export type SocialLink = {
   platform: "facebook" | "twitter" | "instagram" | "linkedin" | "youtube" | "email" | "custom";
   url: string;
@@ -111,6 +127,8 @@ export type Site = {
   };
   // Shared social links used by both header and footer
   socialLinks?: SocialLink[];
+  /** Site-level services; shared across pages and sections. Edit once, use everywhere. */
+  services?: Service[];
   header?: {
     showLogo: boolean;
     // If logo is not set, will use theme.logo
