@@ -18,10 +18,9 @@ A fast MVP for building and managing multiple service business websites from a s
 npm install
 ```
 
-2. Initialize sample data:
-```bash
-npx tsx scripts/init-data.ts
-```
+2. Initialize sample data (choose one):
+   - **With database:** Visit `https://your-app-url/api/init` after deploy, or run `npm run db:setup` then `npm run dev` locally with `DATABASE_URL` set.
+   - **Local JSON only:** `npx tsx scripts/init-data.ts`
 
 3. Run development server:
 ```bash
@@ -46,15 +45,7 @@ If not set, images will use base64 data URLs (works for MVP).
 
 ## Deployment
 
-Deploy to Vercel:
-```bash
-vercel
-```
+**Railway (recommended):** See [RAILWAY_SETUP.md](RAILWAY_SETUP.md) for setup. Railway runs `db:setup` then `npm start` on each deploy; set `DATABASE_URL` and optionally `SKIP_JSON_MIGRATION=true` after first deploy.
 
-After deployment, initialize sample data by visiting:
-```
-https://your-app.vercel.app/api/init
-```
-
-Or run locally: `npx tsx scripts/init-data.ts`
+After deployment, initialize sample data by visiting `https://your-app-url/api/init`, or run locally: `npx tsx scripts/init-data.ts`.
 

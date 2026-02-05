@@ -1,8 +1,8 @@
 import { query } from "./db";
 
 /**
- * Updates a site slug and all related data (pages, leads, users)
- * This is a critical operation that updates foreign key references
+ * Updates a site slug. With schema-per-site, pages and leads live in schemas
+ * keyed by site id, so only sites and users need to be updated.
  */
 export async function updateSiteSlug(oldSlug: string, newSlug: string): Promise<void> {
   // Validate new slug format (alphanumeric, hyphens, underscores only)
@@ -16,16 +16,9 @@ export async function updateSiteSlug(oldSlug: string, newSlug: string): Promise<
     throw new Error(`A site with slug "${newSlug}" already exists`);
   }
 
-  // Start transaction-like operations
   try {
     // Update sites table
     await query("UPDATE sites SET slug = $1 WHERE slug = $2", [newSlug, oldSlug]);
-
-    // Update pages table
-    await query("UPDATE pages SET site_slug = $1 WHERE site_slug = $2", [newSlug, oldSlug]);
-
-    // Update leads table
-    await query("UPDATE leads SET site_slug = $1 WHERE site_slug = $2", [newSlug, oldSlug]);
 
     // Update users table - replace old slug with new slug in site_slugs array
     // This is more complex as we need to update array elements

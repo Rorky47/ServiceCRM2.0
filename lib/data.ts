@@ -21,6 +21,44 @@ if (!USE_DATABASE) {
   }
 }
 
+// ==================== PER-SITE SCHEMA ====================
+
+/** Sanitize site id to a valid PostgreSQL schema name: site_<sanitized_id> */
+export function getSchemaName(siteId: string): string {
+  const sanitized = siteId.replace(/-/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase();
+  return `site_${sanitized}`;
+}
+
+/** Create schema and pages/leads tables for a site if they don't exist. */
+export async function ensureSiteSchema(siteId: string): Promise<void> {
+  const schemaName = getSchemaName(siteId);
+  await query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`);
+  await query(`
+    CREATE TABLE IF NOT EXISTS "${schemaName}".pages (
+      id SERIAL PRIMARY KEY,
+      slug VARCHAR(255) NOT NULL UNIQUE,
+      sections JSONB NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await query(`
+    CREATE TABLE IF NOT EXISTS "${schemaName}".leads (
+      id VARCHAR(255) PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      message TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  await query(`CREATE INDEX IF NOT EXISTS idx_leads_created_at ON "${schemaName}".leads(created_at DESC)`);
+}
+
+/** Resolve site by slug; return null if not found. Used to get site.id for schema. */
+async function getSiteForSchema(siteSlug: string): Promise<Site | null> {
+  return getSite(siteSlug);
+}
+
 // ==================== SITES ====================
 
 export async function getSite(slug: string): Promise<Site | null> {
@@ -255,6 +293,7 @@ export async function saveSite(site: Site): Promise<void> {
           site.socialLinks ? JSON.stringify(site.socialLinks) : null,
         ]
       );
+      await ensureSiteSchema(site.id);
     } catch (error) {
       console.error("Error saving site to database:", error);
       throw error;
@@ -274,14 +313,18 @@ export async function saveSite(site: Site): Promise<void> {
 export async function getPage(siteSlug: string, pageSlug: string = "home"): Promise<Page | null> {
   if (USE_DATABASE) {
     try {
+      const site = await getSiteForSchema(siteSlug);
+      if (!site) return null;
+      await ensureSiteSchema(site.id);
+      const schemaName = getSchemaName(site.id);
       const result = await query(
-        "SELECT site_slug, slug, sections FROM pages WHERE site_slug = $1 AND slug = $2",
-        [siteSlug, pageSlug]
+        `SELECT slug, sections FROM "${schemaName}".pages WHERE slug = $1`,
+        [pageSlug]
       );
       if (result.rows.length === 0) return null;
       const row = result.rows[0];
       return {
-        siteSlug: row.site_slug,
+        siteSlug,
         slug: row.slug,
         sections: row.sections,
       };
@@ -305,12 +348,16 @@ export async function getPage(siteSlug: string, pageSlug: string = "home"): Prom
 export async function savePage(page: Page): Promise<void> {
   if (USE_DATABASE) {
     try {
+      const site = await getSiteForSchema(page.siteSlug);
+      if (!site) throw new Error(`Site not found: ${page.siteSlug}`);
+      await ensureSiteSchema(site.id);
+      const schemaName = getSchemaName(site.id);
       await query(
-        `INSERT INTO pages (site_slug, slug, sections, updated_at)
-         VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
-         ON CONFLICT (site_slug, slug)
-         DO UPDATE SET sections = $3, updated_at = CURRENT_TIMESTAMP`,
-        [page.siteSlug, page.slug, JSON.stringify(page.sections)]
+        `INSERT INTO "${schemaName}".pages (slug, sections, updated_at)
+         VALUES ($1, $2, CURRENT_TIMESTAMP)
+         ON CONFLICT (slug)
+         DO UPDATE SET sections = $2, updated_at = CURRENT_TIMESTAMP`,
+        [page.slug, JSON.stringify(page.sections)]
       );
     } catch (error) {
       console.error("Error saving page to database:", error);
@@ -331,13 +378,17 @@ export async function savePage(page: Page): Promise<void> {
 export async function getLeads(siteSlug: string): Promise<Lead[]> {
   if (USE_DATABASE) {
     try {
+      const site = await getSiteForSchema(siteSlug);
+      if (!site) return [];
+      await ensureSiteSchema(site.id);
+      const schemaName = getSchemaName(site.id);
       const result = await query(
-        "SELECT id, site_slug, name, email, message, created_at FROM leads WHERE site_slug = $1 ORDER BY created_at DESC",
-        [siteSlug]
+        `SELECT id, name, email, message, created_at FROM "${schemaName}".leads ORDER BY created_at DESC`,
+        []
       );
       return result.rows.map((row) => ({
         id: row.id,
-        siteSlug: row.site_slug,
+        siteSlug,
         name: row.name,
         email: row.email,
         message: row.message,
@@ -363,9 +414,13 @@ export async function getLeads(siteSlug: string): Promise<Lead[]> {
 export async function saveLead(lead: Lead): Promise<void> {
   if (USE_DATABASE) {
     try {
+      const site = await getSiteForSchema(lead.siteSlug);
+      if (!site) throw new Error(`Site not found: ${lead.siteSlug}`);
+      await ensureSiteSchema(site.id);
+      const schemaName = getSchemaName(site.id);
       await query(
-        "INSERT INTO leads (id, site_slug, name, email, message, created_at) VALUES ($1, $2, $3, $4, $5, $6)",
-        [lead.id, lead.siteSlug, lead.name, lead.email, lead.message, lead.createdAt]
+        `INSERT INTO "${schemaName}".leads (id, name, email, message, created_at) VALUES ($1, $2, $3, $4, $5)`,
+        [lead.id, lead.name, lead.email, lead.message, lead.createdAt]
       );
     } catch (error) {
       console.error("Error saving lead to database:", error);
@@ -396,12 +451,16 @@ export async function saveLead(lead: Lead): Promise<void> {
 export async function getAllPages(siteSlug: string): Promise<Page[]> {
   if (USE_DATABASE) {
     try {
+      const site = await getSiteForSchema(siteSlug);
+      if (!site) return [];
+      await ensureSiteSchema(site.id);
+      const schemaName = getSchemaName(site.id);
       const result = await query(
-        "SELECT site_slug, slug, sections FROM pages WHERE site_slug = $1 ORDER BY slug",
-        [siteSlug]
+        `SELECT slug, sections FROM "${schemaName}".pages ORDER BY slug`,
+        []
       );
       return result.rows.map((row) => ({
-        siteSlug: row.site_slug,
+        siteSlug,
         slug: row.slug,
         sections: row.sections,
       }));
@@ -433,7 +492,11 @@ export async function getAllPages(siteSlug: string): Promise<Page[]> {
 export async function deletePage(siteSlug: string, pageSlug: string): Promise<void> {
   if (USE_DATABASE) {
     try {
-      await query("DELETE FROM pages WHERE site_slug = $1 AND slug = $2", [siteSlug, pageSlug]);
+      const site = await getSiteForSchema(siteSlug);
+      if (!site) return;
+      await ensureSiteSchema(site.id);
+      const schemaName = getSchemaName(site.id);
+      await query(`DELETE FROM "${schemaName}".pages WHERE slug = $1`, [pageSlug]);
     } catch (error) {
       console.error("Error deleting page from database:", error);
       throw error;

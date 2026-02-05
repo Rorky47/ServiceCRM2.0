@@ -147,8 +147,9 @@ ServiceCRM/
 │   ├── pages/            # Page content
 │   └── leads/            # Form submissions
 └── scripts/
-    ├── init-db.ts         # Create tables
-    └── setup-db.ts        # Auto-setup on deploy
+    ├── setup-db.ts        # Create tables, migrations, optional JSON migration
+    ├── init-data.ts       # Seed local JSON data
+    └── migrate-json-to-db.ts  # One-time JSON to Postgres
 ```
 
 ---

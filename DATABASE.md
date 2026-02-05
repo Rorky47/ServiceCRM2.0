@@ -60,49 +60,56 @@ npm run db:setup
 
 ## Database Schema
 
-### Tables
+Data is split into **public** (shared) and **per-site schemas** (site-specific).
+
+### Public schema
+
+Shared tables live in the default `public` schema:
 
 #### `sites`
 ```sql
 CREATE TABLE sites (
   id VARCHAR(255) PRIMARY KEY,
   slug VARCHAR(255) UNIQUE NOT NULL,
+  domains TEXT[] DEFAULT '{}',
   name VARCHAR(255) NOT NULL,
   theme JSONB NOT NULL,
+  seo JSONB,
+  header JSONB,
+  footer JSONB,
+  analytics JSONB,
+  notifications JSONB,
+  sociallinks JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-#### `pages`
+#### `users`
 ```sql
-CREATE TABLE pages (
-  id SERIAL PRIMARY KEY,
-  site_slug VARCHAR(255) NOT NULL,
-  slug VARCHAR(255) NOT NULL,
-  sections JSONB NOT NULL,
+CREATE TABLE users (
+  id VARCHAR(255) PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  role VARCHAR(50) NOT NULL CHECK (role IN ('siteOwner', 'superAdmin')),
+  site_slugs TEXT[] DEFAULT '{}',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(site_slug, slug)
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-#### `leads`
-```sql
-CREATE TABLE leads (
-  id VARCHAR(255) PRIMARY KEY,
-  site_slug VARCHAR(255) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  message TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### Per-site schemas
+
+Each site has its own schema named **`site_<sanitized_id>`** (e.g. `site_abc123def456`), where the id is `sites.id` with hyphens replaced by underscores and non-alphanumeric characters stripped. Inside each schema:
+
+- **`pages`** – `id`, `slug`, `sections` (JSONB), `created_at`, `updated_at` (no `site_slug`; the schema implies the site).
+- **`leads`** – `id`, `name`, `email`, `message`, `created_at` (no `site_slug`).
+
+Schema and tables are created automatically when a site is saved (`saveSite`) or when setup runs for existing sites. This gives clear separation: one site’s pages and leads live in one schema, so backup/restore or dropping a site can target that schema.
 
 ### Indexes
-- `idx_pages_site_slug` on `pages(site_slug)`
-- `idx_leads_site_slug` on `leads(site_slug)`
-- `idx_leads_created_at` on `leads(created_at DESC)`
+
+- `idx_sites_domains` on `sites` (GIN on `domains`).
+- Per-site: `idx_leads_created_at` on `"site_xxx".leads(created_at DESC)`.
 
 ## Environment Variables
 
@@ -131,7 +138,11 @@ npm run db:init
 
 4. Run migrations (if needed):
 ```bash
+# Migrate JSON files into the database
 npm run db:migrate
+
+# If you have an existing DB with old shared public.pages/public.leads, run once:
+npm run db:migrate-schemas
 ```
 
 ### Using Local PostgreSQL
@@ -185,6 +196,9 @@ All existing API endpoints work the same way:
 **Error**: "relation 'sites' does not exist"
 - **Solution**: Run `npm run db:init` to create tables
 
+**Error**: "relation 'pages' does not exist" (or similar for per-site data)
+- **Solution**: Setup creates per-site schemas for each row in `sites`. Ensure `npm run db:init` has run. If you migrated from an older DB that had `public.pages`/`public.leads`, run `npm run db:migrate-schemas` once to copy data into per-site schemas.
+
 ### SSL Errors
 
 **Error**: "SSL connection required"
@@ -218,11 +232,29 @@ All existing API endpoints work the same way:
 ✅ **Backups**: Railway provides automatic backups
 ✅ **Querying**: Can query data directly if needed
 
+## Migrating from old shared tables (public.pages / public.leads)
+
+If you have an existing database that still uses the old layout (single `public.pages` and `public.leads` with a `site_slug` column), run the one-time migration to copy data into per-site schemas and drop the old tables:
+
+```bash
+npm run db:migrate-schemas
+```
+
+This script:
+
+1. Finds all distinct `site_slug` values in `public.pages` and `public.leads`.
+2. Resolves each slug to `sites.id` and creates the schema `site_<sanitized_id>` with `pages` and `leads` tables.
+3. Copies rows from `public.pages` and `public.leads` into the corresponding per-site schema (omitting `site_slug`).
+4. Drops `public.pages` and `public.leads`.
+
+Run it **before** or right after deploying the schema-per-site code. Safe to run multiple times if the old tables are already dropped (it will exit early).
+
 ## Next Steps
 
 After setting up PostgreSQL:
 1. Initialize tables: `npm run db:init`
-2. Migrate existing data: `npm run db:migrate` (optional)
-3. Test the application
-4. Remove JSON files (after verifying everything works)
+2. Migrate JSON files (optional): `npm run db:migrate`
+3. If you had shared `public.pages`/`public.leads`: run `npm run db:migrate-schemas` once
+4. Test the application
+5. Remove JSON files (after verifying everything works)
 

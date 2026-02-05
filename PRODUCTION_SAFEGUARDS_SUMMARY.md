@@ -24,12 +24,10 @@
 - **How it works**: App continues even if non-critical components fail
 
 ### 4. Startup Verification ✅
-**File**: `scripts/start-server.ts`
-- Validates environment before starting
-- Runs database setup (non-blocking)
-- Ensures server starts successfully
-- Handles process signals gracefully
-- **How it works**: Railway runs this script on deployment
+**File**: `scripts/setup-db.ts` (used by Railway), or `scripts/start-server.ts` for unified start
+- Railway runs `SKIP_JSON_MIGRATION=true npm run db:setup && npm start` (see railway.json). Database setup is non-blocking; server starts even if DB setup fails.
+- For a single command that also validates env before starting, use `npm run start:railway` (runs start-server.ts: validate-env, setup-db, then npm start).
+- Handles process signals gracefully.
 
 ### 5. Railway Configuration ✅
 **File**: `railway.json`
@@ -136,9 +134,9 @@ Check these regularly:
 
 ### If Server Won't Start
 
-1. **Check Start Script**
-   - Verify `scripts/start-server.ts` exists
-   - Check Railway start command
+1. **Check Start Command**
+   - Railway uses `db:setup` then `npm start` (see railway.json). Verify `scripts/setup-db.ts` exists.
+   - Check Railway start command in dashboard
    - Review startup logs
 
 2. **Database Issues**
@@ -199,6 +197,12 @@ npm run validate-env
 
 ### Rollback Deployment
 - Railway Dashboard → Deployments → Find last working → Redeploy
+
+### Emergency: App Down
+1. Check Railway logs for errors and startup sequence.
+2. Verify environment variables (especially DATABASE_URL); run `npm run validate-env` locally with same vars.
+3. Hit `/api/health` to see what is failing.
+4. Rollback to last working deployment from Railway dashboard if needed.
 
 ## ✅ Current Status
 

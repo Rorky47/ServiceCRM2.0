@@ -52,13 +52,9 @@ The `railway.json` file configures Railway to:
 ## 📋 Configuration Files
 
 ### `railway.json`
-```json
-{
-  "deploy": {
-    "startCommand": "npm run db:setup && npm start"
-  }
-}
-```
+The repo uses a start command that runs database setup then starts the app. Example (see your project's railway.json):
+- `SKIP_JSON_MIGRATION=true npm run db:setup && npm start` — skips JSON migration on every deploy (faster; use after first deploy).
+- Or `npm run db:setup && npm start` for first deploy so JSON files are migrated once.
 
 This ensures database setup runs before the app starts.
 
@@ -124,6 +120,25 @@ npm run db:migrate
 # Both (what runs on deploy)
 npm run db:setup
 ```
+
+## ⚡ Build optimization
+
+- **SKIP_JSON_MIGRATION**: After your first successful deploy, set `SKIP_JSON_MIGRATION=true` in Railway so subsequent deploys skip JSON file migration (~2–3 min faster startup).
+- **First deploy**: Deploy without `SKIP_JSON_MIGRATION` once so JSON in `data/` is migrated; then add the variable.
+- **.nixpacks.toml**: Uses `npm ci --prefer-offline --no-audit --no-fund` for faster installs; Railway caches the build.
+
+## 📋 Deployment checklist
+
+Before each deploy:
+- [ ] `npm run lint` and `npm run build` pass locally
+- [ ] `npm run validate-env` (optional)
+- [ ] DATABASE_URL and any required vars set in Railway
+- [ ] After first deploy: set `SKIP_JSON_MIGRATION=true` for faster restarts
+
+After deploy:
+- [ ] Check Railway logs for "✅ Tables created/verified" or "ℹ️ Skipping JSON migration"
+- [ ] Hit `/api/health` — should return 200
+- [ ] Rollback: Railway Dashboard → Deployments → last working → Redeploy
 
 ## 🎯 Summary
 

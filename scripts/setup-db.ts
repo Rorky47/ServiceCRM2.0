@@ -1,8 +1,9 @@
 import pool from "../lib/db";
 import { query } from "../lib/db";
+import { ensureSiteSchema, getPage, getLeads, savePage, saveLead } from "../lib/data";
 
 const CREATE_TABLES = `
-  -- Sites table
+  -- Sites table (public)
   CREATE TABLE IF NOT EXISTS sites (
     id VARCHAR(255) PRIMARY KEY,
     slug VARCHAR(255) UNIQUE NOT NULL,
@@ -14,28 +15,7 @@ const CREATE_TABLES = `
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
-  -- Pages table
-  CREATE TABLE IF NOT EXISTS pages (
-    id SERIAL PRIMARY KEY,
-    site_slug VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL,
-    sections JSONB NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(site_slug, slug)
-  );
-
-  -- Leads table
-  CREATE TABLE IF NOT EXISTS leads (
-    id VARCHAR(255) PRIMARY KEY,
-    site_slug VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-
-  -- Users table
+  -- Users table (public). Pages and leads live in per-site schemas.
   CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(255) PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -45,10 +25,6 @@ const CREATE_TABLES = `
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 
-  -- Create indexes for better performance
-  CREATE INDEX IF NOT EXISTS idx_pages_site_slug ON pages(site_slug);
-  CREATE INDEX IF NOT EXISTS idx_leads_site_slug ON leads(site_slug);
-  CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_sites_domains ON sites USING GIN(domains);
 `;
 
@@ -133,6 +109,19 @@ async function setupDatabase() {
       console.log("  ⚠️  Migration check failed (this is OK if tables are new):", migrationError instanceof Error ? migrationError.message : String(migrationError));
     }
 
+    // Ensure per-site schemas exist for every site in sites table
+    try {
+      const sitesResult = await query("SELECT id FROM sites");
+      for (const row of sitesResult.rows) {
+        await ensureSiteSchema(row.id);
+      }
+      if (sitesResult.rows.length > 0) {
+        console.log(`  📂 Ensured per-site schemas for ${sitesResult.rows.length} site(s)`);
+      }
+    } catch (schemaError) {
+      console.log("  ⚠️  Per-site schema ensure failed:", schemaError instanceof Error ? schemaError.message : String(schemaError));
+    }
+
     // Migrate JSON files to database (if they exist)
     // Skip migration if SKIP_JSON_MIGRATION env var is set (for faster startup after initial migration)
     if (process.env.SKIP_JSON_MIGRATION === 'true') {
@@ -212,7 +201,7 @@ async function setupDatabase() {
       // Sites directory doesn't exist, that's fine
     }
 
-    // Migrate Pages
+    // Migrate Pages (uses per-site schemas via savePage)
     try {
       const pagesDir = path.join(DATA_DIR, "pages");
       const pageFiles = await fs.readdir(pagesDir);
@@ -225,16 +214,9 @@ async function setupDatabase() {
           const data = await fs.readFile(filePath, "utf8");
           const page = JSON.parse(data);
           
-          // Check if page already exists
-          const existing = await query(
-            "SELECT id FROM pages WHERE site_slug = $1 AND slug = $2",
-            [page.siteSlug, page.slug]
-          );
-          if (existing.rows.length === 0) {
-            await query(
-              `INSERT INTO pages (site_slug, slug, sections) VALUES ($1, $2, $3)`,
-              [page.siteSlug, page.slug, JSON.stringify(page.sections)]
-            );
+          const existing = await getPage(page.siteSlug, page.slug);
+          if (!existing) {
+            await savePage(page);
             console.log(`    ✅ Migrated page: ${page.siteSlug}/${page.slug}`);
             migrated = true;
           }
@@ -244,7 +226,7 @@ async function setupDatabase() {
       // Pages directory doesn't exist, that's fine
     }
 
-    // Migrate Leads
+    // Migrate Leads (uses per-site schemas via saveLead)
     try {
       const leadsDir = path.join(DATA_DIR, "leads");
       const leadFiles = await fs.readdir(leadsDir);
@@ -256,16 +238,14 @@ async function setupDatabase() {
           const filePath = path.join(leadsDir, file);
           const data = await fs.readFile(filePath, "utf8");
           const leads: any[] = JSON.parse(data);
-          
+          if (leads.length === 0) continue;
+          const siteSlug = leads[0].siteSlug;
+          const existingLeads = await getLeads(siteSlug);
+          const existingIds = new Set(existingLeads.map((l) => l.id));
           let migratedCount = 0;
           for (const lead of leads) {
-            // Check if lead already exists
-            const existing = await query("SELECT id FROM leads WHERE id = $1", [lead.id]);
-            if (existing.rows.length === 0) {
-              await query(
-                `INSERT INTO leads (id, site_slug, name, email, message, created_at) VALUES ($1, $2, $3, $4, $5, $6)`,
-                [lead.id, lead.siteSlug, lead.name, lead.email, lead.message, lead.createdAt]
-              );
+            if (!existingIds.has(lead.id)) {
+              await saveLead(lead);
               migratedCount++;
             }
           }

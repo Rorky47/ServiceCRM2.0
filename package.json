@@ -10,8 +10,9 @@
     "start:with-db": "tsx scripts/setup-db.ts && next start",
     "start:production": "SKIP_JSON_MIGRATION=true tsx scripts/setup-db.ts && next start",
     "lint": "next lint",
-    "db:init": "tsx scripts/init-db.ts",
+    "db:init": "tsx scripts/setup-db.ts",
     "db:migrate": "tsx scripts/migrate-json-to-db.ts",
+    "db:migrate-schemas": "tsx scripts/migrate-to-site-schemas.ts",
     "db:setup": "tsx scripts/setup-db.ts",
     "validate-env": "tsx scripts/validate-env.ts"
   },
