@@ -72,6 +72,9 @@ export type Site = {
     title?: string;
     description?: string;
     keywords?: string;
+    image?: string;
+    googleVerification?: string;
+    facebookAppId?: string;
   };
   analytics?: {
     googleAnalyticsId?: string;

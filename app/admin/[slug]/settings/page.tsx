@@ -50,6 +50,9 @@ export default function SettingsPage({ params }: SettingsPageProps) {
     seoTitle: "",
     seoDescription: "",
     seoKeywords: "",
+    seoImage: "",
+    googleVerification: "",
+    facebookAppId: "",
     domains: [] as string[],
     newDomain: "",
     googleAnalyticsId: "",
@@ -111,6 +114,9 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           seoTitle: data.seo?.title || "",
           seoDescription: data.seo?.description || "",
           seoKeywords: data.seo?.keywords || "",
+          seoImage: data.seo?.image || "",
+          googleVerification: data.seo?.googleVerification || "",
+          facebookAppId: data.seo?.facebookAppId || "",
           domains: data.domains || [],
           newDomain: "",
           googleAnalyticsId: data.analytics?.googleAnalyticsId || "",
@@ -222,6 +228,9 @@ export default function SettingsPage({ params }: SettingsPageProps) {
           title: formData.seoTitle || undefined,
           description: formData.seoDescription || undefined,
           keywords: formData.seoKeywords || undefined,
+          image: formData.seoImage || undefined,
+          googleVerification: formData.googleVerification || undefined,
+          facebookAppId: formData.facebookAppId || undefined,
         },
         analytics: {
           googleAnalyticsId: formData.googleAnalyticsId || undefined,
@@ -766,6 +775,42 @@ export default function SettingsPage({ params }: SettingsPageProps) {
                   placeholder="keyword1, keyword2, keyword3"
                 />
                 <p className="mt-1 text-xs text-gray-500">Comma-separated keywords (less important for modern SEO)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Social Share Image (OG Image)</label>
+                <input
+                  type="url"
+                  value={formData.seoImage}
+                  onChange={(e) => setFormData({ ...formData, seoImage: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="https://example.com/image.jpg"
+                />
+                <p className="mt-1 text-xs text-gray-500">Full URL of image used when sharing links on Facebook, Twitter, etc. Leave blank to use your logo.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Google Site Verification</label>
+                <input
+                  type="text"
+                  value={formData.googleVerification}
+                  onChange={(e) => setFormData({ ...formData, googleVerification: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Verification code from Google Search Console"
+                />
+                <p className="mt-1 text-xs text-gray-500">Paste the content value from the meta tag Google Search Console gives you.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Facebook App ID</label>
+                <input
+                  type="text"
+                  value={formData.facebookAppId}
+                  onChange={(e) => setFormData({ ...formData, facebookAppId: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="123456789012345"
+                />
+                <p className="mt-1 text-xs text-gray-500">Optional. Used for Facebook domain verification and link previews.</p>
               </div>
             </div>
           </div>

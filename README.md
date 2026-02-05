@@ -43,6 +43,14 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 If not set, images will use base64 data URLs (works for MVP).
 
+## Google / Facebook integration (custom domains)
+
+When you DNS-route your domain to the app, the site uses the **public** (custom) URL for SEO and sharing:
+
+- **Canonical URL and Open Graph** – If you set a primary domain in Admin → Settings → Domains, canonical and `og:url` use that domain so Google and Facebook see your brand URL.
+- **Analytics** – In Admin → Settings → **Analytics**, enter your Google Analytics 4 ID (e.g. `G-XXXXXXXXXX`), Google Tag Manager ID (e.g. `GTM-XXXXXXX`), and/or Facebook Pixel ID. Scripts are injected automatically; no need to paste snippets in custom head code. Clear the field and save to disable a provider.
+- **SEO & verification** – In Admin → Settings → **SEO** you can set a social share image (OG image), Google Site Verification meta (from Search Console), and Facebook App ID for domain verification and link previews.
+
 ## Deployment
 
 **Railway (recommended):** See [RAILWAY_SETUP.md](RAILWAY_SETUP.md) for setup. Railway runs `db:setup` then `npm start` on each deploy; set `DATABASE_URL` and optionally `SKIP_JSON_MIGRATION=true` after first deploy.

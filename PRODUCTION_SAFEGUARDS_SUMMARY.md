@@ -78,6 +78,10 @@ Before every production deployment:
    - DATABASE_URL format correct
    - Optional vars documented
 
+4. **Integrations (optional)**
+   - GA4 / GTM / Facebook Pixel: set in Admin → Settings → Analytics; scripts inject automatically.
+   - Custom domain: set primary domain in Admin → Settings → Domains so canonical and Open Graph use your URL.
+
 4. **Review Changes**
    - Code reviewed
    - No breaking changes
