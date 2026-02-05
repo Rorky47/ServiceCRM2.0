@@ -27,8 +27,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors[0];
-      const message = firstError?.message ?? "Validation failed";
+      const firstIssue = error.issues[0];
+      const message = firstIssue?.message ?? "Validation failed";
       return NextResponse.json({ error: message }, { status: 400 });
     }
     console.error("Error saving lead:", error);
