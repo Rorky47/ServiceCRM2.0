@@ -3,10 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Site } from "@/types";
 import FooterRenderer from "./FooterRenderer";
-
-// Preset spacing system - all spacing uses multiples of 40px
-const PRESET_SPACING_UNIT = 40; // Base unit in pixels
-const getPresetSpacing = (multiplier: number): number => multiplier * PRESET_SPACING_UNIT;
+import { getPresetSpacing } from "@/lib/constants";
 import {
   DndContext,
   closestCenter,

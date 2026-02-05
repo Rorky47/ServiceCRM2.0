@@ -64,17 +64,29 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug, them
     setEditing(null);
   };
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
   const handleImageUpload = () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = "image/jpeg,image/png,image/webp";
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
-      
+
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        alert("Invalid file type. Use JPEG, PNG, or WebP.");
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File too large. Max 5 MB.");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", file);
-      
+
       try {
         const response = await fetch("/api/cloudinary", {
           method: "POST",
@@ -86,6 +98,8 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug, them
             ...section,
             content: { ...section.content, image: data.url },
           });
+        } else {
+          alert(data.error || "Upload failed.");
         }
       } catch (error) {
         console.error("Error uploading image:", error);

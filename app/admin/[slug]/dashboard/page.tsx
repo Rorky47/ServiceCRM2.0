@@ -8,7 +8,7 @@ interface DashboardProps {
 export default async function AdminDashboard({ params }: DashboardProps) {
   const site = await getSite(params.slug);
   const pages = await getAllPages(params.slug);
-  const leads = await getLeads(params.slug);
+  const leads = await getLeads(params.slug, 10, 0);
 
   if (!site) {
     return <div>Site not found</div>;

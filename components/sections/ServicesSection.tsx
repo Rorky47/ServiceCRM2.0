@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Section } from "@/types";
+import { GRID_DEFAULTS } from "@/lib/constants";
 import RichTextEditor from "@/components/RichTextEditor";
 import RichTextDisplay from "@/components/RichTextDisplay";
 import OptimizedImage from "@/components/OptimizedImage";
@@ -210,7 +211,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
   };
 
   const backgroundColor = section.content.backgroundColor || "#ffffff";
-  const columns = section.content.columns ?? 3;
+  const columns = section.content.columns ?? GRID_DEFAULTS.servicesColumns;
   const gridColsClass =
     columns === 1
       ? "grid-cols-1"

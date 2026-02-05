@@ -6,14 +6,11 @@ import SocialIcon from "@/components/SocialIcon";
 import OptimizedImage from "@/components/OptimizedImage";
 import SmartLink from "@/components/SmartLink";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
+import { getPresetSpacing } from "@/lib/constants";
 
 interface FooterRendererProps {
   site: Site;
 }
-
-// Preset spacing system - all spacing uses multiples of 40px
-const PRESET_SPACING_UNIT = 40; // Base unit in pixels
-const getPresetSpacing = (multiplier: number): number => multiplier * PRESET_SPACING_UNIT;
 
 export default function FooterRenderer({ site }: FooterRendererProps) {
   if (!site.footer) return null;

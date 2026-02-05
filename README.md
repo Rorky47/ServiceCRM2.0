@@ -34,7 +34,9 @@ npm run dev
 
 ## Environment Variables (Optional)
 
-For Cloudinary image uploads:
+**API key (mutations):** Set `API_KEY` in your environment. Requests to `POST /api/pages`, `DELETE /api/pages`, and `POST /api/sites` must include header `x-api-key: <API_KEY>`. If `API_KEY` is not set, those endpoints return 503 (API key not configured). The contact form (`POST /api/leads`) remains public.
+
+**Cloudinary image uploads:**
 ```
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key

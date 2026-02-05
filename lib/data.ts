@@ -25,7 +25,16 @@ if (!USE_DATABASE) {
 
 /** Sanitize site id to a valid PostgreSQL schema name: site_<sanitized_id> */
 export function getSchemaName(siteId: string): string {
-  const sanitized = siteId.replace(/-/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase();
+  const sanitized = siteId
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  if (!sanitized || sanitized.length > 63) {
+    throw new Error("Invalid site slug");
+  }
+
   return `site_${sanitized}`;
 }
 
@@ -181,9 +190,12 @@ export async function getAllSites(): Promise<Site[]> {
       // Try to get all columns, fallback if some don't exist
       let result;
       try {
-        result = await query('SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks FROM sites ORDER BY name');
+        result = await query('SELECT id, slug, domains, name, theme, seo, header, footer, analytics, notifications, sociallinks FROM sites ORDER BY name LIMIT 1000');
       } catch {
-        result = await query("SELECT id, slug, name, theme, seo FROM sites ORDER BY name");
+        result = await query("SELECT id, slug, name, theme, seo FROM sites ORDER BY name LIMIT 1000");
+      }
+      if (result.rows.length === 1000) {
+        console.warn("Site limit reached (1000); consider pagination");
       }
       return result.rows.map((row) => ({
         id: row.id,
@@ -375,7 +387,7 @@ export async function savePage(page: Page): Promise<void> {
 
 // ==================== LEADS ====================
 
-export async function getLeads(siteSlug: string): Promise<Lead[]> {
+export async function getLeads(siteSlug: string, limit = 50, offset = 0): Promise<Lead[]> {
   if (USE_DATABASE) {
     try {
       const site = await getSiteForSchema(siteSlug);
@@ -383,8 +395,8 @@ export async function getLeads(siteSlug: string): Promise<Lead[]> {
       await ensureSiteSchema(site.id);
       const schemaName = getSchemaName(site.id);
       const result = await query(
-        `SELECT id, name, email, message, created_at FROM "${schemaName}".leads ORDER BY created_at DESC`,
-        []
+        `SELECT id, name, email, message, created_at FROM "${schemaName}".leads ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+        [limit, offset]
       );
       return result.rows.map((row) => ({
         id: row.id,
@@ -404,7 +416,8 @@ export async function getLeads(siteSlug: string): Promise<Lead[]> {
     try {
       const filePath = pathModule.join(DATA_DIR, "leads", `${siteSlug}.json`);
       const data = await fs.readFile(filePath, "utf8");
-      return JSON.parse(data);
+      const all = JSON.parse(data) as Lead[];
+      return all.slice(offset, offset + limit);
     } catch {
       return [];
     }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Site, Page, Section } from "@/types";
+import { MOBILE_WIDTHS, GRID_DEFAULTS, type MobileWidthValue } from "@/lib/constants";
 import SectionRenderer from "./SectionRenderer";
 import HeaderRenderer from "./HeaderRenderer";
 import FooterRenderer from "./FooterRenderer";
@@ -96,7 +97,52 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
   const [saving, setSaving] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
-  const [mobileWidth, setMobileWidth] = useState<375 | 390 | 428>(375); // Common mobile widths
+  const [mobileWidth, setMobileWidth] = useState<MobileWidthValue>(MOBILE_WIDTHS.iphoneSe);
+
+  const pageRef = useRef(page);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const SAVE_DEBOUNCE_MS = 1000;
+
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const flushPageSave = () => {
+    saveTimeoutRef.current = null;
+    setSaving(true);
+    const toSave = pageRef.current;
+    fetch("/api/pages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(toSave),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.error("Failed to save page");
+        }
+      })
+      .catch((error) => {
+        console.error("Error saving page:", error);
+      })
+      .finally(() => {
+        setSaving(false);
+      });
+  };
+
+  const schedulePageSave = () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(flushPageSave, SAVE_DEBOUNCE_MS);
+  };
 
   const handleSiteUpdate = async (updatedSite: Site) => {
     setSite(updatedSite);
@@ -124,30 +170,15 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
     })
   );
 
-  const handleSectionUpdate = async (updatedSection: Section) => {
+  const handleSectionUpdate = (updatedSection: Section) => {
     const currentSections = page.sections || [];
     const newSections = currentSections.map((s) =>
       s.id === updatedSection.id ? updatedSection : s
     );
     const updatedPage = { ...page, sections: newSections };
     setPage(updatedPage);
-
-    // Persist immediately
-    setSaving(true);
-    try {
-      const response = await fetch("/api/pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedPage),
-      });
-      if (!response.ok) {
-        console.error("Failed to save page");
-      }
-    } catch (error) {
-      console.error("Error saving page:", error);
-    } finally {
-      setSaving(false);
-    }
+    pageRef.current = updatedPage;
+    schedulePageSave();
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -163,52 +194,19 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
     }
   };
 
-  const handleSectionsReorder = async (newSections: Section[]) => {
+  const handleSectionsReorder = (newSections: Section[]) => {
     const updatedPage = { ...page, sections: newSections };
     setPage(updatedPage);
-
-    setSaving(true);
-    try {
-      const response = await fetch("/api/pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedPage),
-      });
-      if (!response.ok) {
-        console.error("Failed to save page");
-      }
-    } catch (error) {
-      console.error("Error saving page:", error);
-    } finally {
-      setSaving(false);
-    }
+    pageRef.current = updatedPage;
+    schedulePageSave();
   };
 
-  const handleDeleteSection = async (sectionId: string) => {
+  const handleDeleteSection = (sectionId: string) => {
     const currentSections = page.sections || [];
     const updatedPage = { ...page, sections: currentSections.filter((s) => s.id !== sectionId) };
     setPage(updatedPage);
-
-    // Save to server
-    setSaving(true);
-    try {
-      const response = await fetch("/api/pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedPage),
-      });
-      if (!response.ok) {
-        console.error("Failed to save page");
-        // Revert on error
-        setPage(page);
-      }
-    } catch (error) {
-      console.error("Error saving page:", error);
-      // Revert on error
-      setPage(page);
-    } finally {
-      setSaving(false);
-    }
+    pageRef.current = updatedPage;
+    schedulePageSave();
   };
 
   const handleAddSection = (sectionType: Section["type"]) => {
@@ -234,7 +232,7 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
           content: {
             title: "Our Services",
             items: [],
-            columns: 3,
+            columns: GRID_DEFAULTS.servicesColumns,
           },
         };
         break;
@@ -276,26 +274,9 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
     const currentSections = page.sections || [];
     const updatedPage = { ...page, sections: [...currentSections, newSection] };
     setPage(updatedPage);
+    pageRef.current = updatedPage;
     setShowAddSectionModal(false);
-
-    // Save to server
-    setSaving(true);
-    fetch("/api/pages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedPage),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error("Failed to save page");
-        }
-      })
-      .catch((error) => {
-        console.error("Error saving page:", error);
-      })
-      .finally(() => {
-        setSaving(false);
-      });
+    schedulePageSave();
   };
 
   return (
@@ -322,13 +303,13 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
               {mobilePreview && (
                 <select
                   value={mobileWidth}
-                  onChange={(e) => setMobileWidth(Number(e.target.value) as 375 | 390 | 428)}
+                  onChange={(e) => setMobileWidth(Number(e.target.value) as MobileWidthValue)}
                   className="px-2 py-1 rounded text-xs bg-white/90 text-gray-800 border border-gray-300 touch-manipulation"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <option value={375}>iPhone SE (375px)</option>
-                  <option value={390}>iPhone 12/13 (390px)</option>
-                  <option value={428}>iPhone 14 Pro Max (428px)</option>
+                  <option value={MOBILE_WIDTHS.iphoneSe}>iPhone SE (375px)</option>
+                  <option value={MOBILE_WIDTHS.iphone12}>iPhone 12/13 (390px)</option>
+                  <option value={MOBILE_WIDTHS.iphone14ProMax}>iPhone 14 Pro Max (428px)</option>
                 </select>
               )}
             </div>
@@ -402,9 +383,10 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
                 <p className="text-gray-600 mb-6">Add your first section to get started</p>
                 <button
                   onClick={() => setShowAddSectionModal(true)}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 text-lg font-medium"
+                  disabled={saving}
+                  className={`bg-blue-600 text-white px-6 py-3 rounded-lg text-lg font-medium ${saving ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
                 >
-                  + Add Section
+                  {saving ? "Saving..." : "+ Add Section"}
                 </button>
               </div>
             </div>
@@ -436,9 +418,10 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
               <button
                 onClick={() => setShowAddSectionModal(true)}
-                className="bg-blue-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-lg shadow-lg hover:bg-blue-700 font-medium text-sm sm:text-base touch-manipulation"
+                disabled={saving}
+                className={`bg-blue-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-lg shadow-lg font-medium text-sm sm:text-base touch-manipulation ${saving ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
               >
-                + Add Section
+                {saving ? "Saving..." : "+ Add Section"}
               </button>
               <a
                 href={`/admin/${site.slug}/leads`}
@@ -471,35 +454,40 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={() => handleAddSection("hero")}
-                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
+                disabled={saving}
+                className={`p-3 sm:p-4 border-2 border-gray-200 rounded-lg transition-colors text-left touch-manipulation ${saving ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500 hover:bg-blue-50"}`}
               >
                 <div className="font-semibold text-gray-900 text-sm sm:text-base">Hero</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-1">Large banner with headline</div>
               </button>
               <button
                 onClick={() => handleAddSection("services")}
-                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
+                disabled={saving}
+                className={`p-3 sm:p-4 border-2 border-gray-200 rounded-lg transition-colors text-left touch-manipulation ${saving ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500 hover:bg-blue-50"}`}
               >
                 <div className="font-semibold text-gray-900 text-sm sm:text-base">Services</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-1">Service cards grid</div>
               </button>
               <button
                 onClick={() => handleAddSection("textImage")}
-                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
+                disabled={saving}
+                className={`p-3 sm:p-4 border-2 border-gray-200 rounded-lg transition-colors text-left touch-manipulation ${saving ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500 hover:bg-blue-50"}`}
               >
                 <div className="font-semibold text-gray-900 text-sm sm:text-base">Text & Image</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-1">Content with image</div>
               </button>
               <button
                 onClick={() => handleAddSection("intro")}
-                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
+                disabled={saving}
+                className={`p-3 sm:p-4 border-2 border-gray-200 rounded-lg transition-colors text-left touch-manipulation ${saving ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500 hover:bg-blue-50"}`}
               >
                 <div className="font-semibold text-gray-900 text-sm sm:text-base">Intro</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-1">Subtitle, title and body text</div>
               </button>
               <button
                 onClick={() => handleAddSection("contact")}
-                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
+                disabled={saving}
+                className={`p-3 sm:p-4 border-2 border-gray-200 rounded-lg transition-colors text-left touch-manipulation ${saving ? "opacity-50 cursor-not-allowed" : "hover:border-blue-500 hover:bg-blue-50"}`}
               >
                 <div className="font-semibold text-gray-900 text-sm sm:text-base">Contact</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-1">Contact form</div>
