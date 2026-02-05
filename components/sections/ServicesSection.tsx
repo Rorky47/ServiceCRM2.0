@@ -103,7 +103,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
     const newItems = [...items].map((s, i) => (i === index ? updater(s) : s));
     onUpdate({
       ...section,
-      content: { ...section.content, items: newItems.map(({ id: _id, ...rest }) => rest) },
+      content: { ...section.content, items: newItems.map((item) => (({ id, ...rest }) => rest)(item)) },
     });
   }
 
@@ -167,10 +167,10 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
       onSiteUpdate({ ...site, services: [...(site.services ?? []), newService] });
       return;
     }
-    const newItems = [...items, { title: "New Service", description: "", image: "", color: "" }];
+    const newItems = [...items, { id: `legacy-${items.length}`, title: "New Service", description: "", image: "", color: "" }];
     onUpdate({
       ...section,
-      content: { ...section.content, items: newItems.map(({ id: _id, ...rest }) => rest) },
+      content: { ...section.content, items: newItems.map((item) => (({ id, ...rest }) => rest)(item)) },
     });
   };
 
@@ -194,7 +194,7 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, 
     const newItems = items.filter((_, i) => i !== index);
     onUpdate({
       ...section,
-      content: { ...section.content, items: newItems.map(({ id: _id, ...rest }) => rest) },
+      content: { ...section.content, items: newItems.map((item) => (({ id, ...rest }) => rest)(item)) },
     });
   };
 
