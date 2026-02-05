@@ -12,9 +12,10 @@ interface ServicesSectionProps {
   isAdmin: boolean;
   onUpdate: (section: Section) => void;
   siteSlug: string;
+  themeColor?: string;
 }
 
-export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }: ServicesSectionProps) {
+export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug, themeColor }: ServicesSectionProps) {
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [editingServiceIndex, setEditingServiceIndex] = useState<number | null>(null);
@@ -40,6 +41,16 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
       onUpdate({
         ...section,
         content: { ...section.content, title: tempValue },
+      });
+    } else if (editing === "subtitle") {
+      onUpdate({
+        ...section,
+        content: { ...section.content, subtitle: tempValue },
+      });
+    } else if (editing === "introText") {
+      onUpdate({
+        ...section,
+        content: { ...section.content, introText: tempValue },
       });
     } else if (editing?.startsWith("service-title-")) {
       const index = parseInt(editing.split("-")[2]);
@@ -199,6 +210,15 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
   };
 
   const backgroundColor = section.content.backgroundColor || "#ffffff";
+  const columns = section.content.columns ?? 3;
+  const gridColsClass =
+    columns === 1
+      ? "grid-cols-1"
+      : columns === 2
+        ? "grid-cols-1 sm:grid-cols-2"
+        : columns === 4
+          ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3";
 
   return (
     <section
@@ -245,9 +265,68 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                     </button>
                   </div>
                 </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Columns</label>
+                  <select
+                    value={columns}
+                    onChange={(e) =>
+                      onUpdate({
+                        ...section,
+                        content: {
+                          ...section.content,
+                          columns: parseInt(e.target.value, 10) as 1 | 2 | 3 | 4,
+                        },
+                      })
+                    }
+                    className="w-full px-2 py-1 text-xs border rounded"
+                  >
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                    <option value={4}>4</option>
+                  </select>
+                </div>
               </div>
             )}
           </div>
+        )}
+
+        {/* Subtitle */}
+        {(editing === "subtitle" || section.content.subtitle != null) && (
+          <>
+            {editing === "subtitle" ? (
+              <input
+                type="text"
+                value={tempValue}
+                onChange={(e) => setTempValue(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSave())}
+                className="w-full text-sm text-gray-500 mb-2 bg-gray-100 p-2 rounded text-center mx-auto max-w-xl block"
+                placeholder="Subtitle"
+                autoFocus
+              />
+            ) : (
+              <p
+                onClick={() => isAdmin && (setEditing("subtitle"), setTempValue(section.content.subtitle || ""))}
+                className={`text-sm text-gray-500 mb-2 text-center ${
+                  isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded max-w-xl mx-auto" : ""
+                }`}
+              >
+                {section.content.subtitle || (isAdmin ? "Click to add subtitle..." : "")}
+              </p>
+            )}
+          </>
+        )}
+        {isAdmin && section.content.subtitle == null && editing !== "subtitle" && (
+          <button
+            onClick={() => {
+              setEditing("subtitle");
+              setTempValue("");
+            }}
+            className="block mx-auto mb-2 text-sm text-gray-400 hover:text-gray-600"
+          >
+            + Add subtitle
+          </button>
         )}
 
         {/* Title */}
@@ -262,13 +341,13 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                 handleSave();
               }
             }}
-            className="w-full text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-10 md:mb-12 bg-gray-100 p-3 sm:p-4 rounded"
+            className="w-full text-2xl sm:text-3xl md:text-4xl font-bold mb-4 bg-gray-100 p-3 sm:p-4 rounded"
             autoFocus
           />
         ) : (
           <h2
             onClick={handleTitleClick}
-            className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-10 md:mb-12 text-center px-2 ${
+            className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-center px-2 ${
               isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded" : ""
             }`}
           >
@@ -276,8 +355,51 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
           </h2>
         )}
 
+        {/* Intro text */}
+        {(editing === "introText" || section.content.introText != null) && (
+          <>
+            {editing === "introText" ? (
+              <div className="mb-8 max-w-3xl mx-auto">
+                <RichTextEditor
+                  value={tempValue}
+                  onChange={setTempValue}
+                  onBlur={handleSave}
+                  placeholder="Intro paragraph..."
+                  className="mb-2"
+                />
+              </div>
+            ) : (
+              <div
+                onClick={() =>
+                  isAdmin && (setEditing("introText"), setTempValue(section.content.introText || ""))
+                }
+                className={`text-center text-gray-600 mb-8 sm:mb-10 max-w-3xl mx-auto ${
+                  isAdmin ? "cursor-pointer hover:bg-gray-100 p-4 rounded min-h-[40px]" : ""
+                }`}
+              >
+                {section.content.introText ? (
+                  <RichTextDisplay content={section.content.introText} />
+                ) : (
+                  isAdmin && <span className="text-gray-400">Click to add intro paragraph...</span>
+                )}
+              </div>
+            )}
+          </>
+        )}
+        {isAdmin && section.content.introText == null && editing !== "introText" && (
+          <button
+            onClick={() => {
+              setEditing("introText");
+              setTempValue("");
+            }}
+            className="block mx-auto mb-8 text-sm text-gray-400 hover:text-gray-600"
+          >
+            + Add intro paragraph
+          </button>
+        )}
+
         {/* Services Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+        <div className={`grid ${gridColsClass} gap-4 sm:gap-6 md:gap-8`}>
           {items.map((item, index) => (
             <div
               key={index}
@@ -527,7 +649,12 @@ export default function ServicesSection({ section, isAdmin, onUpdate, siteSlug }
                     <SmartLink
                       href={item.button.link}
                       siteSlug={siteSlug}
-                      className="inline-block w-full text-center px-4 py-2.5 sm:py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base touch-manipulation"
+                      className={
+                        themeColor
+                          ? "inline-block w-full text-center px-4 py-2.5 sm:py-2 text-white font-semibold rounded-lg hover:opacity-90 transition-colors text-sm sm:text-base touch-manipulation"
+                          : "inline-block w-full text-center px-4 py-2.5 sm:py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base touch-manipulation"
+                      }
+                      style={themeColor ? { backgroundColor: themeColor } : undefined}
                     >
                       {item.button.text}
                     </SmartLink>

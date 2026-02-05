@@ -223,6 +223,7 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             headline: "Welcome",
             subheadline: "Add your subheadline here",
             image: "",
+            textAlign: "center",
           },
         };
         break;
@@ -233,6 +234,7 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
           content: {
             title: "Our Services",
             items: [],
+            columns: 3,
           },
         };
         break;
@@ -244,6 +246,16 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             title: "Section Title",
             text: "Add your text here",
             image: "",
+            imagePosition: "right",
+          },
+        };
+        break;
+      case "intro":
+        newSection = {
+          id: `section-${Date.now()}`,
+          type: "intro",
+          content: {
+            title: "Section Title",
           },
         };
         break;
@@ -414,6 +426,7 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
                     onUpdate={handleSectionUpdate}
                     onDelete={handleDeleteSection}
                     siteSlug={site.slug}
+                    themeColor={site.theme?.primaryColor}
                   />
                 ))}
               </SortableContext>
@@ -444,6 +457,7 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
             isAdmin={isAdmin}
             onUpdate={handleSectionUpdate}
             siteSlug={site.slug}
+            themeColor={site.theme?.primaryColor}
           />
         ))
       )}
@@ -475,6 +489,13 @@ export default function PageRenderer({ site: initialSite, page: initialPage, isA
               >
                 <div className="font-semibold text-gray-900 text-sm sm:text-base">Text & Image</div>
                 <div className="text-xs sm:text-sm text-gray-500 mt-1">Content with image</div>
+              </button>
+              <button
+                onClick={() => handleAddSection("intro")}
+                className="p-3 sm:p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left touch-manipulation"
+              >
+                <div className="font-semibold text-gray-900 text-sm sm:text-base">Intro</div>
+                <div className="text-xs sm:text-sm text-gray-500 mt-1">Subtitle, title and body text</div>
               </button>
               <button
                 onClick={() => handleAddSection("contact")}

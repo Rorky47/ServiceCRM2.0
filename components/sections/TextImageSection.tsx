@@ -18,6 +18,7 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug,
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [showImageControls, setShowImageControls] = useState(false);
+  const [showLayoutControls, setShowLayoutControls] = useState(false);
   const [showTitleColorPicker, setShowTitleColorPicker] = useState(false);
   const [showTextColorPicker, setShowTextColorPicker] = useState(false);
 
@@ -35,6 +36,11 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug,
       onUpdate({
         ...section,
         content: { ...section.content, title: tempValue },
+      });
+    } else if (editing === "subtitle") {
+      onUpdate({
+        ...section,
+        content: { ...section.content, subtitle: tempValue },
       });
     } else if (editing === "text") {
       onUpdate({
@@ -111,12 +117,17 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug,
 
   const titleColor = section.content.titleColor || defaultThemeColor;
   const textColor = section.content.textColor || defaultThemeColor;
+  const imagePosition = section.content.imagePosition || "right";
+  const backgroundColor = section.content.backgroundColor;
+  const textOrder = imagePosition === "left" ? "order-2 md:order-2" : "order-2 md:order-1";
+  const imageOrder = imagePosition === "left" ? "order-1 md:order-1" : "order-1 md:order-2";
 
   return (
     <section
       className={`relative py-12 sm:py-16 md:py-20 px-4 sm:px-6 ${
         isAdmin ? "border-2 border-dashed border-blue-500" : ""
       }`}
+      style={backgroundColor ? { backgroundColor } : undefined}
     >
       {/* Admin Controls */}
       {isAdmin && (
@@ -188,6 +199,78 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug,
               )}
             </div>
 
+            {/* Layout */}
+            <div className="bg-white rounded-lg shadow-lg p-1.5 sm:p-2">
+              <button
+                onClick={() => setShowLayoutControls(!showLayoutControls)}
+                className="text-xs sm:text-sm font-semibold text-gray-700 mb-1"
+              >
+                📐 Layout {showLayoutControls ? "▼" : "▶"}
+              </button>
+              {showLayoutControls && (
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-0.5">Image position</label>
+                    <select
+                      value={imagePosition}
+                      onChange={(e) =>
+                        onUpdate({
+                          ...section,
+                          content: {
+                            ...section.content,
+                            imagePosition: e.target.value as "left" | "right",
+                          },
+                        })
+                      }
+                      className="w-full px-1.5 py-1 text-xs border rounded"
+                    >
+                      <option value="left">Left</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-0.5">Background color</label>
+                    <div className="flex gap-1">
+                      <input
+                        type="color"
+                        value={backgroundColor || "#ffffff"}
+                        onChange={(e) =>
+                          onUpdate({
+                            ...section,
+                            content: { ...section.content, backgroundColor: e.target.value },
+                          })
+                        }
+                        className="h-6 w-12 cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={backgroundColor || ""}
+                        onChange={(e) =>
+                          onUpdate({
+                            ...section,
+                            content: { ...section.content, backgroundColor: e.target.value || undefined },
+                          })
+                        }
+                        placeholder="Section background"
+                        className="flex-1 px-1.5 py-1 text-xs border rounded"
+                      />
+                      <button
+                        onClick={() =>
+                          onUpdate({
+                            ...section,
+                            content: { ...section.content, backgroundColor: undefined },
+                          })
+                        }
+                        className="px-1.5 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Text Color */}
             <div className="bg-white rounded-lg shadow-lg p-1.5 sm:p-2">
               <button
@@ -224,7 +307,40 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug,
       )}
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
-        <div className="order-2 md:order-1">
+        <div className={textOrder}>
+          {(editing === "subtitle" || section.content.subtitle != null) && (
+            <>
+              {editing === "subtitle" ? (
+                <input
+                  type="text"
+                  value={tempValue}
+                  onChange={(e) => setTempValue(e.target.value)}
+                  onBlur={handleSave}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSave())}
+                  className="w-full text-sm text-gray-500 mb-2 bg-gray-100 p-2 rounded"
+                  placeholder="Subtitle"
+                  autoFocus
+                />
+              ) : (
+                <p
+                  onClick={() => handleClick("subtitle", section.content.subtitle || "")}
+                  className={`text-sm text-gray-500 mb-2 ${
+                    isAdmin ? "cursor-pointer hover:bg-gray-100 p-2 rounded" : ""
+                  }`}
+                >
+                  {section.content.subtitle || (isAdmin ? "Click to add subtitle..." : "")}
+                </p>
+              )}
+            </>
+          )}
+          {isAdmin && section.content.subtitle == null && editing !== "subtitle" && (
+            <button
+              onClick={() => handleClick("subtitle", "")}
+              className="text-sm text-gray-400 hover:text-gray-600 mb-2"
+            >
+              + Add subtitle
+            </button>
+          )}
           {editing === "title" ? (
             <textarea
               value={tempValue}
@@ -270,7 +386,7 @@ export default function TextImageSection({ section, isAdmin, onUpdate, siteSlug,
             </div>
           )}
         </div>
-        <div className="relative h-64 sm:h-80 md:h-96 order-1 md:order-2">
+        <div className={`relative h-64 sm:h-80 md:h-96 ${imageOrder}`}>
           {section.content.image ? (
             <OptimizedImage
               src={section.content.image}

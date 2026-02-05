@@ -60,6 +60,9 @@ export default async function SectionsPage({ params, searchParams }: SectionsPag
                   {section.type === "textImage" && section.content.title && (
                     <p className="text-sm text-gray-500">{section.content.title}</p>
                   )}
+                  {section.type === "intro" && section.content.title && (
+                    <p className="text-sm text-gray-500">{section.content.title}</p>
+                  )}
                   {section.type === "contact" && section.content.title && (
                     <p className="text-sm text-gray-500">{section.content.title}</p>
                   )}

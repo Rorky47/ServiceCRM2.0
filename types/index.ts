@@ -7,6 +7,9 @@ export type Section =
         subheadline: string;
         image: string;
         backgroundColor?: string;
+        textAlign?: "left" | "center" | "right";
+        minHeight?: "full" | "large" | "medium";
+        overlayOpacity?: number;
         ctaButton?: {
           text: string;
           link: string;
@@ -18,6 +21,9 @@ export type Section =
       type: "services";
       content: {
         title: string;
+        subtitle?: string;
+        introText?: string;
+        columns?: 1 | 2 | 3 | 4;
         backgroundColor?: string;
         items: Array<{
           title: string;
@@ -38,8 +44,22 @@ export type Section =
         title: string;
         text: string;
         image: string;
+        subtitle?: string;
+        imagePosition?: "left" | "right";
+        backgroundColor?: string;
         titleColor?: string;
         textColor?: string;
+      };
+    }
+  | {
+      id: string;
+      type: "intro";
+      content: {
+        subtitle?: string;
+        title: string;
+        body?: string;
+        textAlign?: "left" | "center" | "right";
+        backgroundColor?: string;
       };
     }
   | {

@@ -10,14 +10,16 @@ interface HeroSectionProps {
   isAdmin: boolean;
   onUpdate: (section: Section) => void;
   siteSlug: string;
+  themeColor?: string;
 }
 
-export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: HeroSectionProps) {
+export default function HeroSection({ section, isAdmin, onUpdate, siteSlug, themeColor }: HeroSectionProps) {
   const [editing, setEditing] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState("");
   const [showImageControls, setShowImageControls] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showCTAEditor, setShowCTAEditor] = useState(false);
+  const [showLayoutControls, setShowLayoutControls] = useState(false);
 
   const handleClick = (field: string, currentValue: string) => {
     if (!isAdmin) return;
@@ -128,10 +130,22 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
 
   const backgroundColor = section.content.backgroundColor || "#000000";
   const hasImage = !!section.content.image;
+  const textAlign = section.content.textAlign || "center";
+  const minHeight = section.content.minHeight || "full";
+  const overlayOpacity = section.content.overlayOpacity ?? 0.4;
+  const minHeightClass =
+    minHeight === "medium"
+      ? "min-h-[50vh]"
+      : minHeight === "large"
+        ? "min-h-[75vh]"
+        : "min-h-[50vh] sm:min-h-screen";
+  const alignClass = textAlign === "left" ? "text-left" : textAlign === "right" ? "text-right" : "text-center";
+  const contentAlignClass =
+    textAlign === "left" ? "items-start" : textAlign === "right" ? "items-end" : "items-center";
 
   return (
     <section
-      className={`relative min-h-[50vh] sm:min-h-screen flex items-center justify-center overflow-hidden ${
+      className={`relative ${minHeightClass} flex ${contentAlignClass} justify-center overflow-hidden ${
         isAdmin ? "border-2 border-dashed border-blue-500" : ""
       }`}
       style={{
@@ -204,6 +218,80 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
                 >
                   Clear (use overlay)
                 </button>
+              </div>
+            )}
+          </div>
+
+          {/* Layout */}
+          <div className="bg-white rounded-lg shadow-lg p-1.5 sm:p-2">
+            <button
+              onClick={() => setShowLayoutControls(!showLayoutControls)}
+              className="text-xs sm:text-sm font-semibold text-gray-700 mb-1"
+            >
+              📐 Layout {showLayoutControls ? "▼" : "▶"}
+            </button>
+            {showLayoutControls && (
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-0.5">Text align</label>
+                  <select
+                    value={textAlign}
+                    onChange={(e) =>
+                      onUpdate({
+                        ...section,
+                        content: {
+                          ...section.content,
+                          textAlign: e.target.value as "left" | "center" | "right",
+                        },
+                      })
+                    }
+                    className="w-full px-1.5 py-1 text-xs border rounded"
+                  >
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-0.5">Height</label>
+                  <select
+                    value={minHeight}
+                    onChange={(e) =>
+                      onUpdate({
+                        ...section,
+                        content: {
+                          ...section.content,
+                          minHeight: e.target.value as "full" | "large" | "medium",
+                        },
+                      })
+                    }
+                    className="w-full px-1.5 py-1 text-xs border rounded"
+                  >
+                    <option value="full">Full screen</option>
+                    <option value="large">Large (75vh)</option>
+                    <option value="medium">Medium (50vh)</option>
+                  </select>
+                </div>
+                {hasImage && (
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-0.5">Overlay darkness</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={overlayOpacity}
+                      onChange={(e) =>
+                        onUpdate({
+                          ...section,
+                          content: { ...section.content, overlayOpacity: parseFloat(e.target.value) },
+                        })
+                      }
+                      className="w-full"
+                    />
+                    <span className="text-xs text-gray-500">{Math.round(overlayOpacity * 100)}%</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -312,12 +400,19 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
         )}
         {/* Overlay - only show if there's an image and no custom background color */}
         {hasImage && !section.content.backgroundColor && (
-          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="absolute inset-0 bg-black"
+            style={{ opacity: overlayOpacity }}
+          />
         )}
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white px-4 sm:px-6 max-w-4xl mx-auto w-full py-8 sm:py-12">
+      <div
+        className={`relative z-10 text-white px-4 sm:px-6 max-w-4xl w-full py-8 sm:py-12 ${alignClass} ${
+          textAlign === "left" ? "mr-auto" : textAlign === "right" ? "ml-auto" : "mx-auto"
+        }`}
+      >
         {editing === "headline" ? (
           <textarea
             value={tempValue}
@@ -380,7 +475,12 @@ export default function HeroSection({ section, isAdmin, onUpdate, siteSlug }: He
           <SmartLink
             href={section.content.ctaButton.link}
             siteSlug={siteSlug}
-            className="inline-block px-6 py-3 sm:px-8 sm:py-4 bg-white text-gray-900 font-bold text-base sm:text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+            className={
+              themeColor
+                ? "inline-block px-6 py-3 sm:px-8 sm:py-4 font-bold text-base sm:text-lg rounded-lg transition-colors shadow-lg hover:opacity-90"
+                : "inline-block px-6 py-3 sm:px-8 sm:py-4 bg-white text-gray-900 font-bold text-base sm:text-lg rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+            }
+            style={themeColor ? { backgroundColor: themeColor, color: "#fff" } : undefined}
           >
             {section.content.ctaButton.text}
           </SmartLink>
